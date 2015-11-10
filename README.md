@@ -111,30 +111,23 @@ Although flipping the order of function & argument may seem small, it opens sign
 
 ```js
 fetchPlayers()
-  |> pipelinePromise
-  |> players => players.filter( p => p.score > 100 ).map( fetchGames )
-
+  .then(players => players.filter( p => p.score > 100 ).forEach( fetchGames ))
   |> Promise.all
-  |> processGames
+  |> then(processGames)
   |> catchError( ProcessError, err => [] )
-  |> playerGames => playerGames.map( games => console.log(games) )
-
-
-function pipelinePromise (promise) {
-  return function stepper (fn) {
-    promise = promise.then(fn);
-    return stepper;
-  };
-}
+  |> then( forEach(g => console.log(g)) )
 
 function catchError (ErrorClass, handler) {
-  return promise => (promise.catch(catcher) |> pipelinePromise);
+  return promise => promise.catch(catcher);
 
   function catcher (error) {
     if (error typeof ErrorClass) return handler(error);
     else throw error;
   }
 }
+
+function then (handler) {  return promise => promise.then(handler)  }
+function forEach (fn) {  return array => array.map(fn)  }
 ```
 
 This example is significant because we have added useful Promise functionality (`catchError` catches specific rejection errors) **without extending the Promise prototype itself**. If we wanted to add catchError-like functionality using ES6 and stay fluent, we would have to either *extend* Promise.prototype, or *re-implement* the Promise interface (as [bluebird](https://github.com/petkaantonov/bluebird) and others have done).
