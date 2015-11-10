@@ -62,7 +62,7 @@ var person = { score: 75 };
 
 var newScore = person.score
   |> double
-  |> score => add(7, score);
+  |> score => add(7, score)
   |> validateScore
 
 newScore //=> 107
