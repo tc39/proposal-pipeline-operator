@@ -74,17 +74,76 @@ As you can see, because the pipe operator always pipes a single result value, it
 
 ## Motivating Examples
 
-If we were to refactor the previous `validateScore` function using the pipeline operator and partial application, it would look like this:
+### Object Decorators
+
+Mixins via `Object.assign` are great, but sometimes you need something more advanced. A **decorator function** is a function that receives an existing object, adds to it (mutative or not), and then returns the result.
+
+Decorator functions are useful when you want to share behavior across multiple kinds of objects. For example, given the following decorators:
 
 ```js
-function validateScore (score) {
-  return score
-    |> s => Math.max(100, s)
-    |> s => Math.min(0, s);
+function greets (person) {
+  person.greet = () => `${person.name} says hi!`;
+  return person;
+}
+function ages (age) {
+  return function (person) {
+    person.age = age;
+    person.birthday = function () { person.age += 1; };
+    return person;
+  }
+}
+function programs (favLang) {
+  return function (person) {
+    person.favLang = favLang;
+    person.program = () => `${person.name} starts to write ${person.favLang}!`;
+    return person
+  }
 }
 ```
 
-While it has more characters, this expanded form is more scalable code-wise; adding more validation logic would be trivial.
+...you can create multiple "classes" that share one or more behaviors:
+
+```js
+function Person (name, age) {
+  return { name: name } |> greets |> ages(age)
+}
+function Programmer (name, age) {
+  return { name: name }
+    |> greets
+    |> ages(age)
+    |> programs('javascript')
+}
+```
+
+### Validation
+
+Validation is a great use case for pipelining functions. For example, given the following validators:
+
+```js
+function bounded (prop, min, max) {
+  return function (obj) {
+    if ( obj[prop] < min || obj[prop] > max ) throw Error('out of bounds');
+    return obj;
+  };
+}
+function format (prop, regex) {
+  return function (obj) {
+    if ( ! regex.test(obj[prop]) ) throw Error('invalid format')
+    return obj;
+  };
+}
+```
+
+...we can use the pipeline operator to validate objects quite pleasantly:
+
+```js
+function createPerson (attrs) {
+  attrs
+    |> bounded('age', 1, 100)
+    |> format('name', /^[a-z]$/i)
+    |> Person.insertIntoDatabase
+}
+```
 
 ### Usage with Prototypes
 
