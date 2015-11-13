@@ -170,7 +170,7 @@ Although flipping the order of function & argument may seem small, it opens sign
 
 ```js
 fetchPlayers()
-  .then(players => players.filter( p => p.score > 100 ).forEach( fetchGames ))
+  .then(players => players.filter( p => p.score > 100 ).map( fetchGames ))
   |> Promise.all
   |> then(processGames)
   |> catchError( ProcessError, err => [] )
