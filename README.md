@@ -69,7 +69,7 @@ var newScore = person.score
 
 newScore //=> 107
 
-// As opposed to: var newScore = add(7, validateScore( double(person.score) ))
+// As opposed to: var newScore = validateScore( add(7, double(person.score)) )
 ```
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
