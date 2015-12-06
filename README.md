@@ -10,7 +10,7 @@ This proposal introduces a new operator `|>` similar to
 
 ## Introduction
 
-The pipeline operator is essentially a useful syntatic sugar on a function call with a single argument. In other words, `sqrt(64)` is equivalent to `64 |> sqrt`.
+The pipeline operator is essentially a useful syntactic sugar on a function call with a single argument. In other words, `sqrt(64)` is equivalent to `64 |> sqrt`.
 
 This allows for greater readability when chaining several functions together. For example, given the following functions:
 
