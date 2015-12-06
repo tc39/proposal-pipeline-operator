@@ -53,21 +53,21 @@ function double (x) { return x + x; }
 function add (x, y) { return x + y; }
 
 function validateScore (score) {
-  return Math.min(0, Math.max(100, score))
+  return Math.max(0, Math.min(100, score))
 }
 ```
 
 ...you can use an arrow function to handle multi-argument functions (such as `add`):
 
 ```js
-var person = { score: 75 };
+var person = { score: 25 };
 
 var newScore = person.score
   |> double
   |> score => add(7, score)
   |> validateScore
 
-newScore //=> 107
+newScore //=> 57
 
 // As opposed to: var newScore = validateScore( add(7, double(person.score)) )
 ```
