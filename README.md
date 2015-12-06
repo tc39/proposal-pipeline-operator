@@ -188,7 +188,7 @@ function catchError (ErrorClass, handler) {
 }
 
 function then (handler) {  return promise => promise.then(handler)  }
-function forEach (fn) {  return array => array.map(fn)  }
+function forEach (fn) {  return array => array.forEach(fn)  }
 ```
 
 This example is significant because we have added useful Promise functionality (`catchError` catches specific rejection errors) **without extending the Promise prototype itself**. If we wanted to add catchError-like functionality using ES6 and stay fluent, we would have to either *extend* Promise.prototype, or *re-implement* the Promise interface (as [bluebird](https://github.com/petkaantonov/bluebird) and others have done).
