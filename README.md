@@ -174,9 +174,9 @@ Although flipping the order of function & argument may seem small, it opens sign
 
 ```js
 fetchPlayers()
-  .then(players => players.filter( p => p.score > 100 ).map( fetchGames ))
-  |> Promise.all
-  |> then(processGames)
+  .then( players => players.filter( p => p.score > 100 ).map( fetchGames ) )
+  .then( games => Promise.all(games) )
+  .then( processGames )
   |> catchError( ProcessError, err => [] )
   |> then( forEach(g => console.log(g)) )
 
