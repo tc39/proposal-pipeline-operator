@@ -1,4 +1,4 @@
-# ES7 Proposal: The Pipeline Operator
+# ES2016 Proposal: The Pipeline Operator
 
 *Note: Although the JS community is excited about this proposal, its syntax is somewhat controversial. See [Issue #4](https://github.com/mindeavor/es-pipeline-operator/issues/4) for alternative syntaxes and discussion.*
 
