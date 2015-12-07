@@ -184,7 +184,7 @@ function catchError (ErrorClass, handler) {
   return promise => promise.catch(catcher);
 
   function catcher (error) {
-    if (error typeof ErrorClass) return handler(error);
+    if (error instanceof ErrorClass) return handler(error);
     else throw error;
   }
 }
