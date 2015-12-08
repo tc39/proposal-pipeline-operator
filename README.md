@@ -32,10 +32,10 @@ function exclaim (str) {
 ...the following invocations are equivalent:
 
 ```js
-var result = exclaim(capitalize(doubleSay("hello")));
+let result = exclaim(capitalize(doubleSay("hello")));
 result //=> "Hello, hello!"
 
-var result = "hello"
+let result = "hello"
   |> doubleSay
   |> capitalize
   |> exclaim;
@@ -56,23 +56,23 @@ function double (x) { return x + x; }
 function add (x, y) { return x + y; }
 
 function validateScore (score) {
-  return Math.max(0, Math.min(100, score))
+  return Math.max(0, Math.min(100, score));
 }
 ```
 
 ...you can use an arrow function to handle multi-argument functions (such as `add`):
 
 ```js
-var person = { score: 25 };
+let person = { score: 25 };
 
-var newScore = person.score
+let newScore = person.score
   |> double
   |> score => add(7, score)
-  |> validateScore
+  |> validateScore;
 
 newScore //=> 57
 
-// As opposed to: var newScore = validateScore( add(7, double(person.score)) )
+// As opposed to: let newScore = validateScore( add(7, double(person.score)) )
 ```
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
@@ -101,7 +101,7 @@ function programs (favLang) {
   return function (person) {
     person.favLang = favLang;
     person.program = () => `${person.name} starts to write ${person.favLang}!`;
-    return person
+    return person;
   }
 }
 ```
@@ -110,13 +110,13 @@ function programs (favLang) {
 
 ```js
 function Person (name, age) {
-  return { name: name } |> greets |> ages(age)
+  return { name: name } |> greets |> ages(age);
 }
 function Programmer (name, age) {
   return { name: name }
     |> greets
     |> ages(age)
-    |> programs('javascript')
+    |> programs('javascript');
 }
 ```
 
@@ -133,7 +133,7 @@ function bounded (prop, min, max) {
 }
 function format (prop, regex) {
   return function (obj) {
-    if ( ! regex.test(obj[prop]) ) throw Error('invalid format')
+    if ( ! regex.test(obj[prop]) ) throw Error('invalid format');
     return obj;
   };
 }
@@ -146,7 +146,7 @@ function createPerson (attrs) {
   attrs
     |> bounded('age', 1, 100)
     |> format('name', /^[a-z]$/i)
-    |> Person.insertIntoDatabase
+    |> Person.insertIntoDatabase;
 }
 ```
 
@@ -161,7 +161,7 @@ fetchPlayers()
     return players
       .filter( p => p.score > 100 )
       .map( p => fetchGames(p) )
-      |> Promise.all
+      |> Promise.all;
   })
   .then(function (playerGames) {
     // ...
@@ -179,7 +179,7 @@ fetchPlayers()
   .then( games => Promise.all(games) )
   .then( processGames )
   |> catchError( ProcessError, err => [] )
-  |> then( forEach(g => console.log(g)) )
+  |> then( forEach(g => console.log(g)) );
 
 function catchError (ErrorClass, handler) {
   return promise => promise.catch(catcher);
@@ -190,8 +190,8 @@ function catchError (ErrorClass, handler) {
   }
 }
 
-function then (handler) {  return promise => promise.then(handler)  }
-function forEach (fn) {  return array => array.forEach(fn)  }
+function then (handler) {  return promise => promise.then(handler);  }
+function forEach (fn) {  return array => array.forEach(fn);  }
 ```
 
 This example is significant because we have added useful Promise functionality (`catchError` catches specific rejection errors) **without extending the Promise prototype itself**. If we wanted to add catchError-like functionality using ES6 and stay fluent, we would have to either *extend* Promise.prototype, or *re-implement* the Promise interface (as [bluebird](https://github.com/petkaantonov/bluebird) and others have done).
