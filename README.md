@@ -90,14 +90,14 @@ function greets (person) {
   return person;
 }
 function ages (age) {
-  return person => {
+  return function (person) {
     person.age = age;
-    person.birthday = () => { person.age += 1; };
+    person.birthday = function () { person.age += 1; };
     return person;
   }
 }
 function programs (favLang) {
-  return person => {
+  return function (person) {
     person.favLang = favLang;
     person.program = () => `${person.name} starts to write ${person.favLang}!`;
     return person;
@@ -125,13 +125,13 @@ Validation is a great use case for pipelining functions. For example, given the 
 
 ```js
 function bounded (prop, min, max) {
-  return obj => {
+  return function (obj) {
     if ( obj[prop] < min || obj[prop] > max ) throw Error('out of bounds');
     return obj;
   };
 }
 function format (prop, regex) {
-  return obj => {
+  return function (obj) {
     if ( ! regex.test(obj[prop]) ) throw Error('invalid format');
     return obj;
   };
@@ -156,13 +156,13 @@ Although the pipe operator operates well with functions that don't use `this`, i
 ```js
 
 fetchPlayers()
-  .then( players => {
+  .then(function (players) {
     return players
       .filter( p => p.score > 100 )
       .map( p => fetchGames(p) )
       |> Promise.all;
   })
-  .then( playerGames => {
+  .then(function (playerGames) {
     // ...
   })
 
