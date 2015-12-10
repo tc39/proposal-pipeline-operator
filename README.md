@@ -196,7 +196,7 @@ This example is significant because we have added useful Promise functionality (
 
 ## Syntax Behavior
 
-The pipeline operator is quick – it matches the first invocation it sees. If there is no invocation, a Syntax Error is thrown.
+In general, the pipeline operator matches the first invocation it sees. If there is no invocation, a Syntax Error is thrown.
 
 ```js
 //
