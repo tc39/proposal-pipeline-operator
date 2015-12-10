@@ -157,18 +157,15 @@ function createPerson (attrs) {
 Although the pipe operator operates well with functions that don't use `this`, it can still integrate nicely into current workflows:
 
 ```js
+import Lazy from 'lazy.js'
 
-fetchPlayers()
-  .then(function (players) {
-    return players
-      .filter( p => p.score > 100 )
-      .map( p => fetchGames(p) )
-      |> Promise.all;
-  })
-  .then(function (playerGames) {
-    // ...
-  })
-
+getAllPlayers()
+  .filter( p => p.score > 100 )
+  .sort()
+|> _ => Lazy(_)
+  .map( p => p.name )
+  .take(5)
+|> _ => renderLeaderboard('#my-div', _);
 ```
 
 ### Sample Usage with Promises
