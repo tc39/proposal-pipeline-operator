@@ -82,6 +82,32 @@ Piping to the last argument allows easy use of multiple-parameter functions, wit
 
 ## Motivating Examples
 
+### Validation
+
+Validation is a great use case for pipelining functions. For example, given the following validators:
+
+```js
+function bounded (prop, min, max, obj) {
+  if ( obj[prop] < min || obj[prop] > max ) throw Error('out of bounds');
+  return obj;
+}
+function format (prop, regex, obj) {
+  if ( ! regex.test(obj[prop]) ) throw Error('invalid format')
+  return obj;
+}
+```
+
+...we can use the pipeline operator to validate objects quite pleasantly:
+
+```js
+function createPerson (attrs) {
+  attrs
+    |> bounded('age', 1, 100)
+    |> format('name', /^[a-z]$/i)
+    |> Person.insertIntoDatabase();
+}
+```
+
 ### Object Decorators
 
 Mixins via `Object.assign` are great, but sometimes you need something more advanced. A **decorator function** is a function that receives an existing object, adds to it (mutative or not), and then returns the result.
@@ -116,32 +142,6 @@ function Programmer (name, age) {
     |> greets()
     |> ages(age)
     |> programs('javascript');
-}
-```
-
-### Validation
-
-Validation is a great use case for pipelining functions. For example, given the following validators:
-
-```js
-function bounded (prop, min, max, obj) {
-  if ( obj[prop] < min || obj[prop] > max ) throw Error('out of bounds');
-  return obj;
-}
-function format (prop, regex, obj) {
-  if ( ! regex.test(obj[prop]) ) throw Error('invalid format')
-  return obj;
-}
-```
-
-...we can use the pipeline operator to validate objects quite pleasantly:
-
-```js
-function createPerson (attrs) {
-  attrs
-    |> bounded('age', 1, 100)
-    |> format('name', /^[a-z]$/i)
-    |> Person.insertIntoDatabase();
 }
 ```
 
