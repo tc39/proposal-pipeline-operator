@@ -92,7 +92,7 @@ function bounded (prop, min, max, obj) {
   return obj;
 }
 function format (prop, regex, obj) {
-  if ( ! regex.test(obj[prop]) ) throw Error('invalid format')
+  if ( ! regex.test(obj[prop]) ) throw Error('invalid format');
   return obj;
 }
 ```
@@ -166,7 +166,7 @@ getAllPlayers()
 //   Lazy( getAllPlayers().filter( p => p.score > 100).sort() )
 //   .map( p => p.name )
 //   .take(5)
-// }
+// );
 ```
 
 As you can see, the pipeline operator populates the very first invocation it finds with its argument. This is critical for allowing a fluent programming style, interwieving function calls with method calls.
