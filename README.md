@@ -1,5 +1,7 @@
 # ES7 Proposal: The Pipeline Operator
 
+*NOTE: This version of the pipeline operator proposal is [currently being discussed here](https://github.com/mindeavor/es-pipeline-operator/issues/20).*
+
 This proposal introduces a new operator `|>` similar to
   [F#](https://en.wikibooks.org/wiki/F_Sharp_Programming/Higher_Order_Functions#The_.7C.3E_Operator),
   [OCaml](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VAL%28|%3E%29),
