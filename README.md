@@ -75,7 +75,7 @@ newScore //=> 57
 // As opposed to: let newScore = validateScore( add(7, double(person.score)) )
 ```
 
-*Note: The use of underscore `_` is not required; it's just an arrow funciton, so you can use any parameter name you like.*
+*Note: The use of underscore `_` is not required; it's just an arrow function, so you can use any parameter name you like.*
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
 
