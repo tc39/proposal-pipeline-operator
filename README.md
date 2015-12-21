@@ -72,7 +72,7 @@ let newScore = person.score
 
 newScore //=> 57
 
-// As opposed to: let newScore = validateScore( add(7, double(person.score)) )
+// As opposed to: let newScore = boundScore( 0, 100, add(7, double(person.score)) )
 ```
 
 *Note: The use of underscore `_` is not required; it's just an arrow function, so you can use any parameter name you like.*
