@@ -43,8 +43,6 @@ let result = "hello"
 result //=> "Hello, hello!"
 ```
 
-The pipeline operator does not just provide better readability – it also opens [new possibilities](#sample-usage-with-promises) for API design.
-
 ### Functions with Multiple Arguments
 
 The pipeline operator does not need any special rules for functions with multiple arguments; JavaScript already has ways to handle such cases.
@@ -185,30 +183,3 @@ async function runTask () {
     |> console.log
 }
 ```
-
-### Sample Usage with Promises
-
-Although flipping the order of function & argument may seem small, it opens significant possibilities for API design:
-
-```js
-fetchPlayers()
-  .then( players => players.filter( p => p.score > 100 ).map( fetchGames ) )
-  .then( games => Promise.all(games) )
-  .then( processGames )
-  |> catchError( ProcessError, err => [] )
-  |> then( forEach(g => console.log(g)) );
-
-function catchError (ErrorClass, handler) {
-  return promise => promise.catch(catcher);
-
-  function catcher (error) {
-    if (error instanceof ErrorClass) return handler(error);
-    else throw error;
-  }
-}
-
-function then (handler) {  return promise => promise.then(handler);  }
-function forEach (fn) {  return array => array.forEach(fn);  }
-```
-
-This example is significant because we have added useful Promise functionality (`catchError` catches specific rejection errors) **without extending the Promise prototype itself**. If we wanted to add catchError-like functionality using ES6 and stay fluent, we would have to either *extend* Promise.prototype, or *re-implement* the Promise interface (as [bluebird](https://github.com/petkaantonov/bluebird) and others have done).
