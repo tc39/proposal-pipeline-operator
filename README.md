@@ -1,6 +1,6 @@
 # ES7 Proposal: The Pipeline Operator
 
-*Note: Although the JS community is excited about this proposal, minor semantics are still being discussed. See [Issue #23](https://github.com/mindeavor/es-pipeline-operator/issues/23) for discussion.*
+Operator semantics have reached some consensus, though you can weigh in on [Issue #23](https://github.com/mindeavor/es-pipeline-operator/issues/23) if you have any thoughts.  *[This proposal needs a TC39 champion!](https://github.com/mindeavor/es-pipeline-operator/issues/33)*
 
 This proposal introduces a new operator `|>` similar to
   [F#](https://en.wikibooks.org/wiki/F_Sharp_Programming/Higher_Order_Functions#The_.7C.3E_Operator),
