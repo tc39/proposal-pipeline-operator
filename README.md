@@ -1,15 +1,17 @@
 # ES7 Proposal: The Pipeline Operator
 
-*Note: Although the JS community is excited about this proposal, minor semantics are still being discussed. See [Issue #23](https://github.com/mindeavor/es-pipeline-operator/issues/23) for discussion.*
-
 This proposal introduces a new operator `|>` similar to
   [F#](https://en.wikibooks.org/wiki/F_Sharp_Programming/Higher_Order_Functions#The_.7C.3E_Operator),
-  [OCaml](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VAL%28|%3E%29), 
+  [OCaml](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VAL%28|%3E%29),
   [Elixir](https://www.safaribooksonline.com/library/view/programming-elixir/9781680500530/f_0057.html),
   [Elm](https://edmz.org/design/2015/07/29/elm-lang-notes.html),
   [Julia](http://docs.julialang.org/en/release-0.4/stdlib/base/?highlight=|%3E#Base.|%3E),
   and [LiveScript](http://livescript.net/#piping),
   as well as UNIX pipes. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
+
+## Sidenote
+
+Hello, functional-programming friends! If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/mindeavor/es-papp). Take a look and star if you like it!
 
 ## Introduction
 
