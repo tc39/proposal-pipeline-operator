@@ -79,6 +79,23 @@ newScore //=> 57
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
 
+### Usage with Function.prototype.papp
+
+If the [papp proposal](https://github.com/mindeavor/es-papp) gets accepted, the pipeline op would be even easier to use. Rewriting the previous example:
+
+```js
+let person = { score: 25 };
+
+let newScore = person.score
+  |> double
+  |> add.papp(7)
+  |> boundScore.papp(0, 100);
+
+newScore //=> 57
+```
+
+Clean! Also, `papp` is [easy to polyfill](https://github.com/mindeavor/es-papp#polyfill), so you don't have to wait to make use of its benefits.
+
 ## Motivating Examples
 
 ### Object Decorators
