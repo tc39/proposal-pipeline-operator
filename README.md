@@ -184,3 +184,7 @@ getAllPlayers()
   .take(5)
 |> _ => renderLeaderboard('#my-div', _);
 ```
+
+### Real-world Use Cases
+
+Check out the [Example Use Cases](https://github.com/mindeavor/es-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
