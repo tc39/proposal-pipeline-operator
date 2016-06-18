@@ -184,21 +184,3 @@ getAllPlayers()
   .take(5)
 |> _ => renderLeaderboard('#my-div', _);
 ```
-
-### Sample Usage with `async` / `await`
-
-The pipeline operator integrates cleanly with the [ES7 async/await proposal](https://tc39.github.io/ecmascript-asyncawait/), giving you the ability to pipeline even asynchronous tasks:
-
-```js
-// Assume fs.readFile is an `async` function
-async function runTask () {
-  './index.txt'
-    |> await fs.readFile
-    |> file => file
-       .split('\n')
-       .map(fs.readFile)
-    |> await Promise.all
-    |> all => all.join("\n")
-    |> console.log
-}
-```
