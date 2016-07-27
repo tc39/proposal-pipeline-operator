@@ -1,4 +1,4 @@
-# ES7 Proposal: The Pipeline Operator
+# ESNext Proposal: The Pipeline Operator
 
 This proposal introduces a new operator `|>` similar to
   [F#](https://en.wikibooks.org/wiki/F_Sharp_Programming/Higher_Order_Functions#The_.7C.3E_Operator),
