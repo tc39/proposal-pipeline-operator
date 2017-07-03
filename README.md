@@ -6,6 +6,7 @@ This proposal introduces a new operator `|>` similar to
   [Elixir](https://www.safaribooksonline.com/library/view/programming-elixir/9781680500530/f_0057.html),
   [Elm](https://edmz.org/design/2015/07/29/elm-lang-notes.html),
   [Julia](http://docs.julialang.org/en/release-0.4/stdlib/base/?highlight=|%3E#Base.|%3E),
+  [Hack](https://docs.hhvm.com/hack/operators/pipe-operator),
   and [LiveScript](http://livescript.net/#piping),
   as well as UNIX pipes. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
 
