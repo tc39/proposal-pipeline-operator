@@ -186,6 +186,35 @@ getAllPlayers()
 |> _ => renderLeaderboard('#my-div', _);
 ```
 
+### Mixins
+
+["Real" Mixins](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/) have some syntax problems, but the pipeline operator cleans them up quite nicely. For example, given the following classes and mixins:
+
+```js
+class Model {
+  // ...
+}
+let Editable = superclass => class extends superclass {
+  // ...
+};
+let Sharable = superclass => class extends superclass {
+  // ...
+};
+```
+
+... we can use the pipeline operator to create a new class that extends `Model` and mixes `Editable` and `Sharable`, with a more readable syntax:
+
+```js
+// Before:
+class Comment extends Sharable(Editable(Model)) {
+  // ...
+}
+// After:
+class Comment extends Model |> Editable |> Sharable {
+  // ...
+}
+```
+
 ### Real-world Use Cases
 
 Check out the [Example Use Cases](https://github.com/mindeavor/es-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
