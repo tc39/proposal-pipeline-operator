@@ -49,13 +49,13 @@ contributors: Daniel Ehrenberg
         1. Let _arg_ be ? GetValue(_argRef_).
         1. Let _funcRef_ be the result of evaluating |LogicalORExpression|.
         1. Let _func_ be ? GetValue(_funcRef_).
-        1. If Type(_ref_) is Reference, then
-          1. If IsPropertyReference(_ref_) is *true*, then
-            1. Let _thisValue_ be GetThisValue(_ref_).
-          1. Else the base of _ref_ is an Environment Record,
-            1. Let _refEnv_ be GetBase(_ref_).
+        1. If Type(_funcRef_) is Reference, then
+          1. If IsPropertyReference(_funcRef_) is *true*, then
+            1. Let _thisValue_ be GetThisValue(_funcRef_).
+          1. Else the base of _funcRef_ is an Environment Record,
+            1. Let _refEnv_ be GetBase(_funcRef_).
             1. Let _thisValue_ be _refEnv_.WithBaseObject().
-        1. Else Type(_ref_) is not Reference,
+        1. Else Type(_funcRef_) is not Reference,
           1. Let _thisValue_ be *undefined*.
         1. If Type(_func_) is not Object, throw a *TypeError* exception.
         1. If IsCallable(_func_) is *false*, throw a *TypeError* exception.
