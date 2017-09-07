@@ -14,6 +14,8 @@ This proposal introduces a new operator `|>` similar to
 
 Hello, functional-programming friends! If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/mindeavor/es-papp). Take a look and star if you like it!
 
+You may also be interested in [this separate proposal for a function composition operator](https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition)!
+
 ## Introduction
 
 The pipeline operator is essentially a useful syntactic sugar on a function call with a single argument. In other words, `sqrt(64)` is equivalent to `64 |> sqrt`.
