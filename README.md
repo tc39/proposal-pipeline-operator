@@ -102,7 +102,7 @@ const userAge = getAgeFromUser(await fetchUserById(userId))
 
 You can also `yield` and/or `yield await` in a function pipeline the same way.
 
-Basically, `|> await` / `|> yield` / `|> yield await` would be seen to be `await`ing or `yield`ing or `yield await`ing the result of the function with the argument supplied.
+Basically, `|>` would glue with a higher precedence than `await` and `yield`, and `|> await` / `|> yield` / `|> yield await` would be seen to be `await`ing or `yield`ing or `yield await`ing the result of the function with the argument supplied.
 
 ### Usage with Function.prototype.papp
 
