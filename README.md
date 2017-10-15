@@ -94,7 +94,7 @@ You can `await` in a function pipeline as follows:
 const userAge = userId |> await fetchUserById |> getAgeFromUser
 ```
 
-which would parsed identically to
+which would be parsed identically to
 
 ```js
 const userAge = getAgeFromUser(await fetchUserById(userId))
