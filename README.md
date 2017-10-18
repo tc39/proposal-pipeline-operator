@@ -16,9 +16,10 @@ Hello, functional-programming friends! If you like this proposal, you will certa
 
 You may also be interested in these separate proposals for a function composition operator:
 
-https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition
-https://github.com/isiahmeadows/function-composition-proposal
-https://github.com/simonstaton/Function.prototype.compose-TC39-Proposal
+- Operator: [TheNavigateur/proposal-pipeline-operator-for-function-composition](https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition)
+- Operator: [isiahmeadows/function-composition-proposal](https://github.com/isiahmeadows/function-composition-proposal)
+- Method: [simonstaton/Function.prototype.compose-TC39-Proposal](https://github.com/simonstaton/Function.prototype.compose-TC39-Proposal)
+- Function: [fantasyland/ECMAScript-proposals (issue #1 comment)](https://github.com/fantasyland/ECMAScript-proposals/issues/1#issuecomment-306243513)
 
 ## Introduction
 
