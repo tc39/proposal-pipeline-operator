@@ -100,7 +100,7 @@ which is the equivalent of
 await promise
 ```
 
-This is to allow you to `await` the result of an asynchronous function and pass it to the next function in a function pipeline, as follows:
+This is to allow you to `await` the result of an asynchronous function and pass it to the next function from within a function pipeline, as follows:
 
 ```js
 const userAge = userId |> fetchUserById |> await |> getAgeFromUser
