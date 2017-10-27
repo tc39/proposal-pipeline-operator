@@ -86,23 +86,31 @@ newScore //=> 57
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
 
-### Use of `await` and `yield`
+### Use of `await`
 
-You can `await` in a function pipeline as follows:
+The pipeline operator allows a `Promise` to be `await`ed as follows:
 
 ```js
-const userAge = userId |> await fetchUserById |> getAgeFromUser
+promise |> await
 ```
 
-which would be parsed identically to
+which is the equivalent of
+
+```js
+await promise
+```
+
+This is to allow you to `await` the result of an asynchronous function and pass it to the next function from within a function pipeline as follows:
+
+```js
+const userAge = userId |> fetchUserById |> await |> getAgeFromUser
+```
+
+which is the equivalent of
 
 ```js
 const userAge = getAgeFromUser(await fetchUserById(userId))
 ```
-
-You can also `yield` and/or `yield await` in a function pipeline the same way.
-
-Basically, `|> await` / `|> yield` / `|> yield await` would be seen to be `await`ing or `yield`ing or `yield await`ing the result of the function with the argument supplied.
 
 ### Usage with Function.prototype.papp
 
