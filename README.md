@@ -87,6 +87,32 @@ newScore //=> 57
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
 
+### Use of `await`
+
+The pipeline operator allows a `Promise` to be `await`ed as follows:
+
+```js
+promise |> await
+```
+
+which is the equivalent of
+
+```js
+await promise
+```
+
+This is to allow you to `await` the result of an asynchronous function and pass it to the next function from within a function pipeline, as follows:
+
+```js
+const userAge = userId |> fetchUserById |> await |> getAgeFromUser
+```
+
+which is the equivalent of
+
+```js
+const userAge = getAgeFromUser(await fetchUserById(userId))
+```
+
 ### Usage with Function.prototype.papp
 
 If the [papp proposal](https://github.com/mindeavor/es-papp) gets accepted, the pipeline op would be even easier to use. Rewriting the previous example:
