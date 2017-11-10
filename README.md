@@ -78,22 +78,23 @@ As you can see, because the pipe operator always pipes a single result value, it
 
 ### Use of `await`
 
-The pipeline operator allows a `Promise` to be `await`ed as follows:
+The pipeline operator allows the result of a `Promise`-returning function to be `await`ed as follows:
+
 
 ```js
-promise |> await
+x |> await f
 ```
 
 which is the equivalent of
 
 ```js
-await promise
+await f(x)
 ```
 
 This is to allow you to `await` the result of an asynchronous function and pass it to the next function from within a function pipeline, as follows:
 
 ```js
-const userAge = userId |> fetchUserById |> await |> getAgeFromUser
+const userAge = userId |> await fetchUserById |> getAgeFromUser
 ```
 
 which is the equivalent of
