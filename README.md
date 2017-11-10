@@ -10,17 +10,6 @@ This proposal introduces a new operator `|>` similar to
   and [LiveScript](http://livescript.net/#piping),
   as well as UNIX pipes. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
 
-## Sidenote
-
-Hello, functional-programming friends! If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/mindeavor/es-papp). Take a look and star if you like it!
-
-You may also be interested in these separate proposals for a function composition operator:
-
-- Operator: [TheNavigateur/proposal-pipeline-operator-for-function-composition](https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition)
-- Operator: [isiahmeadows/function-composition-proposal](https://github.com/isiahmeadows/function-composition-proposal)
-- Method: [simonstaton/Function.prototype.compose-TC39-Proposal](https://github.com/simonstaton/Function.prototype.compose-TC39-Proposal)
-- Function: [fantasyland/ECMAScript-proposals (issue #1 comment)](https://github.com/fantasyland/ECMAScript-proposals/issues/1#issuecomment-306243513)
-
 ## Introduction
 
 The pipeline operator is essentially a useful syntactic sugar on a function call with a single argument. In other words, `sqrt(64)` is equivalent to `64 |> sqrt`.
@@ -251,3 +240,14 @@ class Comment extends Model |> Editable |> Sharable {
 ### Real-world Use Cases
 
 Check out the [Example Use Cases](https://github.com/mindeavor/es-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
+
+## Related proposals
+
+If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/mindeavor/es-papp). Take a look and star if you like it!
+
+You may also be interested in these separate proposals for a function composition operator:
+
+- Operator: [TheNavigateur/proposal-pipeline-operator-for-function-composition](https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition)
+- Operator: [isiahmeadows/function-composition-proposal](https://github.com/isiahmeadows/function-composition-proposal)
+- Method: [simonstaton/Function.prototype.compose-TC39-Proposal](https://github.com/simonstaton/Function.prototype.compose-TC39-Proposal)
+- Function: [fantasyland/ECMAScript-proposals (issue #1 comment)](https://github.com/fantasyland/ECMAScript-proposals/issues/1#issuecomment-306243513)
