@@ -78,29 +78,7 @@ As you can see, because the pipe operator always pipes a single result value, it
 
 ### Use of `await`
 
-The pipeline operator allows a `Promise` to be `await`ed as follows:
-
-```js
-promise |> await
-```
-
-which is the equivalent of
-
-```js
-await promise
-```
-
-This is to allow you to `await` the result of an asynchronous function and pass it to the next function from within a function pipeline, as follows:
-
-```js
-const userAge = userId |> fetchUserById |> await |> getAgeFromUser
-```
-
-which is the equivalent of
-
-```js
-const userAge = getAgeFromUser(await fetchUserById(userId))
-```
+The pipeline operator does not have any special integration with async/await in its initial version, due to [issues](https://github.com/tc39/proposal-pipeline-operator/issues/66) with various alternatives discussed. To leave space for future additions to integrate await support, the not-very-useful sequence `|> await` (which would otherwise await a function, not the result of calling a function) is a SyntaxError.
 
 ### Usage with Function.prototype.papp
 
