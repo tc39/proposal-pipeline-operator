@@ -34,20 +34,21 @@ contributors: Daniel Ehrenberg
     <ins>
       PipelineExpression[In, Yield, Await] :
         LogicalORExpression[?In, ?Yield, ?Await]
-        PipelineExpression[?In, ?Yield, ?Await] `|>` LogicalORExpression[?In, ?Yield, ?Await]
+        [~Await] PipelineExpression[?In, ?Yield, ?Await] `|>` LogicalORExpression[?In, ?Yield, ?Await]
+        [+Await] PipelineExpression[?In, ?Yield, ?Await] `|>` [lookahead &lt;! {`await`}] LogicalORExpression[?In, ?Yield, ?Await]
     </ins>
   </emu-grammar>
 </emu-clause>
 
 <emu-clause id=sec-pipeline-semantics>
   <h1>Semantics</h1>
-  <emu-clause id=sec-pipeline-evaluation>
-    <h1>Runtime Semantics: Evaluation</h1>
-    <emu-grammar>PipelineExpression : PipelineExpression '|>` LogicalORExpression</emu-grammar>
+  <emu-clause id="sec-pipeline-evaluate">
+    <h1>Runtime Semantics: PipelineEvaluate</h1>
+    PipelineEvaluate for _lhs_ and _rhs_ performs the following steps:
     <emu-alg>
-        1. Let _argRef_ be the result of evaluating |PipelineExpression|.
+        1. Let _argRef_ be the result of evaluating _lhs_.
         1. Let _arg_ be ? GetValue(_argRef_).
-        1. Let _funcRef_ be the result of evaluating |LogicalORExpression|.
+        1. Let _funcRef_ be the result of evaluating _rhs_.
         1. Let _func_ be ? GetValue(_funcRef_).
         1. If Type(_funcRef_) is Reference, then
           1. If IsPropertyReference(_funcRef_) is *true*, then
@@ -69,6 +70,20 @@ contributors: Daniel Ehrenberg
     </emu-alg>
     <emu-note>All calls to eval from a pipeline operator are indirect eval calls.</emu-note>
     <emu-note type="editor">This definition is somewhat duplicated from the definition of evaluating CallExpression; when merging with the main specification, a refactoring will be done to de-duplicate it.</emu-note>
+  </emu-clause>
+
+
+  <emu-clause id=sec-pipeline-evaluation>
+    <h1>Runtime Semantics: Evaluation</h1>
+    <emu-grammar>PipelineExpression : PipelineExpression `|>` LogicalORExpression</emu-grammar>
+    <emu-alg>
+        1. Let _result_ be the result of PipelineEvaluate for |PipelineExpression| and |LogicalORExpression|.
+        1. Return _result_.
+    </emu-alg>
+    <emu-grammar>PipelineExpression : LogicalORExpression</emu-grammar>
+    <emu-alg>
+        1. Return the result of evaluating |LogicalORExpression|.
+    </emu-alg>
   </emu-clause>
   <emu-clause id=sec-pipeline-has-call-in-tail-position>
     <h1>Static Semantics: HasCallInTailPosition</h1>
