@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "proposal-pipeline-operator",
+  "version": "1.0.0",
+  "description": "ECMAScript Pipeline Operator proposal",
+  "repository": "tc39/proposal-pipeline-operator",
+  "author": "ECMA TC39",
+  "license": "SEE LICENSE IN https://tc39.github.io/ecma262/#sec-copyright-and-software-license",
+  "homepage": "https://tc39.github.io/proposal-pipeline-operator/",
+  "dependencies": {
+    "ecmarkup": "^3.12.0"
+  },
+  "devDependencies": {
+    "@alrra/travis-scripts": "^3.0.0"
+  }
+}

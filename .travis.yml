@@ -1,0 +1,16 @@
+sudo: off
+
+language: node_js
+
+node_js:
+  - "8"
+
+script:
+  - bash ./deploy.sh
+
+env:
+  global:
+    - ENCRYPTION_LABEL: "bc1f69dfbe70"
+    - GH_USER_NAME: "littledan"
+    - GH_USER_EMAIL: "littledan@igalia.com"
+    - PRIVATE_KEY_FILE_NAME: "github_deploy_key.enc"
