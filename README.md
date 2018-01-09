@@ -105,20 +105,18 @@ const userAge = getAgeFromUser(await fetchUserById(userId))
 
 ### Usage with Function.prototype.papp
 
-If the [papp proposal](https://github.com/mindeavor/es-papp) gets accepted, the pipeline op would be even easier to use. Rewriting the previous example:
+If the [partial application proposal](https://github.com/rbuckton/proposal-partial-application) (currently a [stage 1 proposal](https://github.com/rbuckton/proposal-partial-application)) gets accepted, the pipeline operator would be even easier to use. We would then be able to rewrite the previous example like so:
 
 ```js
 let person = { score: 25 };
 
 let newScore = person.score
   |> double
-  |> add.papp(7)
-  |> boundScore.papp(0, 100);
+  |> add(7, ?)
+  |> boundScore(0, 100, ?);
 
 newScore //=> 57
 ```
-
-Clean! Also, `papp` is [easy to polyfill](https://github.com/mindeavor/es-papp#polyfill), so you don't have to wait to make use of its benefits.
 
 ## Motivating Examples
 
