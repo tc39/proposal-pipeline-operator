@@ -103,7 +103,7 @@ which is the equivalent of
 const userAge = getAgeFromUser(await fetchUserById(userId))
 ```
 
-### Usage with Function.prototype.papp
+### Usage with `?` partial application syntax
 
 If the [partial application proposal](https://github.com/rbuckton/proposal-partial-application) (currently a [stage 1 proposal](https://github.com/rbuckton/proposal-partial-application)) gets accepted, the pipeline operator would be even easier to use. We would then be able to rewrite the previous example like so:
 
@@ -242,7 +242,7 @@ Check out the [Example Use Cases](https://github.com/mindeavor/es-pipeline-opera
 
 ## Related proposals
 
-If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/mindeavor/es-papp). Take a look and star if you like it!
+If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/rbuckton/proposal-partial-application). Take a look and star if you like it!
 
 You may also be interested in these separate proposals for a function composition operator:
 
