@@ -37,6 +37,8 @@ contributors: Daniel Ehrenberg
         [~Await] PipelineExpression[?In, ?Yield, ?Await] `|>` LogicalORExpression[?In, ?Yield, ?Await]
         [+Await] PipelineExpression[?In, ?Yield, ?Await] `|>` [lookahead &lt;! {`await`}] LogicalORExpression[?In, ?Yield, ?Await]
         [+Await] PipelineExpression[?In, ?Yield, ?Await] `|>` `await` LogicalORExpression[?In, ?Yield, ?Await]
+        PipelineExpression[?In, ?Yield, ?Await] `|>` ArrowFunction[?In, ?Yield, ?Await]
+        PipelineExpression[?In, ?Yield, ?Await] `|>` AsyncArrowFunction[?In, ?Yield, ?Await]
     </ins>
   </emu-grammar>
 </emu-clause>
