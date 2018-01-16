@@ -240,6 +240,16 @@ class Comment extends Model |> Editable |> Sharable {
 
 Check out the [Example Use Cases](https://github.com/mindeavor/es-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
 
+## Implementations
+
+### Browser
+
+* Firefox 58+ has pipeline support behind the `--enable-pipeline-operator` compile flag
+
+### Build Tools
+
+[@babel/plugin-proposal-pipeline-operator](https://github.com/babel/babel/tree/master/packages/babel-plugin-proposal-pipeline-operator)
+
 ## Related proposals
 
 If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/rbuckton/proposal-partial-application). Take a look and star if you like it!
