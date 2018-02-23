@@ -10,6 +10,8 @@ This proposal introduces a new operator `|>` similar to
   and [LiveScript](http://livescript.net/#piping),
   as well as UNIX pipes. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
 
+**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**four competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) that are being considered. Work is currently underway, for each proposal, to [write formal specifications and implement Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) before this operator will be presented to TC39 again. This readme’s examples specifically show [Proposal 1: **F-sharp Style Only**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-1-f-sharp-style-only). Other proposals include [Proposal 2: **Hack Style Only**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-2-hack-style-only), [Proposal 3: **Split Mix**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix), and [Proposal 4: **Smart Mix**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-smart-mix). See [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
+
 ## Introduction
 
 The pipeline operator is essentially a useful syntactic sugar on a function call with a single argument. In other words, `sqrt(64)` is equivalent to `64 |> sqrt`.
