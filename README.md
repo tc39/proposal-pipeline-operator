@@ -203,10 +203,10 @@ import Lazy from 'lazy.js'
 getAllPlayers()
   .filter( p => p.score > 100 )
   .sort()
-|> _ => Lazy(_)
+|> (_ => Lazy(_)
   .map( p => p.name )
-  .take(5)
-|> _ => renderLeaderboard('#my-div', _);
+  .take(5))
+|> (_ => renderLeaderboard('#my-div', _));
 ```
 
 ### Mixins
