@@ -94,30 +94,7 @@ As you can see, because the pipe operator always pipes a single result value, it
 
 ### Use of `await`
 
-The pipeline operator allows the result of a `Promise`-returning function to be `await`ed as follows:
-
-
-```js
-x |> await f
-```
-
-which is the equivalent of
-
-```js
-await f(x)
-```
-
-This is to allow you to `await` the result of an asynchronous function and pass it to the next function from within a function pipeline, as follows:
-
-```js
-const userAge = userId |> await fetchUserById |> getAgeFromUser
-```
-
-which is the equivalent of
-
-```js
-const userAge = getAgeFromUser(await fetchUserById(userId))
-```
+The current minimal proposal makes `|> await f` an early error, so there is no support currently for `await` in the pipeline. Each proposal has a different solution to `await` in a pipeline, so support is planned. Please see the respective proposals for their solutions.
 
 ### Usage with `?` partial application syntax
 
