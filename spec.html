@@ -36,7 +36,6 @@ contributors: Daniel Ehrenberg
         LogicalORExpression[?In, ?Yield, ?Await]
         [~Await] PipelineExpression[?In, ?Yield, ?Await] `|>` LogicalORExpression[?In, ?Yield, ?Await]
         [+Await] PipelineExpression[?In, ?Yield, ?Await] `|>` [lookahead &lt;! {`await`}] LogicalORExpression[?In, ?Yield, ?Await]
-        [+Await] PipelineExpression[?In, ?Yield, ?Await] `|>` `await` LogicalORExpression[?In, ?Yield, ?Await]
     </ins>
   </emu-grammar>
 </emu-clause>
@@ -80,11 +79,6 @@ contributors: Daniel Ehrenberg
     <emu-alg>
         1. Let _result_ be the result of PipelineEvaluate for |PipelineExpression| and |LogicalORExpression|.
         1. Return _result_.
-    </emu-alg>
-    <emu-grammar>PipelineExpression : PipelineExpression `|>` `await` LogicalORExpression</emu-grammar>
-    <emu-alg>
-        1. Let _result_ be the result of PipelineEvaluate for |PipelineExpression| and |LogicalORExpression|.
-        1. Return ? AsyncFunctionAwait(_result_).
     </emu-alg>
     <emu-grammar>PipelineExpression : LogicalORExpression</emu-grammar>
     <emu-alg>
