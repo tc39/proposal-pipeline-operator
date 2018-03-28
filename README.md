@@ -12,16 +12,14 @@ This proposal introduces a new operator `|>` similar to
 
 ***
 
-**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**four competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) that are being considered. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
+**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**two competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) under consideration. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
 
 Those proposals are as follows:
 
-* [Proposal 1: **F-sharp Style Only**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-1-f-sharp-style-only)
-* [Proposal 2: **Hack Style Only**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-2-hack-style-only)
-* [Proposal 3: **Split Mix**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix)
-* Proposal 4: **Smart Mix**: [Smart Pipelines **Explainer**](https://github.com/js-choi/proposal-smart-pipelines/blob/master/readme.md) + [Smart Pipelines **Specification**](https://jschoi.org/18/es-smart-pipelines/spec)
+* [**F# Pipelines**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-1-f-sharp-style-only)
+* **Smart Pipelines**: [**Explainer**](https://github.com/js-choi/proposal-smart-pipelines/blob/master/readme.md) + [**Specification**](https://jschoi.org/18/es-smart-pipelines/spec)
 
-[Formal specifications and Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for Proposals 1 & 4 are already underway to gather feedback.
+[Formal specifications and Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for are already underway to gather feedback.
 
 See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1eFFRK1wLIazIuK0F6fY974OIDvvWXS890XAMB59PUBA/edit#slide=id.p) as well as [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
 
