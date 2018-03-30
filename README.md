@@ -251,6 +251,6 @@ If you like this proposal, you will certainly like the [proposal for easier part
 You may also be interested in these separate proposals for a function composition operator:
 
 - Operator: [TheNavigateur/proposal-pipeline-operator-for-function-composition](https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition)
-- Operator: [isiahmeadows/function-composition-proposal](https://github.com/isiahmeadows/function-composition-proposal)
+- Operator (generalized): [isiahmeadows/lifted-pipeline-strawman](https://github.com/isiahmeadows/lifted-pipeline-strawman)
 - Method: [simonstaton/Function.prototype.compose-TC39-Proposal](https://github.com/simonstaton/Function.prototype.compose-TC39-Proposal)
 - Function: [fantasyland/ECMAScript-proposals (issue #1 comment)](https://github.com/fantasyland/ECMAScript-proposals/issues/1#issuecomment-306243513)
