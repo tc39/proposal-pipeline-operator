@@ -16,10 +16,10 @@ This proposal introduces a new operator `|>` similar to
 
 Those proposals are as follows:
 
-* [**F# Pipelines**](https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-1-f-sharp-style-only)
+* **F# Pipelines**: [**Explainer**](https://github.com/valtech-nyc/proposal-fsharp-pipelines/blob/master/README.md) + [**Specification**](https://valtech-nyc.github.io/proposal-fsharp-pipelines/)
 * **Smart Pipelines**: [**Explainer**](https://github.com/js-choi/proposal-smart-pipelines/blob/master/readme.md) + [**Specification**](https://jschoi.org/18/es-smart-pipelines/spec)
 
-[Formal specifications and Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for are already underway to gather feedback.
+[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for are already underway to gather feedback.
 
 See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1eFFRK1wLIazIuK0F6fY974OIDvvWXS890XAMB59PUBA/edit#slide=id.p) as well as [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
 
