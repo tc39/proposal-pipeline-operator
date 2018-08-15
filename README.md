@@ -79,8 +79,8 @@ let person = { score: 25 };
 
 let newScore = person.score
   |> double
-  |> (_ => add(7, _))
-  |> (_ => boundScore(0, 100, _));
+  |> (score => add(7, score))
+  |> (score => boundScore(0, 100, score));
 
 newScore //=> 57
 
@@ -191,12 +191,12 @@ Although the pipe operator operates well with functions that don't use `this`, i
 import Lazy from 'lazy.js'
 
 getAllPlayers()
-  .filter( p => p.score > 100 )
+  .filter( player => player.score > 100 )
   .sort()
-|> (_ => Lazy(_)
-  .map( p => p.name )
+|> (players => Lazy(players)
+  .map( player => player.name )
   .take(5))
-|> (_ => renderLeaderboard('#my-div', _));
+|> (players => renderLeaderboard('#my-div', players));
 ```
 
 ### Mixins
