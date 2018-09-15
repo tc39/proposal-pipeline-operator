@@ -79,15 +79,13 @@ let person = { score: 25 };
 
 let newScore = person.score
   |> double
-  |> (_ => add(7, _))
-  |> (_ => boundScore(0, 100, _));
+  |> n => add(7, n)
+  |> n => boundScore(0, 100, n);
 
 newScore //=> 57
 
 // As opposed to: let newScore = boundScore( 0, 100, add(7, double(person.score)) )
 ```
-
-*Note: The use of underscore `_` is not required; it's just an arrow function, so you can use any parameter name you like.*
 
 As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
 
@@ -193,10 +191,10 @@ import Lazy from 'lazy.js'
 getAllPlayers()
   .filter( p => p.score > 100 )
   .sort()
-|> (_ => Lazy(_)
+|> x => Lazy(x)
   .map( p => p.name )
-  .take(5))
-|> (_ => renderLeaderboard('#my-div', _));
+  .take(5)
+|> x => renderLeaderboard('#my-div', x);
 ```
 
 ### Mixins
