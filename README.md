@@ -112,6 +112,65 @@ newScore //=> 57
 
 ## Motivating Examples
 
+### Transforming Streams/Iterables/AsyncIterables/Observables
+
+There is native syntax for creating Iterables/AsyncIterables:
+
+```js
+function* numbers() {
+  yield 1
+  yield 2
+  yield 3
+}
+```
+
+and for consuming them:
+
+```js
+for (const number of numbers()) {
+  console.log(number)
+}
+```
+
+But no syntax yet for transforming an Iterable or stream-like object to another. The pipeline operator allows processing of any Iterable or stream-like object in an easy-to-read multi-step pipeline:
+
+```js
+const filter = predicate => function* (iterable) {
+  for (const value of iterable) {
+    if (predicate(value)) {
+      yield value
+    }
+  }
+}
+
+const map = project => function* (iterable) {
+  for (const value of iterable) {
+    yield project(value)
+  }
+}
+
+numbers()
+  |> filter(x => x % 2 === 1)
+  |> map(x => x + x)
+```
+
+Popular libraries like [RxJS](https://github.com/ReactiveX/rxjs) currently simulate this through the [`.pipe()` method](https://rxjs-dev.firebaseapp.com/api/index/function/pipe):
+
+```js
+Observable.from([1, 2, 3]).pipe(
+  filter(x => x % 2 === 1),
+  map(x => x + x)
+)
+```
+
+This works quite nicely with RxJS, but native stream objects like [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol), [`AsyncIterable`](https://github.com/tc39/proposal-async-iteration#async-iterators-and-async-iterables), [`Observable`](https://github.com/tc39/proposal-observable) etc. do not have a `.pipe()` method and therefor need to be wrapped with a library like RxJS or IxJS first.
+
+The pipeline operator makes it possible to easily transform these stream representations in a functional way without having to depend on a library like RxJS or IxJS.
+
+For users of these libraries, it saves boilerplate code, especially when having to interop with native stream representations or other libraries: In the example above, `map` and `filter` can come from a library like IxJS and be applied on `numbers()` without having to wrap `numbers()` in a library-specific object first like `Ix.Iterable.from(numbers()).pipe(...)`.
+
+For WHATWG and Node streams (which have a pipe method) it allows transformation with simple functions instead of through more complicated `TransformStream` objects, with easier error handling (Node's `pipe()` does not forward errors). Since Node 10 `ReadableStream` also implements `AsyncIterable` so any transformation function written for AsyncIterables can directly work with NodeJS streams, just like any transformation function written for Iterables can work with arrays or Sets.
+
 ### Object Decorators
 
 Mixins via `Object.assign` are great, but sometimes you need something more advanced. A **decorator function** is a function that receives an existing object, adds to it (mutative or not), and then returns the result.
