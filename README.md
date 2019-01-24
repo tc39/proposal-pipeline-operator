@@ -5,7 +5,7 @@ This proposal introduces a new operator `|>` similar to
   [OCaml](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VAL%28|%3E%29),
   [Elixir](https://hexdocs.pm/elixir/Kernel.html#%7C%3E/2),
   [Elm](https://edmz.org/design/2015/07/29/elm-lang-notes.html),
-  [Julia](http://docs.julialang.org/en/release-0.4/stdlib/base/?highlight=|%3E#Base.|%3E),
+  [Julia](https://docs.julialang.org/en/v1/base/base/#Base.:|%3E),
   [Hack](https://docs.hhvm.com/hack/operators/pipe-operator),
   and [LiveScript](http://livescript.net/#piping),
   as well as UNIX pipes. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
