@@ -163,7 +163,7 @@ Observable.from([1, 2, 3]).pipe(
 )
 ```
 
-This works quite nicely with RxJS, but native stream objects like [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol), [`AsyncIterable`](https://github.com/tc39/proposal-async-iteration#async-iterators-and-async-iterables), [`Observable`](https://github.com/tc39/proposal-observable) etc. do not have a `.pipe()` method and therefor need to be wrapped with a library like RxJS or IxJS first.
+This works quite nicely with RxJS, but native stream objects like [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol), [`AsyncIterable`](https://github.com/tc39/proposal-async-iteration#async-iterators-and-async-iterables), [`Observable`](https://github.com/tc39/proposal-observable) etc. do not have a `.pipe()` method and therefore need to be wrapped with a library like RxJS or IxJS first.
 
 The pipeline operator makes it possible to easily transform these stream representations in a functional way without having to depend on a library like RxJS or IxJS.
 
