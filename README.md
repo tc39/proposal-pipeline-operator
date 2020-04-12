@@ -8,7 +8,7 @@ This proposal introduces a new operator `|>` similar to
   [Julia](https://docs.julialang.org/en/v1/base/base/#Base.:|%3E),
   [Hack](https://docs.hhvm.com/hack/expressions-and-operators/pipe),
   and [LiveScript](http://livescript.net/#piping),
-  as well as UNIX pipes,
+  as well as UNIX pipes
   and [Haskell](https://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Function.html#v:-38-)'s `&`. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
 
 ***
