@@ -4,7 +4,7 @@ This proposal introduces a new operator `|>` similar to
   [F#](https://en.wikibooks.org/wiki/F_Sharp_Programming/Higher_Order_Functions#The_.7C.3E_Operator),
   [OCaml](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VAL%28|%3E%29),
   [Elixir](https://hexdocs.pm/elixir/Kernel.html#%7C%3E/2),
-  [Elm](https://edmz.org/design/2015/07/29/elm-lang-notes.html),
+  [Elm](https://package.elm-lang.org/packages/elm/core/latest/Basics#|%3E),
   [Julia](https://docs.julialang.org/en/v1/base/base/#Base.:|%3E),
   [Hack](https://docs.hhvm.com/hack/expressions-and-operators/pipe),
   and [LiveScript](http://livescript.net/#piping),
