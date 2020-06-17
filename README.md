@@ -13,14 +13,15 @@ This proposal introduces a new operator `|>` similar to
 
 ***
 
-**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**two competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) under consideration. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
+**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**several competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) under consideration. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
 
 Those proposals are as follows:
 
 * **F# Pipelines**: [**Explainer**](https://github.com/valtech-nyc/proposal-fsharp-pipelines/blob/master/README.md) + [**Specification**](https://valtech-nyc.github.io/proposal-fsharp-pipelines/)
 * **Smart Pipelines**: [**Explainer**](https://github.com/js-choi/proposal-smart-pipelines/blob/master/readme.md) + [**Specification**](https://jschoi.org/18/es-smart-pipelines/spec)
+* **Hack Pipelines** [**Explainer**](https://github.com/xixixao/proposal-hack-pipelines/blob/master/readme.md) + [**Specification**](https://xixixao.github.io/proposal-hack-pipelines/)
 
-[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback.
+[Babel plugin](https://babeljs.io/docs/en/babel-plugin-proposal-pipeline-operator) is available for several variants.
 
 See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1eFFRK1wLIazIuK0F6fY974OIDvvWXS890XAMB59PUBA/edit#slide=id.p) as well as [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
 
