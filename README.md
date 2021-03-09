@@ -21,7 +21,7 @@ Those proposals are as follows:
 * **F# Pipes**: [**Explainer**](https://github.com/valtech-nyc/proposal-fsharp-pipelines/blob/master/README.md) + [**Specification**](https://valtech-nyc.github.io/proposal-fsharp-pipelines/)
 * **Hack Pipes**: [**Explainer**](https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md) + [**Specification**](https://jschoi.org/21/es-hack-pipes/)
 
-[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback, although work has not yet been started on Hack pipes.
+[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback, although the Hack-pipe plugin has not yet been merged in.
 
 See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1for4EIeuVpYUxnmwIwUuAmHhZAYOOVwlcKXAnZxhh4Q/), the [proposal wiki](https://github.com/js-choi/proposal-pipeline-operator/wiki/) and [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
 
