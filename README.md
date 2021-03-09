@@ -7,6 +7,7 @@ This proposal introduces a new operator `|>` similar to
   [Elm](https://package.elm-lang.org/packages/elm/core/latest/Basics#|%3E),
   [Julia](https://docs.julialang.org/en/v1/base/base/#Base.:|%3E),
   [Hack](https://docs.hhvm.com/hack/expressions-and-operators/pipe),
+  [Clojure](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/as->),
   and [LiveScript](http://livescript.net/#piping),
   as well as UNIX pipes
   and [Haskell](https://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Function.html#v:-38-)'s `&`. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
@@ -20,9 +21,9 @@ Those proposals are as follows:
 * **F# Pipes**: [**Explainer**](https://github.com/valtech-nyc/proposal-fsharp-pipelines/blob/master/README.md) + [**Specification**](https://valtech-nyc.github.io/proposal-fsharp-pipelines/)
 * **Hack Pipes**: [**Explainer**](https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md) + [**Specification**](https://jschoi.org/21/es-hack-pipes/)
 
-[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback.
+[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback, although the Hack-pipe plugin has not yet been merged in.
 
-See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1eFFRK1wLIazIuK0F6fY974OIDvvWXS890XAMB59PUBA/edit#slide=id.p) as well as [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
+See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1for4EIeuVpYUxnmwIwUuAmHhZAYOOVwlcKXAnZxhh4Q/), the [proposal wiki](https://github.com/js-choi/proposal-pipeline-operator/wiki/) and [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
 
 ***
 
