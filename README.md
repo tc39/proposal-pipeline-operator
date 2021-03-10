@@ -14,7 +14,7 @@ This proposal introduces a new operator `|>` similar to
 
 ***
 
-**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**two competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) under consideration. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
+**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**three competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) under consideration. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
 
 Those proposals are as follows:
 
