@@ -23,7 +23,7 @@ Those proposals are as follows:
 
 [Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback, although the Hack-pipe plugin has not yet been merged in.
 
-See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1for4EIeuVpYUxnmwIwUuAmHhZAYOOVwlcKXAnZxhh4Q/), the [proposal wiki](https://github.com/js-choi/proposal-pipeline-operator/wiki/) and [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
+See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1for4EIeuVpYUxnmwIwUuAmHhZAYOOVwlcKXAnZxhh4Q/), the [proposal wiki](https://github.com/tc39/proposal-pipeline-operator/wiki) and [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
 
 ***
 
@@ -291,7 +291,7 @@ class Comment extends Model |> Editable |> Sharable {
 
 ### Real-world Use Cases
 
-Check out the [Example Use Cases](https://github.com/mindeavor/es-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
+Check out the [Example Use Cases](https://github.com/tc39/proposal-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
 
 ## Implementations
 
