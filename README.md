@@ -1,316 +1,782 @@
-# ESNext Proposal: The Pipeline Operator
+# Hack pipe operator for JavaScript
+ECMAScript Stage-2 Proposal. J. S. Choi, 2021.
 
-This proposal introduces a new operator `|>` similar to
-  [F#](https://en.wikibooks.org/wiki/F_Sharp_Programming/Higher_Order_Functions#The_.7C.3E_Operator),
-  [OCaml](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VAL%28|%3E%29),
-  [Elixir](https://hexdocs.pm/elixir/Kernel.html#%7C%3E/2),
-  [Elm](https://package.elm-lang.org/packages/elm/core/latest/Basics#|%3E),
-  [Julia](https://docs.julialang.org/en/v1/base/base/#Base.:|%3E),
-  [Hack](https://docs.hhvm.com/hack/expressions-and-operators/pipe),
-  [Clojure](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/as->),
-  and [LiveScript](http://livescript.net/#piping),
-  as well as UNIX pipes
-  and [Haskell](https://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Function.html#v:-38-)'s `&`. It's a backwards-compatible way of streamlining chained function calls in a readable, functional manner, and provides a practical alternative to extending built-in prototypes.
+* **[Specification][]**
+* **Babel plugin**: [Implemented in v7.15][Babel 7.15]. See [Babel documentation][].
 
-***
+(This document presumptively uses `^`
+as the placeholder token for the topic reference.
+This [choice of token is not a final decision][token bikeshedding];
+`^` could instead be `%`, or many other tokens.)
 
-**⚠ Warning**: The details of the pipeline syntax are **currently unsettled**. There are [**two competing proposals**](https://github.com/tc39/proposal-pipeline-operator/wiki) under consideration. This readme is a minimal proposal, which covers the basic features of the pipeline operator. It functions as a strawman for comparing the tradeoffs of the competing proposals.
+[specification]: http://jschoi.org/21/es-hack-pipes/
+[Babel 7.15]: https://babeljs.io/blog/2021/07/26/7.15.0#hack-style-pipeline-operator-support-13191httpsgithubcombabelbabelpull13191-13416httpsgithubcombabelbabelpull13416
+[Babel documentation]: https://babeljs.io/docs/en/babel-plugin-proposal-pipeline-operator
+[essay by Tab Atkins]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
+[token bikeshedding]: https://github.com/tc39/proposal-pipeline-operator/issues/91
 
-Those proposals are as follows:
+## Why a pipe operator
+In the State of JS 2020 survey, the **fourth top answer** to
+[“What do you feel is currently missing from
+JavaScript?”](https://2020.stateofjs.com/en-US/opinions/?missing_from_js)
+was a **pipe operator**. Why?
 
-* **F# Pipes**: [**Explainer**](https://github.com/valtech-nyc/proposal-fsharp-pipelines/blob/master/README.md) + [**Specification**](https://valtech-nyc.github.io/proposal-fsharp-pipelines/)
-* **Hack Pipes**: [**Explainer**](https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md) + [**Specification**](https://jschoi.org/21/es-hack-pipes/)
+When we perform **consecutive operations** (e.g., function calls)
+on a **value** in JavaScript,
+there are currently two fundamental styles:
+* passing the value as an argument to the operation
+  (**nesting** the operations if there are multiple operations),
+* or calling the function as a method on the value
+  (**chaining** more method calls if there are multiple methods).
 
-[Babel plugins](https://github.com/tc39/proposal-pipeline-operator/issues/89#issuecomment-363853394) for both are already underway to gather feedback, although the Hack-pipe plugin has not yet been merged in.
+That is, `three(two(one(value)))` versus `value.one().two().three()`.
+However, these styles differ much in readability, fluency, and applicability.
 
-See also the [**latest presentation to TC39**](https://docs.google.com/presentation/d/1for4EIeuVpYUxnmwIwUuAmHhZAYOOVwlcKXAnZxhh4Q/), the [proposal wiki](https://github.com/tc39/proposal-pipeline-operator/wiki) and [**recent GitHub issues**](https://github.com/tc39/proposal-pipeline-operator/issues?utf8=✓&q=is%3Aissue+sort%3Aupdated-desc+) for more information.
+### Deep nesting is hard to read
+The first style, **nesting**, is generally applicable –
+it works for any sequence of operations:
+function calls, arithmetic, array/object literals, `await` and `yield`, etc.
 
-***
+However, nesting is **difficult to read** when it becomes deep:
+the flow of execution moves **right to left**,
+rather than the left-to-right reading of normal code.
+If there are **multiple arguments** at some levels,
+reading even bounces **back and forth**:
+our eyes must **jump left** to find a function name,
+and then they must **jump right** to find additional arguments.
+Additionally, **editing** the code afterwards can be fraught:
+we must find the correct **place to insert** new arguments
+among **many nested parentheses**.
 
-## Introduction
+<details>
+<summary><strong>Real-world example</strong></summary>
 
-The pipeline operator is essentially a useful syntactic sugar on a function call with a single argument. In other words, `sqrt(64)` is equivalent to `64 |> sqrt`.
-
-This allows for greater readability when chaining several functions together. For example, given the following functions:
+Consider this [real-world code from React][react/scripts/jest/jest-cli.js].
 
 ```js
-function doubleSay (str) {
-  return str + ", " + str;
+console.log(
+  chalk.dim(
+    `$ ${Object.keys(envars)
+      .map(envar =>
+        `${envar}=${envars[envar]}`)
+      .join(' ')
+    }`,
+    'node',
+    args.join(' ')));
+```
+
+This real-world code is made of **deeply nested expressions**.
+In order to read its flow of data, a human’s eyes must first:
+
+1. Find the **initial data** (the innermost expression, `envars`).
+2. And then scan **back and forth** repeatedly from **inside out**
+   for each data transformation,
+   each one either an easily missed prefix operator on the left
+   or a suffix operators on the right:
+
+   1. `Object.keys()` (left side),
+   2. `.map()` (right side),
+   3. `.join()` (right side),
+   4. A template literal (both sides),
+   5. `chalk.dim()` (left side), then
+   6. `console.log()` (left side).
+
+As a result of deeply nesting many expressions
+(some of which use **prefix** operators,
+some of which use **postfix** operators,
+and some of which use **circumfix** operators),
+we must check **both left and right sides**
+to find the **head** of **each expression**.
+
+</details>
+
+### Method chaining is limited
+The second style, **method chaining**, is **only** usable
+if the value has the functions designated as **methods** for its class.
+This **limits** its applicability.
+But **when** it applies, thanks to its postfix structure,
+it is generally more usable and **easier** to read and write.
+Code execution flows **left to right**.
+Deeply nested expressions are **untangled**.
+All arguments for a function call are **grouped** with the function’s name.
+And editing the code later to **insert or delete** more method calls is trivial,
+since we would just have to put our cursor in one spot,
+then start typing or deleting one **contiguous** run of characters.
+
+Indeed, the benefits of method chaining are **so attractive**
+that some **popular libraries contort** their code structure
+specifically to allow **more method chaining**.
+The most prominent example is **[jQuery][]**, which
+still remains the **most popular JS library** in the world.
+jQuery’s core design is a single über-object with dozens of methods on it,
+all of which return the same object type so that we can **continue chaining**.
+There is even a name for this style of programming:
+**[fluent interfaces][]**.
+
+[jQuery]: https://jquery.com/
+[fluent interfaces]: https://en.wikipedia.org/wiki/Fluent_interface
+
+Unfortunately, for all of its fluency,
+**method chaining** alone cannot accomodate JavaScript’s **other syntaxes**:
+function calls, arithmetic, array/object literals, `await` and `yield`, etc.
+In this way, method chaining remains **limited** in its **applicability**.
+
+### Pipe operators combine both worlds
+The pipe operator attempts to marry the **convenience** and ease of **method chaining**
+with the wide **applicability** of **expression nesting**.
+
+The general structure of all the pipe operators is
+`value |>` <var>e1</var> `|>` <var>e2</var> `|>` <var>e3</var>,
+where <var>e1</var>, <var>e2</var>, <var>e3</var>
+are all expressions that take consecutive values as their parameters.
+The `|>` operator then does some degree of magic to “pipe” `value`
+from the lefthand side into the righthand side.
+
+<details>
+<summary><strong>Real-world example</strong>, continued</summary>
+
+Continuing this deeply nested [real-world code from React][react/scripts/jest/jest-cli.js]:
+
+```js
+console.log(
+  chalk.dim(
+    `$ ${Object.keys(envars)
+      .map(envar =>
+        `${envar}=${envars[envar]}`)
+      .join(' ')
+    }`,
+    'node',
+    args.join(' ')));
+```
+
+…we can **untangle** it as such using a pipe operator
+and a placeholder token (`^`) standing in for the previous operation’s value:
+
+```js
+envars
+|> Object.keys(^)
+|> ^.map(envar =>
+  `${envar}=${envars[envar]}`)
+|> ^.join(' ')
+|> `$ ${^}`
+|> chalk.dim(^, 'node', args.join(' '))
+|> console.log(^);
+```
+
+Now, the human reader can **rapidly find** the **initial data**
+(what had been the most innermost expression, `envars`),
+then **linearly** read, from **left to right**,
+each transformation on the data.
+
+</details>
+
+### Temporary variables are often tedious
+One could argue that using **temporary variables**
+should be the only way to untangle deeply nested code.
+Explicitly naming every step’s variable
+causes something similar to method chaining to happen,
+with similar benefits to reading and writing code.
+
+<details>
+<summary><strong>Real-world example</strong>, continued</summary>
+
+For example, using our previous modified
+[real-world example from React][react/scripts/jest/jest-cli.js]:
+
+```js
+envars
+|> Object.keys(^)
+|> ^.map(envar =>
+  `${envar}=${envars[envar]}`)
+|> ^.join(' ')
+|> `$ ${^}`
+|> chalk.dim(^, 'node', args.join(' '))
+|> console.log(^);
+```
+
+…a version using temporary variables would look like this:
+
+```js
+const envarKeys = Object.keys(envars)
+const envarPairs = envarKeys.map(envar =>
+  `${envar}=${envars[envar]}`);
+const envarString = envarPairs.join(' ');
+const consoleText = `$ ${envarString}`;
+const coloredConsoleText = chalk.dim(consoleText, 'node', args.join(' '));
+console.log(coloredConsoleText);
+```
+
+</details>
+
+But there are reasons why we encounter deeply nested expressions
+in each other’s code **all the time in the real world**,
+**rather than** lines of temporary variables.
+And there are reasons why the **method-chain-based [fluent interfaces][]**
+of jQuery, Mocha, and so on are still **popular**.
+
+It is often simply too **tedious and wordy** to **write**
+code with a long sequence of temporary, single-use variables.
+It is arguably even tedious and visually noisy for a human to **read**, too.
+
+If [**naming** is one of the **most difficult tasks** in programming][naming hard],
+then programmers will **inevitably avoid naming** variables
+when they perceive their benefit to be relatively small.
+
+[naming hard]: https://martinfowler.com/bliki/TwoHardThings.html
+
+## Why the Hack pipe operator
+There are **two competing proposals** for the pipe operator: Hack pipes and F# pipes.
+(There **was** a [third proposal for a “smart mix” of the first two proposals][smart mix],
+but it has been withdrawn,
+since its syntax is strictly a superset of one of the proposals’.)
+
+[smart mix]: https://github.com/js-choi/proposal-smart-pipelines/
+
+The two pipe proposals just differ **slightly** on what the “magic” is,
+when we spell our code when using `|>`.
+
+**Both** proposals **reuse** existing language concepts:
+Hack pipes are based on the concept of the **expression**,
+while F# pipes are based on the concept of the **unary function**.
+
+Piping **expressions** and piping **unary functions**
+correspondingly have **small** and nearly **symmetrical trade-offs**.
+
+### This proposal: Hack pipes
+In the **Hack language**’s pipe syntax,
+the righthand side of the pipe is an **expression** containing a special **placeholder**,
+which is evaluated with the placeholder bound to the lefthand side’s value.
+That is, we write `value |> one(^) |> two(^) |> three(^)`
+to pipe `value` through the three functions.
+
+**Pro:** The righthand side can be **any expression**,
+and the placeholder can go anywhere any normal variable identifier could go,
+so we can pipe to any code we want **without any special rules**:
+
+* `value |> foo(^)` for unary function calls,
+* `value |> foo(1, ^)` for n-ary function calls,
+* `value |> ^.foo()` for method calls,
+* `value |> ^ + 1` for arithmetic,
+* `value |> [^, 0]` for array literals,
+* `value |> {foo: ^}` for object literals,
+* `` value |> `${^}` `` for template literals,
+* `value |> new Foo(^)` for constructing objects,
+* `value |> await ^` for awaiting promises,
+* `value |> (yield ^)` for yielding generator values,
+* `value |> import(^)` for calling function-like keywords,
+* etc.
+
+**Con:** Piping through **unary functions**
+is **slightly more verbose** with Hack pipes than with F# pipes.
+This includes unary functions
+that were created by **[function-currying][] libraries** like [Ramda][],
+as well as [unary arrow functions
+that perform **complex destructuring** on their arguments][destruct]:
+Hack pipes would be slightly more verbose
+with an **explicit** function call suffix `(^)`.
+
+[function-currying]: https://en.wikipedia.org/wiki/Currying
+[Ramda]: https://ramdajs.com/
+[destruct]: https://github.com/js-choi/proposal-hack-pipes/issues/4#issuecomment-817208635
+
+### Alternative proposal: F# pipes
+In the [**F# language**’s pipe syntax][F# pipes],
+the righthand side of the pipe is an expression
+that must **evaluate into a unary function**,
+which is then **tacitly called**
+with the lefthand side’s value as its **sole argument**.
+That is, we write `value |> one |> two |> three` to pipe `value`
+through the three functions.
+`left |> right` becomes `right(left)`.
+This is called [tacit programming or point-free style][tacit].
+
+[F# pipes]: https://github.com/tc39/proposal-pipeline-operator/
+[tacit]: https://en.wikipedia.org/wiki/Tacit_programming
+
+<details>
+<summary><strong>Real-world example</strong>, continued</summary>
+
+For example, using our previous modified
+[real-world example from React][react/scripts/jest/jest-cli.js]:
+
+```js
+envars
+|> Object.keys(^)
+|> ^.map(envar =>
+  `${envar}=${envars[envar]}`)
+|> ^.join(' ')
+|> `$ ${^}`
+|> chalk.dim(^, 'node', args.join(' '))
+|> console.log(^);
+```
+
+…a version using F# pipes instead of Hack pipes would look like this:
+
+```js
+envars
+|> Object.keys
+|> x=> x.map(envar =>
+  `${envar}=${envars[envar]}`)
+|> x=> x.join(' ')
+|> x=> `$ ${x}`
+|> x=> chalk.dim(x, 'node', args.join(' '))
+|> console.log;
+```
+
+</details>
+
+**Pro:** The restriction that the righthand side
+**must** resolve to a unary function
+lets us write very terse pipes
+**when** the operation we want to perform
+is a **unary function call**:
+
+* `value |> foo` for unary function calls.
+
+This includes unary functions
+that were created by **[function-currying][] libraries** like [Ramda][],
+as well as [unary arrow functions
+that perform **complex destructuring** on their arguments][destruct]:
+F# pipes would be **slightly less verbose**
+with an **implicit** function call (no `(^)`).
+
+**Con:** The restriction means that **any operations**
+that are performed by **other syntax**
+must be made **slightly more verbose** by **wrapping** the operation
+in a unary **arrow function**:
+
+* `value |> x=> x.foo()` for method calls,
+* `value |> x=> x + 1` for arithmetic,
+* `value |> x=> [x, 0]` for array literals,
+* `value |> x=> {foo: x}` for object literals,
+* `` value |> x=> `${x}` `` for template literals,
+* `value |> x=> new Foo(x)` for constructing objects,
+* `value |> x=> import(x)` for calling function-like keywords,
+* etc.
+
+Even calling **named functions** requires **wrapping**
+when we need to pass **more than one argument**:
+
+* `value |> x=> foo(1, x)` for n-ary function calls.
+
+**Con:** The **`await` and `yield`** operations are **scoped**
+to their **containing function**,
+and thus **cannot be handled by unary functions** alone.
+If we want to integrate them into a pipe expression,
+[`await` and `yield` must be handled as **special syntax cases**][enhanced F# pipes]:
+
+* `value |> await` for awaiting promises, and
+* `value |> yield` for yielding generator values.
+
+[enhanced F# pipes]: https://github.com/valtech-nyc/proposal-fsharp-pipelines/
+
+### Hack pipes favor more common expressions
+**Both** Hack pipes and F# pipes respectively impose
+a small **syntax tax** on different expressions:\
+**Hack pipes** slightly tax only **unary function calls**, and\
+**F# pipes** slightly tax **all expressions except** unary function calls.
+
+In **both** proposals, the syntax tax per taxed expression is **small**
+(**both** `(^)` and `x=>` are **only three characters**).
+However, the tax is **multiplied** by the **prevalence**
+of its respectively taxed expressions.
+It therefore might make sense
+to impose a tax on whichever expressions are **less common**
+and to **optimize** in favor of whichever expressions are **more common**.
+
+Unary function calls are in general **less common**
+than **all** expressions **except** unary functions.
+In particular, **method** calling and **n-ary function** calling
+will **always** be **popular**;
+in general frequency,
+**unary** function calling is equal to or exceeded by
+those two cases **alone** –
+let alone by other ubiquitous syntaxes
+such as **array literals**, **object literals**,
+and **arithmetic operations**.
+This explainer contains several [real-world examples][]
+of this difference in prevalence.
+
+[real-world examples]: #real-world-examples
+
+Furthermore, several other proposed **new syntaxes**,
+such as **[extension calling][]**,
+**[do expressions][]**,
+and **[record/tuple literals][]**,
+will also likely become **pervasive** in the **future**.
+Likewise, **arithmetic** operations would also become **even more common**
+if TC39 standardizes **[operator overloading][]**.
+Untangling these future syntaxes’ expressions would be more fluent
+with Hack pipes compared to F# pipes.
+
+[extension calling]: https://github.com/tc39/proposal-extensions/
+[do expressions]: https://github.com/tc39/proposal-do-expressions/
+[record/tuple literals]: https://github.com/tc39/proposal-record-tuple/
+[operator overloading]: https://github.com/tc39/proposal-operator-overloading/
+
+### Hack pipes might be simpler to use
+The syntax tax of Hack pipes on unary function calls
+(i.e., the `(^)` to invoke the righthand side’s unary function)
+is **not a special case**:
+it simply is **explicitly writing ordinary code**,
+in **the way we normally would** without a pipe.
+
+On the other hand, **F# pipes require** us to **distinguish**
+between “code that resolves to an unary function”
+versus **“any other expression”** –
+and to remember to add the arrow-function wrapper around the latter case.
+
+For example, with Hack pipes, `value |> someFunction + 1`
+is **invalid syntax** and will **fail early**.
+There is no need to recognize that `someFunction + 1`
+will not evaluate into a unary function.
+But with F# pipes, `value |> someFunction + 1` is **still valid syntax** –
+it’ll just **fail late** at **runtime**,
+because `someFunction + 1` isn’t callable.
+
+## Description
+(A [formal draft specification][specification] is available.)
+
+The **topic reference** `^` is a **nullary operator**.
+It acts as a placeholder for a **topic value**,
+and it is **lexically scoped** and **immutable**.
+
+<details>
+<summary><code>^</code> is not a final choice</summary>
+
+(The precise [**token** for the topic reference is **not final**][token bikeshedding].
+`^` could instead be `%`, or many other tokens.
+We plan to [**bikeshed** what actual token to use][token bikeshedding]
+**later**, if TC39 advances this proposal.
+However, `^` seems to be the [least syntactically problematic][],
+and it also resembles the placeholders of **[printf format strings][]**
+and [**Clojure**’s `#(^)` **function literals**][Clojure function literals].)
+
+[least syntactically problematic]: https://github.com/js-choi/proposal-hack-pipes/issues/2
+[Clojure function literals]: https://clojure.org/reference/reader#_dispatch
+[printf format strings]: https://en.wikipedia.org/wiki/Printf_format_string
+
+</details>
+
+The **pipe operator** `|>` is an **infix operator**
+that forms a **pipe expression** (also called a **pipeline**).
+It evaluates its lefthand side (the **pipe head** or **pipe input**),
+immutably **binds** the resulting value (the **topic value**) to the **topic reference**,
+then evaluates its righthand side (the **pipe body**) with that binding.
+The resulting value of the righthand side
+becomes the whole pipe expression’s final value (the **pipe output**).
+
+The pipe operator’s precedence is the **same** as:
+* the function arrow `=>`;
+* the assignment operators `=`, `+=`, etc.;
+* the generator operators `yield` and `yield *`;
+
+It is **tighter** than only the comma operator `,`.\
+It is **looser** than **all other** operators.
+
+For example, `v => v |> ^ == null |> foo(^, 0)`\
+would group into `v => (v |> (^ == null) |> foo(^, 0))`,\
+which in turn is equivalent to `v => foo(v == null, 0)`.
+
+A pipe body **must** use its topic value **at least once**.
+For example, `value |> foo + 1` is **invalid syntax**,
+because its body does not contain a topic reference.
+This design is because **omission** of the topic reference
+from a pipe expression’s body
+is almost certainly an **accidental** programmer error.
+
+Likewise, a topic reference **must** be contained in a pipe body.
+Using a topic reference outside of a pipe body
+is also **invalid syntax**.
+
+To prevent confusing grouping,
+it is **invalid** syntax to use **other** operators that have the **same precedence**
+(the arrow `=>`, the ternary conditional operator `?` `:`,
+the assignment operators, and the `yield` operator)
+as a **pipe head or body**.
+When using, we must use **parentheses**
+to explicitly indicate which precedence is correct.
+For example, `a |> b ? ^ : c |> ^.d` is invalid syntax;
+it should be corrected to either `a |> (b ? ^ : c) |> ^.d`
+or `a |> (b ? ^ : c |> ^.d)`.
+
+Lastly, topic bindings **inside dynamically compiled** code
+(e.g., with `eval` or `new Function`)
+**cannot** be used **outside** of that code.
+For example, `v |> eval('^ + 1')` will throw a syntax error
+when the `eval` expression is evaluated at runtime.
+
+There are **no other special rules**.
+
+A natural result of these rules is that,
+if we need to interpose a **side effect**
+in the middle of a chain of pipe expressions,
+without modifying the data being piped through,
+then we could use a **comma expression**,
+such as with `value |> (sideEffect(), ^)`.
+As usual, the comma expression will evaluate to its righthand side `^`,
+essentially passing through the topic value without modifying it.
+This is especially useful for quick debugging: `value |> (console.log(^), ^)`.
+
+## Real-world examples
+The only changes to the original examples were dedentation and removal of comments.
+
+From [jquery/build/tasks/sourceMap.js][]:
+```js
+// Status quo
+var minLoc = Object.keys( grunt.config( "uglify.all.files" ) )[ 0 ];
+
+// With pipes
+var minLoc = grunt.config('uglify.all.files') |> Object.keys(^)[0];
+```
+
+From [node/deps/npm/lib/unpublish.js][]:
+```js
+// Status quo
+const json = await npmFetch.json(npa(pkgs[0]).escapedName, opts);
+
+// With pipes
+const json = pkgs[0] |> npa(^).escapedName |> await npmFetch.json(^, opts);
+```
+
+From [underscore.js][]:
+```js
+// Status quo
+return filter(obj, negate(cb(predicate)), context);
+
+// With pipes
+return cb(predicate) |> _.negate(^) |> _.filter(obj, ^, context);
+```
+
+From [ramda.js][].
+```js
+// Status quo
+return xf['@@transducer/result'](obj[methodName](bind(xf['@@transducer/step'], xf), acc));
+
+// With pipes
+return xf
+|> bind(^['@@transducer/step'], ^)
+|> obj[methodName](^, acc)
+|> xf['@@transducer/result'](^);
+```
+
+From [ramda.js][].
+```js
+// Status quo
+try {
+  return tryer.apply(this, arguments);
+} catch (e) {
+  return catcher.apply(this, _concat([e], arguments));
 }
-function capitalize (str) {
-  return str[0].toUpperCase() + str.substring(1);
-}
-function exclaim (str) {
-  return str + '!';
+
+// With pipes: Note the visual parallelism between the two clauses.
+try {
+  return arguments
+  |> tryer.apply(this, ^);
+} catch (e) {
+  return arguments
+  |> _concat([e], ^)
+  |> catcher.apply(this, ^);
 }
 ```
 
-...the following invocations are equivalent:
-
+From [express/lib/response.js][].
 ```js
-let result = exclaim(capitalize(doubleSay("hello")));
-result //=> "Hello, hello!"
+// Status quo
+return this.set('Link', link + Object.keys(links).map(function(rel){
+  return '<' + links[rel] + '>; rel="' + rel + '"';
+}).join(', '));
 
-let result = "hello"
-  |> doubleSay
-  |> capitalize
-  |> exclaim;
-
-result //=> "Hello, hello!"
+// With pipes
+return links
+|> Object.keys(^).map(function (rel) {
+  return '<' + links[rel] + '>; rel="' + rel + '"';
+})
+|> link + ^.join(', ')
+|> this.set('Link', ^);
 ```
 
-### Functions with Multiple Arguments
-
-The pipeline operator does not need any special rules for functions with multiple arguments; JavaScript already has ways to handle such cases.
-
-For example, given the following functions:
-
+From [react/scripts/jest/jest-cli.js][].
 ```js
-function double (x) { return x + x; }
-function add (x, y) { return x + y; }
+// Status quo
+console.log(
+  chalk.dim(
+    `$ ${Object.keys(envars)
+      .map(envar => `${envar}=${envars[envar]}`)
+      .join(' ')}`,
+    'node',
+    args.join(' ')
+  )
+);
 
-function boundScore (min, max, score) {
-  return Math.max(min, Math.min(max, score));
-}
+// With pipes
+envars
+|> Object.keys(^)
+|> ^.map(envar => `${envar}=${envars[envar]}`)
+|> ^.join(' ')
+|> `$ ${^}`
+|> chalk.dim(^, 'node', args.join(' '))
+|> console.log(^);
 ```
 
-...you can use an arrow function to handle multi-argument functions (such as `add`):
-
+From [ramda.js][].
 ```js
-let person = { score: 25 };
+// Status quo
+return _reduce(xf(typeof fn === 'function' ? _xwrap(fn) : fn), acc, list);
 
-let newScore = person.score
-  |> double
-  |> (_ => add(7, _))
-  |> (_ => boundScore(0, 100, _));
-
-newScore //=> 57
-
-// As opposed to: let newScore = boundScore( 0, 100, add(7, double(person.score)) )
+// With pipes
+return fn
+|> (typeof ^ === 'function' ? _xwrap(^) : ^)
+|> xf(^)
+|> _reduce(^, acc, list);
 ```
 
-*Note: The use of underscore `_` is not required; it's just an arrow function, so you can use any parameter name you like.*
-
-As you can see, because the pipe operator always pipes a single result value, it plays very nicely with the single-argument arrow function syntax. Also, because the pipe operator's semantics are pure and simple, it could be possible for JavaScript engines to optimize away the arrow function.
-
-### Use of `await`
-
-The current minimal proposal makes `|> await f` an early error, so there is no support currently for `await` in the pipeline. Each proposal has a different solution to `await` in a pipeline, so support is planned. Please see the respective proposals for their solutions.
-
-### Usage with `?` partial application syntax
-
-If the [partial application proposal](https://github.com/rbuckton/proposal-partial-application) (currently a [stage 1 proposal](https://github.com/rbuckton/proposal-partial-application)) gets accepted, the pipeline operator would be even easier to use. We would then be able to rewrite the previous example like so:
-
+From [jquery/src/core/init.js][].
 ```js
-let person = { score: 25 };
+// Status quo
+jQuery.merge( this, jQuery.parseHTML(
+  match[ 1 ],
+  context && context.nodeType ? context.ownerDocument || context : document,
+  true
+) );
 
-let newScore = person.score
-  |> double
-  |> add(7, ?)
-  |> boundScore(0, 100, ?);
-
-newScore //=> 57
+// With pipes
+context
+|> (^ && ^.nodeType ? ^.ownerDocument || ^ : document)
+|> jQuery.parseHTML(match[1], ^, true)
+|> jQuery.merge(^);
 ```
 
-## Motivating Examples
+[ramda.js]: https://github.com/ramda/ramda/blob/v0.27.1/dist/ramda.js
+[node/deps/npm/lib/unpublish.js]: https://github.com/nodejs/node/blob/v16.x/deps/npm/lib/unpublish.js
+[node/deps/v8/test/mjsunit/regress/regress-crbug-158185.js]: https://github.com/nodejs/node/blob/v16.x/deps/v8/test/mjsunit/regress/regress-crbug-158185.js
+[express/lib/response.js]: https://github.com/expressjs/express/blob/5.0/lib/response.js
+[react/scripts/jest/jest-cli.js]: https://github.com/facebook/react/blob/17.0.2/scripts/jest/jest-cli.js
+[jquery/build/tasks/sourceMap.js]: https://github.com/jquery/jquery/blob/2.2-stable/build/tasks/sourcemap.js
+[jquery/src/core/init.js]: https://github.com/jquery/jquery/blob/2.2-stable/src/core/init.js
+[underscore.js]: https://underscorejs.org/docs/underscore-esm.html
 
-### Transforming Streams/Iterables/AsyncIterables/Observables
+## Possible future extensions
 
-There is native syntax for creating Iterables/AsyncIterables:
+### Hack-pipe functions
+If Hack pipes are added to JavaScript,
+then they could also elegantly handle
+**partial function application** in the future
+with a syntax further inspired by
+[Clojure’s `#(^1 ^2)` function literals][Clojure function literals].
 
-```js
-function* numbers() {
-  yield 1
-  yield 2
-  yield 3
-}
-```
+There is **already** a [proposed special syntax
+for partial function application (PFA) with `?` placeholders][PFA]
+(abbreviated here as **`?`-PFA**).
+Both `?`-PFA and Hack pipes address a **similar problem** –
+binding values to **placeholder tokens** –
+but they address it in different ways.
 
-and for consuming them:
+With **`?`-PFA**, `?` placeholders are valid
+only directly within function-call expressions,
+and **each consecutive** `?` placeholder in an expression
+refers to a **different** argument **value**.
+This is in contrast to **Hack pipes**,
+in which every `^` token in an expression
+refers to the **same value**.
+`?`-PFA’s design integrates well with **F# pipes**,
+rather than Hack pipes, but this could be changed.
 
-```js
-for (const number of numbers()) {
-  console.log(number)
-}
-```
+[PFA]: https://github.com/tc39/proposal-partial-application/
 
-But no syntax yet for transforming an Iterable or stream-like object to another. The pipeline operator allows processing of any Iterable or stream-like object in an easy-to-read multi-step pipeline:
+| `?`-PFA with F# pipes      | Hack pipes                 |
+| -------------------------- | -------------------------- |
+|`x \|> y=> y + 1`           |`x \|> ^ + 1`               |
+|`x \|> f(?, 0)`             |`x \|> f(^, 0)`             |
+|`a.map(x=> x + 1)`          |`a.map(x=> x + 1)`          |
+|`a.map(f(?, 0))`            |`a.map(x=> f(x, 0))`        |
+|`a.map(x=> x + x)`          |`a.map(x=> x + x)`          |
+|`a.map(x=> f(x, x))`        |`a.map(x=> f(x, x))`        |
+|`a.sort((x,y)=> x - y)`     |`a.sort((x,y)=> x - y)`     |
+|`a.sort(f(?, ?, 0))`        |`a.sort((x,y)=> f(x, y, 0))`|
 
-```js
-const filter = predicate => function* (iterable) {
-  for (const value of iterable) {
-    if (predicate(value)) {
-      yield value
-    }
-  }
-}
+The PFA proposal could instead **switch from `?` placeholders**
+to **Hack-pipe topic references**.
+It could do so by combining the Hack pipe `|>`
+with the arrow function `=>`
+into a **topic-function** operator `+>`,
+which would use the same general rules as `|>`.
 
-const map = project => function* (iterable) {
-  for (const value of iterable) {
-    yield project(value)
-  }
-}
+`+>` would be a **prefix operator** that **creates a new function**,
+which in turn **binds its argument(s)** to topic references.
+**Non-unary functions** would be created
+by including topic references with **numbers** (`^0`, `^1`, `^2`, etc.) or `...`.
+`^0` (equivalent to plain `^`) would be bound to the **zeroth argument**,
+`^1` would be bound to the next argument, and so on.
+`^...` would be bound to an array of **rest arguments**.
+And just as with `|>`, `+>` would require its body
+to contain at least one topic reference
+in order to be syntactically valid.
 
-numbers()
-  |> filter(x => x % 2 === 1)
-  |> map(x => x + x)
-```
+| `?`-PFA                    | Hack pipe functions        |
+| ---------------------------| -------------------------- |
+|`a.map(x=> x + 1)`          |`a.map(+> ^ + 1)`           |
+|`a.map(f(?, 0))`            |`a.map(+> f(^, 0))`         |
+|`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
+|`a.map(x=> f(x, x))`        |`a.map(+> f(^, ^))`         |
+|`a.sort((x,y)=> x - y)`     |`a.sort(+> ^0 - ^1)`        |
+|`a.sort(f(?, ?, 0))`        |`a.sort(+> f(^0, ^1, 0))`   |
 
-Popular libraries like [RxJS](https://github.com/ReactiveX/rxjs) currently simulate this through the [`.pipe()` method](https://rxjs-dev.firebaseapp.com/api/index/function/pipe):
+Pipe functions would **avoid** the `?`-PFA syntax’s **[garden-path problem][]**.
+When we read the expression **from left to right**,
+the `+>` prefix operator makes it readily apparent
+that the expression is **creating a new function** from `f`,
+rather than **calling** `f` **immediately**.
+In contrast, `?`-PFA would require us
+to **check every function call for a `?` placeholder**
+in order to determine whether it is actually an immediate function call.
 
-```js
-Observable.from([1, 2, 3]).pipe(
-  filter(x => x % 2 === 1),
-  map(x => x + x)
-)
-```
+[garden-path problem]: https://en.wikipedia.org/wiki/Garden-path_sentence
 
-This works quite nicely with RxJS, but native stream objects like [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol), [`AsyncIterable`](https://github.com/tc39/proposal-async-iteration#async-iterators-and-async-iterables), [`Observable`](https://github.com/tc39/proposal-observable) etc. do not have a `.pipe()` method and therefore need to be wrapped with a library like RxJS or IxJS first.
+In addition, pipe functions wouldn’t help only partial function application.
+Their **flexibility** would allow for **partial expression application**,
+concisely creating functions from other kinds of expressions
+in ways that would not be possible with `?`-PFA.
 
-The pipeline operator makes it possible to easily transform these stream representations in a functional way without having to depend on a library like RxJS or IxJS.
+| `?`-PFA                    | Hack pipe functions        |
+| -------------------------- | -------------------------- |
+|`a.map(x=> x + 1)`          |`a.map(+> ^ + 1)`           |
+|`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
+|`a.sort((x,y)=> x - y)`     |`a.sort(+> ^0 - ^1)`        |
 
-For users of these libraries, it saves boilerplate code, especially when having to interop with native stream representations or other libraries: In the example above, `map` and `filter` can come from a library like IxJS and be applied on `numbers()` without having to wrap `numbers()` in a library-specific object first like `Ix.Iterable.from(numbers()).pipe(...)`.
+### Hack-pipe syntax for `if`, `catch`, and `for`–`of`
+Many **`if`, `catch`, and `for` statements** could become pithier
+if they gained **“pipe syntax”** that bound the topic reference.
 
-For WHATWG and Node streams (which have a pipe method) it allows transformation with simple functions instead of through more complicated `TransformStream` objects, with easier error handling (Node's `pipe()` does not forward errors). Since Node 10 `ReadableStream` also implements `AsyncIterable` so any transformation function written for AsyncIterables can directly work with NodeJS streams, just like any transformation function written for Iterables can work with arrays or Sets.
+`if () |>` would bind its condition value to `^`,\
+`catch |>` would bind its caught error to `^`,\
+and `for (of) |>` would consecutively bind each of its iterator’s values to `^`.
 
-### Object Decorators
+| Status quo                  | Hack-pipe statement syntax |
+| --------------------------- | -------------------------- |
+|`const c = f(); if (c) g(c);`|`if (f()) \|> b(^);`        |
+|`catch (e) f(e);`            |`catch \|> f(^);`           |
+|`for (const v of f()) g(v);` |`for (f()) \|> g(^);`       |
 
-Mixins via `Object.assign` are great, but sometimes you need something more advanced. A **decorator function** is a function that receives an existing object, adds to it (mutative or not), and then returns the result.
+### Optional Hack pipes
+A **short-circuiting** optional-pipe operator `|?>` could also be useful,
+much in the way `?.` is useful for optional method calls.
 
-Decorator functions are useful when you want to share behavior across multiple kinds of objects. For example, given the following decorators:
+For example, `value |> ^ != null ? await foo(^) : ^ |> ^ != null ? ^ + 1 : ^`\
+would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
 
-```js
-function greets (person) {
-  person.greet = () => `${person.name} says hi!`;
-  return person;
-}
-function ages (age) {
-  return function (person) {
-    person.age = age;
-    person.birthday = function () { person.age += 1; };
-    return person;
-  }
-}
-function programs (favLang) {
-  return function (person) {
-    person.favLang = favLang;
-    person.program = () => `${person.name} starts to write ${person.favLang}!`;
-    return person;
-  }
-}
-```
+### Tacit unary function application
+**Tacit unary function application** – that is, F# pipes –
+could still be added to the language with **another pipe operator** `|>>` –
+similarly to how [Clojure has multiple pipe macros][Clojure pipes]
+`->`, `->>`, and `as->`.
 
-...you can create multiple "classes" that share one or more behaviors:
+[Clojure pipes]: https://clojure.org/guides/threading_macros
 
-```js
-function Person (name, age) {
-  return { name: name } |> greets |> ages(age);
-}
-function Programmer (name, age) {
-  return { name: name }
-    |> greets
-    |> ages(age)
-    |> programs('javascript');
-}
-```
+For example, `value |> ^ + 1 |>> f |> g(^, 0)`\
+would mean `value |> ^ + 1 |> f(^) |> g(^, 0)`.
 
-### Validation
+There was an [informal proposal for such a **split mix** of two pipe operators][split mix],
+which was set aside in favor of single-operator proposals.
 
-Validation is a great use case for pipelining functions. For example, given the following validators:
-
-```js
-function bounded (prop, min, max) {
-  return function (obj) {
-    if ( obj[prop] < min || obj[prop] > max ) throw Error('out of bounds');
-    return obj;
-  };
-}
-function format (prop, regex) {
-  return function (obj) {
-    if ( ! regex.test(obj[prop]) ) throw Error('invalid format');
-    return obj;
-  };
-}
-```
-
-...we can use the pipeline operator to validate objects quite pleasantly:
-
-```js
-function createPerson (attrs) {
-  attrs
-    |> bounded('age', 1, 100)
-    |> format('name', /^[a-z]$/i)
-    |> Person.insertIntoDatabase;
-}
-```
-
-### Usage with Prototypes
-
-Although the pipe operator operates well with functions that don't use `this`, it can still integrate nicely into current workflows:
-
-```js
-import Lazy from 'lazy.js'
-
-getAllPlayers()
-  .filter( p => p.score > 100 )
-  .sort()
-|> (_ => Lazy(_)
-  .map( p => p.name )
-  .take(5))
-|> (_ => renderLeaderboard('#my-div', _));
-```
-
-### Mixins
-
-["Real" Mixins](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/) have some syntax problems, but the pipeline operator cleans them up quite nicely. For example, given the following classes and mixins:
-
-```js
-class Model {
-  // ...
-}
-let Editable = superclass => class extends superclass {
-  // ...
-};
-let Sharable = superclass => class extends superclass {
-  // ...
-};
-```
-
-... we can use the pipeline operator to create a new class that extends `Model` and mixes `Editable` and `Sharable`, with a more readable syntax:
-
-```js
-// Before:
-class Comment extends Sharable(Editable(Model)) {
-  // ...
-}
-// After:
-class Comment extends Model |> Editable |> Sharable {
-  // ...
-}
-```
-
-### Real-world Use Cases
-
-Check out the [Example Use Cases](https://github.com/tc39/proposal-pipeline-operator/wiki/Example-Use-Cases) wiki page to see more possibilities.
-
-## Implementations
-
-### Browser
-
-* Firefox 58+ has pipeline support behind the `--enable-pipeline-operator` compile flag
-
-### Build Tools
-
-* [@babel/plugin-proposal-pipeline-operator](https://github.com/babel/babel/tree/master/packages/babel-plugin-proposal-pipeline-operator)
-* [TypeScript PR for pipeline operator](https://github.com/microsoft/TypeScript/pull/38305) (Implements minimal pipeline proposal). [Playground link](https://www.typescriptlang.org/play?ts=4.0.0-pr-38305-2#code/PTAEEFQZwSwWwA4BsCmpkEMCeBzATgPYCuAdgCagBmBe6MCKSMJaBDeGALjdFiZxgAeAOgBQIUABUAwgGYAnOkIICUDEgBcoABadOCKBpA4YnbUQBGwgMYE4wTtYXAEy1eoC0Ceo2YoPbCgc3HjiYJJYDADK1nj0nKBkHJQJAAoASlq6+obGpuZWtvZwMLGqBCnAEdGx8S5ESEjAsgAcsgAMAKyiYRCgSAQJFaAoghiIqFCJBCQA5AkA7jQA1sKgAKJQDNYw6khYoBh4hAtUpNacMDNTcERQCRZoCxwIDBTM6Eco-NoosFBiXoASVmcGgl0aoE4QTiFlQh0WcUuJBwoBwBAIFFG42Qf0BthI92gAEciF9QABeUAAChIWhIRDgjzwAEpKQA+UAAWS42mEKgWtIANKAAEwsgDcogALKAAD6cqCk8kK0AEqAEVDCAY4CWgCQARgAbD0JAB5CwAKxQF1AABEbTQuDQoD1KOdLjM0XgUChOFNqewNSQ2QBvUSgdBBYPCfC+hJU6lsimcgAGABJQ0GZsISOMUABfaDYKbaGAAQlTUsjPs4RDwJCjeGDUoLondJAuV0bGBwfxpvZQYYjoFr9cbHa7XsD0Zmw8jkezJGEg8phz71YXS+EFhgeDMZGwa8nnsbSdAoabMdXAGoqQa9QXNzW-eOrzNN222yfu0oCPhxgDSgMAANwAGQwFF51HV8GzOTtTxpJdoMXWdl2A8DINRKkMIglFn3fZdXH-DgwUTZM00zbc8zgQtwSOf0oQIUBnlMNAqLQ4RcKwgtKwIsc4KXT9RDbdsPV-VI0JpGiUBFQdoIExtLxk+l81AItVTjP0plVQcoGpeTWzEhCJMIAC4Fo2haXzOS+wU2ClNAFSnLUtsF3lTktP9EdI10vt9PknyPL-cz9NmS1QIwKBagQThZklESenVBIMEPMjQFSMzSMs6lZnANLZhFDoEtS8ZYx9P1z1VdVNRQbV-ylIA)
-
-## Related proposals
-
-If you like this proposal, you will certainly like the [proposal for easier partial application](https://github.com/rbuckton/proposal-partial-application). Take a look and star if you like it!
-
-You may also be interested in these separate proposals for a function composition operator:
-
-- Operator: [TheNavigateur/proposal-pipeline-operator-for-function-composition](https://github.com/TheNavigateur/proposal-pipeline-operator-for-function-composition)
-- Operator (generalized): [isiahmeadows/lifted-pipeline-strawman](https://github.com/isiahmeadows/lifted-pipeline-strawman)
-- Method: [simonstaton/Function.prototype.compose-TC39-Proposal](https://github.com/simonstaton/Function.prototype.compose-TC39-Proposal)
-- Function: [fantasyland/ECMAScript-proposals (issue #1 comment)](https://github.com/fantasyland/ECMAScript-proposals/issues/1#issuecomment-306243513)
+[split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
