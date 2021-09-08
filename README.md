@@ -1,6 +1,7 @@
-# Hack pipe operator for JavaScript
-ECMAScript Stage-2 Proposal. J. S. Choi, 2021.
+# Pipe Operator (`|>`) for JavaScript
 
+* **Stage**: 2
+* **Champions**: J. S. Choi, Tab Atkins-Bittner, \[list incomplete]
 * **[Specification][]**
 * **Babel plugin**: [Implemented in v7.15][Babel 7.15]. See [Babel documentation][].
 
