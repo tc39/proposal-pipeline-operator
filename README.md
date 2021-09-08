@@ -225,8 +225,8 @@ when they perceive their benefit to be relatively small.
 [naming hard]: https://martinfowler.com/bliki/TwoHardThings.html
 
 ## Why the Hack pipe operator
-There are **two competing proposals** for the pipe operator: Hack pipes and F# pipes.
-(There **was** a [third proposal for a “smart mix” of the first two proposals][smart mix],
+There were **two competing proposals** for the pipe operator: Hack pipes and F# pipes.
+(Before that, there **was** a [third proposal for a “smart mix” of the first two proposals][smart mix],
 but it has been withdrawn,
 since its syntax is strictly a superset of one of the proposals’.)
 
@@ -274,6 +274,11 @@ as well as [unary arrow functions
 that perform **complex destructuring** on their arguments][destruct]:
 Hack pipes would be slightly more verbose
 with an **explicit** function call suffix `(^)`.
+
+(Complex destructuring of the topic value
+will be easier when [do expressions][] progress,
+as you will then be able to do variable assignment/destructuring
+inside of a pipe body.)
 
 [function-currying]: https://en.wikipedia.org/wiki/Currying
 [Ramda]: https://ramdajs.com/
@@ -447,7 +452,7 @@ and it is **lexically scoped** and **immutable**.
 (The precise [**token** for the topic reference is **not final**][token bikeshedding].
 `^` could instead be `%`, or many other tokens.
 We plan to [**bikeshed** what actual token to use][token bikeshedding]
-**later**, if TC39 advances this proposal.
+before advancing to Stage 3.
 However, `^` seems to be the [least syntactically problematic][],
 and it also resembles the placeholders of **[printf format strings][]**
 and [**Clojure**’s `#(^)` **function literals**][Clojure function literals].)
