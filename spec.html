@@ -1,96 +1,3127 @@
-<!doctype html>
-<meta charset="utf8">
-<pre class=metadata>
-title: Pipeline operator
-stage: 1
-contributors: Daniel Ehrenberg
-</pre>
 
-<emu-intro id=sec-intro>
+<!doctype html>
+<head><meta charset="utf-8"><title>ES pipe operator (2021) • JSChoi.org</title><script>'use strict';
+let sdoBox = {
+  init() {
+    this.$alternativeId = null;
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
+    this.$container = document.createElement('div');
+    this.$container.classList.add('toolbox');
+    this.$displayLink = document.createElement('a');
+    this.$displayLink.setAttribute('href', '#');
+    this.$displayLink.textContent = 'Syntax-Directed Operations';
+    this.$displayLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showSDOs(sdoMap[this.$alternativeId] || {}, this.$alternativeId);
+    });
+    this.$container.appendChild(this.$displayLink);
+    this.$outer.appendChild(this.$container);
+    document.body.appendChild(this.$outer);
+  },
+
+  activate(el) {
+    clearTimeout(this.deactiveTimeout);
+    Toolbox.deactivate();
+    this.$alternativeId = el.id;
+    let numSdos = Object.keys(sdoMap[this.$alternativeId] || {}).length;
+    this.$displayLink.textContent = 'Syntax-Directed Operations (' + numSdos + ')';
+    this.$outer.classList.add('active');
+    let top = el.offsetTop - this.$outer.offsetHeight;
+    let left = el.offsetLeft + 50 - 10; // 50px = padding-left(=75px) + text-indent(=-25px)
+    this.$outer.setAttribute('style', 'left: ' + left + 'px; top: ' + top + 'px');
+    if (top < document.body.scrollTop) {
+      this.$container.scrollIntoView();
+    }
+  },
+
+  deactivate() {
+    clearTimeout(this.deactiveTimeout);
+    this.$outer.classList.remove('active');
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof sdoMap == 'undefined') {
+    console.error('could not find sdo map');
+    return;
+  }
+  sdoBox.init();
+
+  let insideTooltip = false;
+  sdoBox.$outer.addEventListener('pointerenter', () => {
+    insideTooltip = true;
+  });
+  sdoBox.$outer.addEventListener('pointerleave', () => {
+    insideTooltip = false;
+    sdoBox.deactivate();
+  });
+
+  sdoBox.deactiveTimeout = null;
+  [].forEach.call(document.querySelectorAll('emu-grammar[type=definition] emu-rhs'), node => {
+    node.addEventListener('pointerenter', function () {
+      sdoBox.activate(this);
+    });
+
+    node.addEventListener('pointerleave', () => {
+      sdoBox.deactiveTimeout = setTimeout(() => {
+        if (!insideTooltip) {
+          sdoBox.deactivate();
+        }
+      }, 500);
+    });
+  });
+
+  document.addEventListener(
+    'keydown',
+    debounce(e => {
+      if (e.code === 'Escape') {
+        sdoBox.deactivate();
+      }
+    })
+  );
+});
+
+'use strict';
+function Search(menu) {
+  this.menu = menu;
+  this.$search = document.getElementById('menu-search');
+  this.$searchBox = document.getElementById('menu-search-box');
+  this.$searchResults = document.getElementById('menu-search-results');
+
+  this.loadBiblio();
+
+  document.addEventListener('keydown', this.documentKeydown.bind(this));
+
+  this.$searchBox.addEventListener(
+    'keydown',
+    debounce(this.searchBoxKeydown.bind(this), { stopPropagation: true })
+  );
+  this.$searchBox.addEventListener(
+    'keyup',
+    debounce(this.searchBoxKeyup.bind(this), { stopPropagation: true })
+  );
+
+  // Perform an initial search if the box is not empty.
+  if (this.$searchBox.value) {
+    this.search(this.$searchBox.value);
+  }
+}
+
+Search.prototype.loadBiblio = function () {
+  if (typeof biblio === 'undefined') {
+    console.error('could not find biblio');
+    this.biblio = { refToClause: {}, entries: [] };
+  } else {
+    this.biblio = biblio;
+    this.biblio.clauses = this.biblio.entries.filter(e => e.type === 'clause');
+    this.biblio.byId = this.biblio.entries.reduce((map, entry) => {
+      map[entry.id] = entry;
+      return map;
+    }, {});
+    let refParentClause = Object.create(null);
+    this.biblio.refParentClause = refParentClause;
+    let refsByClause = this.biblio.refsByClause;
+    Object.keys(refsByClause).forEach(clause => {
+      refsByClause[clause].forEach(ref => {
+        refParentClause[ref] = clause;
+      });
+    });
+  }
+};
+
+Search.prototype.documentKeydown = function (e) {
+  if (e.keyCode === 191) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.triggerSearch();
+  }
+};
+
+Search.prototype.searchBoxKeydown = function (e) {
+  e.stopPropagation();
+  e.preventDefault();
+  if (e.keyCode === 191 && e.target.value.length === 0) {
+    e.preventDefault();
+  } else if (e.keyCode === 13) {
+    e.preventDefault();
+    this.selectResult();
+  }
+};
+
+Search.prototype.searchBoxKeyup = function (e) {
+  if (e.keyCode === 13 || e.keyCode === 9) {
+    return;
+  }
+
+  this.search(e.target.value);
+};
+
+Search.prototype.triggerSearch = function () {
+  if (this.menu.isVisible()) {
+    this._closeAfterSearch = false;
+  } else {
+    this._closeAfterSearch = true;
+    this.menu.show();
+  }
+
+  this.$searchBox.focus();
+  this.$searchBox.select();
+};
+// bit 12 - Set if the result starts with searchString
+// bits 8-11: 8 - number of chunks multiplied by 2 if cases match, otherwise 1.
+// bits 1-7: 127 - length of the entry
+// General scheme: prefer case sensitive matches with fewer chunks, and otherwise
+// prefer shorter matches.
+function relevance(result) {
+  let relevance = 0;
+
+  relevance = Math.max(0, 8 - result.match.chunks) << 7;
+
+  if (result.match.caseMatch) {
+    relevance *= 2;
+  }
+
+  if (result.match.prefix) {
+    relevance += 2048;
+  }
+
+  relevance += Math.max(0, 255 - result.entry.key.length);
+
+  return relevance;
+}
+
+Search.prototype.search = function (searchString) {
+  if (searchString === '') {
+    this.displayResults([]);
+    this.hideSearch();
+    return;
+  } else {
+    this.showSearch();
+  }
+
+  if (searchString.length === 1) {
+    this.displayResults([]);
+    return;
+  }
+
+  let results;
+
+  if (/^[\d.]*$/.test(searchString)) {
+    results = this.biblio.clauses
+      .filter(clause => clause.number.substring(0, searchString.length) === searchString)
+      .map(clause => ({ entry: clause }));
+  } else {
+    results = [];
+
+    for (let i = 0; i < this.biblio.entries.length; i++) {
+      let entry = this.biblio.entries[i];
+      if (!entry.key) {
+        // biblio entries without a key aren't searchable
+        continue;
+      }
+
+      let match = fuzzysearch(searchString, entry.key);
+      if (match) {
+        results.push({ entry, match });
+      }
+    }
+
+    results.forEach(result => {
+      result.relevance = relevance(result, searchString);
+    });
+
+    results = results.sort((a, b) => b.relevance - a.relevance);
+  }
+
+  if (results.length > 50) {
+    results = results.slice(0, 50);
+  }
+
+  this.displayResults(results);
+};
+Search.prototype.hideSearch = function () {
+  this.$search.classList.remove('active');
+};
+
+Search.prototype.showSearch = function () {
+  this.$search.classList.add('active');
+};
+
+Search.prototype.selectResult = function () {
+  let $first = this.$searchResults.querySelector('li:first-child a');
+
+  if ($first) {
+    document.location = $first.getAttribute('href');
+  }
+
+  this.$searchBox.value = '';
+  this.$searchBox.blur();
+  this.displayResults([]);
+  this.hideSearch();
+
+  if (this._closeAfterSearch) {
+    this.menu.hide();
+  }
+};
+
+Search.prototype.displayResults = function (results) {
+  if (results.length > 0) {
+    this.$searchResults.classList.remove('no-results');
+
+    let html = '<ul>';
+
+    results.forEach(result => {
+      let entry = result.entry;
+      let id = entry.id;
+      let cssClass = '';
+      let text = '';
+
+      if (entry.type === 'clause') {
+        let number = entry.number ? entry.number + ' ' : '';
+        text = number + entry.key;
+        cssClass = 'clause';
+        id = entry.id;
+      } else if (entry.type === 'production') {
+        text = entry.key;
+        cssClass = 'prod';
+        id = entry.id;
+      } else if (entry.type === 'op') {
+        text = entry.key;
+        cssClass = 'op';
+        id = entry.id || entry.refId;
+      } else if (entry.type === 'term') {
+        text = entry.key;
+        cssClass = 'term';
+        id = entry.id || entry.refId;
+      }
+
+      if (text) {
+        // prettier-ignore
+        html += `<li class=menu-search-result-${cssClass}><a href="${makeLinkToId(id)}">${text}</a></li>`;
+      }
+    });
+
+    html += '</ul>';
+
+    this.$searchResults.innerHTML = html;
+  } else {
+    this.$searchResults.innerHTML = '';
+    this.$searchResults.classList.add('no-results');
+  }
+};
+
+function Menu() {
+  this.$toggle = document.getElementById('menu-toggle');
+  this.$menu = document.getElementById('menu');
+  this.$toc = document.querySelector('menu-toc > ol');
+  this.$pins = document.querySelector('#menu-pins');
+  this.$pinList = document.getElementById('menu-pins-list');
+  this.$toc = document.querySelector('#menu-toc > ol');
+  this.$specContainer = document.getElementById('spec-container');
+  this.search = new Search(this);
+
+  this._pinnedIds = {};
+  this.loadPinEntries();
+
+  // toggle menu
+  this.$toggle.addEventListener('click', this.toggle.bind(this));
+
+  // keydown events for pinned clauses
+  document.addEventListener('keydown', this.documentKeydown.bind(this));
+
+  // toc expansion
+  let tocItems = this.$menu.querySelectorAll('#menu-toc li');
+  for (let i = 0; i < tocItems.length; i++) {
+    let $item = tocItems[i];
+    $item.addEventListener('click', event => {
+      $item.classList.toggle('active');
+      event.stopPropagation();
+    });
+  }
+
+  // close toc on toc item selection
+  let tocLinks = this.$menu.querySelectorAll('#menu-toc li > a');
+  for (let i = 0; i < tocLinks.length; i++) {
+    let $link = tocLinks[i];
+    $link.addEventListener('click', event => {
+      this.toggle();
+      event.stopPropagation();
+    });
+  }
+
+  // update active clause on scroll
+  window.addEventListener('scroll', debounce(this.updateActiveClause.bind(this)));
+  this.updateActiveClause();
+
+  // prevent menu scrolling from scrolling the body
+  this.$toc.addEventListener('wheel', e => {
+    let target = e.currentTarget;
+    let offTop = e.deltaY < 0 && target.scrollTop === 0;
+    if (offTop) {
+      e.preventDefault();
+    }
+    let offBottom = e.deltaY > 0 && target.offsetHeight + target.scrollTop >= target.scrollHeight;
+
+    if (offBottom) {
+      e.preventDefault();
+    }
+  });
+}
+
+Menu.prototype.documentKeydown = function (e) {
+  e.stopPropagation();
+  if (e.keyCode === 80) {
+    this.togglePinEntry();
+  } else if (e.keyCode > 48 && e.keyCode < 58) {
+    this.selectPin(e.keyCode - 49);
+  }
+};
+
+Menu.prototype.updateActiveClause = function () {
+  this.setActiveClause(findActiveClause(this.$specContainer));
+};
+
+Menu.prototype.setActiveClause = function (clause) {
+  this.$activeClause = clause;
+  this.revealInToc(this.$activeClause);
+};
+
+Menu.prototype.revealInToc = function (path) {
+  let current = this.$toc.querySelectorAll('li.revealed');
+  for (let i = 0; i < current.length; i++) {
+    current[i].classList.remove('revealed');
+    current[i].classList.remove('revealed-leaf');
+  }
+
+  current = this.$toc;
+  let index = 0;
+  outer: while (index < path.length) {
+    let children = current.children;
+    for (let i = 0; i < children.length; i++) {
+      if ('#' + path[index].id === children[i].children[1].hash) {
+        children[i].classList.add('revealed');
+        if (index === path.length - 1) {
+          children[i].classList.add('revealed-leaf');
+          let rect = children[i].getBoundingClientRect();
+          // this.$toc.getBoundingClientRect().top;
+          let tocRect = this.$toc.getBoundingClientRect();
+          if (rect.top + 10 > tocRect.bottom) {
+            this.$toc.scrollTop =
+              this.$toc.scrollTop + (rect.top - tocRect.bottom) + (rect.bottom - rect.top);
+          } else if (rect.top < tocRect.top) {
+            this.$toc.scrollTop = this.$toc.scrollTop - (tocRect.top - rect.top);
+          }
+        }
+        current = children[i].querySelector('ol');
+        index++;
+        continue outer;
+      }
+    }
+    console.log('could not find location in table of contents', path);
+    break;
+  }
+};
+
+function findActiveClause(root, path) {
+  let clauses = getChildClauses(root);
+  path = path || [];
+
+  for (let $clause of clauses) {
+    let rect = $clause.getBoundingClientRect();
+    let $header = $clause.querySelector('h1');
+    let marginTop = Math.max(
+      parseInt(getComputedStyle($clause)['margin-top']),
+      parseInt(getComputedStyle($header)['margin-top'])
+    );
+
+    if (rect.top - marginTop <= 1 && rect.bottom > 0) {
+      return findActiveClause($clause, path.concat($clause)) || path;
+    }
+  }
+
+  return path;
+}
+
+function* getChildClauses(root) {
+  for (let el of root.children) {
+    switch (el.nodeName) {
+      // descend into <emu-import>
+      case 'EMU-IMPORT':
+        yield* getChildClauses(el);
+        break;
+
+      // accept <emu-clause>, <emu-intro>, and <emu-annex>
+      case 'EMU-CLAUSE':
+      case 'EMU-INTRO':
+      case 'EMU-ANNEX':
+        yield el;
+    }
+  }
+}
+
+Menu.prototype.toggle = function () {
+  this.$menu.classList.toggle('active');
+};
+
+Menu.prototype.show = function () {
+  this.$menu.classList.add('active');
+};
+
+Menu.prototype.hide = function () {
+  this.$menu.classList.remove('active');
+};
+
+Menu.prototype.isVisible = function () {
+  return this.$menu.classList.contains('active');
+};
+
+Menu.prototype.showPins = function () {
+  this.$pins.classList.add('active');
+};
+
+Menu.prototype.hidePins = function () {
+  this.$pins.classList.remove('active');
+};
+
+Menu.prototype.addPinEntry = function (id) {
+  let entry = this.search.biblio.byId[id];
+  if (!entry) {
+    // id was deleted after pin (or something) so remove it
+    delete this._pinnedIds[id];
+    this.persistPinEntries();
+    return;
+  }
+
+  if (entry.type === 'clause') {
+    let prefix;
+    if (entry.number) {
+      prefix = entry.number + ' ';
+    } else {
+      prefix = '';
+    }
+    // prettier-ignore
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${prefix}${entry.titleHTML}</a></li>`;
+  } else {
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${entry.key}</a></li>`;
+  }
+
+  if (Object.keys(this._pinnedIds).length === 0) {
+    this.showPins();
+  }
+  this._pinnedIds[id] = true;
+  this.persistPinEntries();
+};
+
+Menu.prototype.removePinEntry = function (id) {
+  let item = this.$pinList.querySelector(`a[href="${makeLinkToId(id)}"]`).parentNode;
+  this.$pinList.removeChild(item);
+  delete this._pinnedIds[id];
+  if (Object.keys(this._pinnedIds).length === 0) {
+    this.hidePins();
+  }
+
+  this.persistPinEntries();
+};
+
+Menu.prototype.persistPinEntries = function () {
+  try {
+    if (!window.localStorage) return;
+  } catch (e) {
+    return;
+  }
+
+  localStorage.pinEntries = JSON.stringify(Object.keys(this._pinnedIds));
+};
+
+Menu.prototype.loadPinEntries = function () {
+  try {
+    if (!window.localStorage) return;
+  } catch (e) {
+    return;
+  }
+
+  let pinsString = window.localStorage.pinEntries;
+  if (!pinsString) return;
+  let pins = JSON.parse(pinsString);
+  for (let i = 0; i < pins.length; i++) {
+    this.addPinEntry(pins[i]);
+  }
+};
+
+Menu.prototype.togglePinEntry = function (id) {
+  if (!id) {
+    id = this.$activeClause[this.$activeClause.length - 1].id;
+  }
+
+  if (this._pinnedIds[id]) {
+    this.removePinEntry(id);
+  } else {
+    this.addPinEntry(id);
+  }
+};
+
+Menu.prototype.selectPin = function (num) {
+  document.location = this.$pinList.children[num].children[0].href;
+};
+
+let menu;
+
+document.addEventListener('DOMContentLoaded', init);
+
+function debounce(fn, opts) {
+  opts = opts || {};
+  let timeout;
+  return function (e) {
+    if (opts.stopPropagation) {
+      e.stopPropagation();
+    }
+    let args = arguments;
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => {
+      timeout = null;
+      fn.apply(this, args);
+    }, 150);
+  };
+}
+
+let CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
+function findContainer($elem) {
+  let parentClause = $elem.parentNode;
+  while (parentClause && CLAUSE_NODES.indexOf(parentClause.nodeName) === -1) {
+    parentClause = parentClause.parentNode;
+  }
+  return parentClause;
+}
+
+function findLocalReferences(parentClause, name) {
+  let vars = parentClause.querySelectorAll('var');
+  let references = [];
+
+  for (let i = 0; i < vars.length; i++) {
+    let $var = vars[i];
+
+    if ($var.innerHTML === name) {
+      references.push($var);
+    }
+  }
+
+  return references;
+}
+
+let REFERENCED_CLASSES = Array.from({ length: 7 }, (x, i) => `referenced${i}`);
+function chooseHighlightIndex(parentClause) {
+  let counts = REFERENCED_CLASSES.map($class => parentClause.getElementsByClassName($class).length);
+  // Find the earliest index with the lowest count.
+  let minCount = Infinity;
+  let index = null;
+  for (let i = 0; i < counts.length; i++) {
+    if (counts[i] < minCount) {
+      minCount = counts[i];
+      index = i;
+    }
+  }
+  return index;
+}
+
+function toggleFindLocalReferences($elem) {
+  let parentClause = findContainer($elem);
+  let references = findLocalReferences(parentClause, $elem.innerHTML);
+  if ($elem.classList.contains('referenced')) {
+    references.forEach($reference => {
+      $reference.classList.remove('referenced', ...REFERENCED_CLASSES);
+    });
+  } else {
+    let index = chooseHighlightIndex(parentClause);
+    references.forEach($reference => {
+      $reference.classList.add('referenced', `referenced${index}`);
+    });
+  }
+}
+
+function installFindLocalReferences() {
+  document.addEventListener('click', e => {
+    if (e.target.nodeName === 'VAR') {
+      toggleFindLocalReferences(e.target);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', installFindLocalReferences);
+
+// The following license applies to the fuzzysearch function
+// The MIT License (MIT)
+// Copyright © 2015 Nicolas Bevacqua
+// Copyright © 2016 Brian Terlson
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+function fuzzysearch(searchString, haystack, caseInsensitive) {
+  let tlen = haystack.length;
+  let qlen = searchString.length;
+  let chunks = 1;
+  let finding = false;
+
+  if (qlen > tlen) {
+    return false;
+  }
+
+  if (qlen === tlen) {
+    if (searchString === haystack) {
+      return { caseMatch: true, chunks: 1, prefix: true };
+    } else if (searchString.toLowerCase() === haystack.toLowerCase()) {
+      return { caseMatch: false, chunks: 1, prefix: true };
+    } else {
+      return false;
+    }
+  }
+
+  let j = 0;
+  outer: for (let i = 0; i < qlen; i++) {
+    let nch = searchString[i];
+    while (j < tlen) {
+      let targetChar = haystack[j++];
+      if (targetChar === nch) {
+        finding = true;
+        continue outer;
+      }
+      if (finding) {
+        chunks++;
+        finding = false;
+      }
+    }
+
+    if (caseInsensitive) {
+      return false;
+    }
+
+    return fuzzysearch(searchString.toLowerCase(), haystack.toLowerCase(), true);
+  }
+
+  return { caseMatch: !caseInsensitive, chunks, prefix: j <= qlen };
+}
+
+let referencePane = {
+  init() {
+    this.$container = document.createElement('div');
+    this.$container.setAttribute('id', 'references-pane-container');
+
+    let $spacer = document.createElement('div');
+    $spacer.setAttribute('id', 'references-pane-spacer');
+
+    this.$pane = document.createElement('div');
+    this.$pane.setAttribute('id', 'references-pane');
+
+    this.$container.appendChild($spacer);
+    this.$container.appendChild(this.$pane);
+
+    this.$header = document.createElement('div');
+    this.$header.classList.add('menu-pane-header');
+    this.$headerText = document.createElement('span');
+    this.$header.appendChild(this.$headerText);
+    this.$headerRefId = document.createElement('a');
+    this.$header.appendChild(this.$headerRefId);
+    this.$closeButton = document.createElement('span');
+    this.$closeButton.setAttribute('id', 'references-pane-close');
+    this.$closeButton.addEventListener('click', () => {
+      this.deactivate();
+    });
+    this.$header.appendChild(this.$closeButton);
+
+    this.$pane.appendChild(this.$header);
+    let tableContainer = document.createElement('div');
+    tableContainer.setAttribute('id', 'references-pane-table-container');
+
+    this.$table = document.createElement('table');
+    this.$table.setAttribute('id', 'references-pane-table');
+
+    this.$tableBody = this.$table.createTBody();
+
+    tableContainer.appendChild(this.$table);
+    this.$pane.appendChild(tableContainer);
+
+    menu.$specContainer.appendChild(this.$container);
+  },
+
+  activate() {
+    this.$container.classList.add('active');
+  },
+
+  deactivate() {
+    this.$container.classList.remove('active');
+    this.state = null;
+  },
+
+  showReferencesFor(entry) {
+    this.activate();
+    this.state = { type: 'ref', id: entry.id };
+    this.$headerText.textContent = 'References to ';
+    let newBody = document.createElement('tbody');
+    let previousId;
+    let previousCell;
+    let dupCount = 0;
+    this.$headerRefId.textContent = '#' + entry.id;
+    this.$headerRefId.setAttribute('href', makeLinkToId(entry.id));
+    this.$headerRefId.style.display = 'inline';
+    entry.referencingIds
+      .map(id => {
+        let cid = menu.search.biblio.refParentClause[id];
+        let clause = menu.search.biblio.byId[cid];
+        if (clause == null) {
+          throw new Error('could not find clause for id ' + cid);
+        }
+        return { id, clause };
+      })
+      .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
+      .forEach(record => {
+        if (previousId === record.clause.id) {
+          previousCell.innerHTML += ` (<a href="${makeLinkToId(record.id)}">${dupCount + 2}</a>)`;
+          dupCount++;
+        } else {
+          let row = newBody.insertRow();
+          let cell = row.insertCell();
+          cell.innerHTML = record.clause.number;
+          cell = row.insertCell();
+          cell.innerHTML = `<a href="${makeLinkToId(record.id)}">${record.clause.titleHTML}</a>`;
+          previousCell = cell;
+          previousId = record.clause.id;
+          dupCount = 0;
+        }
+      }, this);
+    this.$table.removeChild(this.$tableBody);
+    this.$tableBody = newBody;
+    this.$table.appendChild(this.$tableBody);
+  },
+
+  showSDOs(sdos, alternativeId) {
+    let rhs = document.getElementById(alternativeId);
+    let parentName = rhs.parentNode.getAttribute('name');
+    let colons = rhs.parentNode.querySelector('emu-geq');
+    rhs = rhs.cloneNode(true);
+    rhs.querySelectorAll('emu-params,emu-constraints').forEach(e => {
+      e.remove();
+    });
+    rhs.querySelectorAll('[id]').forEach(e => {
+      e.removeAttribute('id');
+    });
+    rhs.querySelectorAll('a').forEach(e => {
+      e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
+    });
+
+    // prettier-ignore
+    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="${makeLinkToId(alternativeId)}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
+    this.$headerText.querySelector('a').append(rhs);
+    this.showSDOsBody(sdos, alternativeId);
+  },
+
+  showSDOsBody(sdos, alternativeId) {
+    this.activate();
+    this.state = { type: 'sdo', id: alternativeId, html: this.$headerText.innerHTML };
+    this.$headerRefId.style.display = 'none';
+    let newBody = document.createElement('tbody');
+    Object.keys(sdos).forEach(sdoName => {
+      let pair = sdos[sdoName];
+      let clause = pair.clause;
+      let ids = pair.ids;
+      let first = ids[0];
+      let row = newBody.insertRow();
+      let cell = row.insertCell();
+      cell.innerHTML = clause;
+      cell = row.insertCell();
+      let html = '<a href="' + makeLinkToId(first) + '">' + sdoName + '</a>';
+      for (let i = 1; i < ids.length; ++i) {
+        html += ' (<a href="' + makeLinkToId(ids[i]) + '">' + (i + 1) + '</a>)';
+      }
+      cell.innerHTML = html;
+    });
+    this.$table.removeChild(this.$tableBody);
+    this.$tableBody = newBody;
+    this.$table.appendChild(this.$tableBody);
+  },
+};
+
+let Toolbox = {
+  init() {
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
+    this.$container = document.createElement('div');
+    this.$container.classList.add('toolbox');
+    this.$outer.appendChild(this.$container);
+    this.$permalink = document.createElement('a');
+    this.$permalink.textContent = 'Permalink';
+    this.$pinLink = document.createElement('a');
+    this.$pinLink.textContent = 'Pin';
+    this.$pinLink.setAttribute('href', '#');
+    this.$pinLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      menu.togglePinEntry(this.entry.id);
+    });
+
+    this.$refsLink = document.createElement('a');
+    this.$refsLink.setAttribute('href', '#');
+    this.$refsLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showReferencesFor(this.entry);
+    });
+    this.$container.appendChild(this.$permalink);
+    this.$container.appendChild(this.$pinLink);
+    this.$container.appendChild(this.$refsLink);
+    document.body.appendChild(this.$outer);
+  },
+
+  activate(el, entry, target) {
+    if (el === this._activeEl) return;
+    sdoBox.deactivate();
+    this.active = true;
+    this.entry = entry;
+    this.$outer.classList.add('active');
+    this.top = el.offsetTop - this.$outer.offsetHeight;
+    this.left = el.offsetLeft - 10;
+    this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
+    this.updatePermalink();
+    this.updateReferences();
+    this._activeEl = el;
+    if (this.top < document.body.scrollTop && el === target) {
+      // don't scroll unless it's a small thing (< 200px)
+      this.$outer.scrollIntoView();
+    }
+  },
+
+  updatePermalink() {
+    this.$permalink.setAttribute('href', makeLinkToId(this.entry.id));
+  },
+
+  updateReferences() {
+    this.$refsLink.textContent = `References (${this.entry.referencingIds.length})`;
+  },
+
+  activateIfMouseOver(e) {
+    let ref = this.findReferenceUnder(e.target);
+    if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
+      let entry = menu.search.biblio.byId[ref.id];
+      this.activate(ref.element, entry, e.target);
+    } else if (
+      this.active &&
+      (e.pageY < this.top || e.pageY > this._activeEl.offsetTop + this._activeEl.offsetHeight)
+    ) {
+      this.deactivate();
+    }
+  },
+
+  findReferenceUnder(el) {
+    while (el) {
+      let parent = el.parentNode;
+      if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
+        return null;
+      }
+      if (
+        el.nodeName === 'H1' &&
+        parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) &&
+        parent.id
+      ) {
+        return { element: el, id: parent.id };
+      } else if (el.nodeName === 'EMU-NT') {
+        if (
+          parent.nodeName === 'EMU-PRODUCTION' &&
+          parent.id &&
+          parent.id[0] !== '_' &&
+          parent.firstElementChild === el
+        ) {
+          // return the LHS non-terminal element
+          return { element: el, id: parent.id };
+        }
+        return null;
+      } else if (
+        el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
+        el.id &&
+        el.id[0] !== '_'
+      ) {
+        if (
+          el.nodeName === 'EMU-FIGURE' ||
+          el.nodeName === 'EMU-TABLE' ||
+          el.nodeName === 'EMU-EXAMPLE'
+        ) {
+          // return the figcaption element
+          return { element: el.children[0].children[0], id: el.id };
+        } else {
+          return { element: el, id: el.id };
+        }
+      }
+      el = parent;
+    }
+  },
+
+  deactivate() {
+    this.$outer.classList.remove('active');
+    this._activeEl = null;
+    this.active = false;
+  },
+};
+
+function sortByClauseNumber(clause1, clause2) {
+  let c1c = clause1.number.split('.');
+  let c2c = clause2.number.split('.');
+
+  for (let i = 0; i < c1c.length; i++) {
+    if (i >= c2c.length) {
+      return 1;
+    }
+
+    let c1 = c1c[i];
+    let c2 = c2c[i];
+    let c1cn = Number(c1);
+    let c2cn = Number(c2);
+
+    if (Number.isNaN(c1cn) && Number.isNaN(c2cn)) {
+      if (c1 > c2) {
+        return 1;
+      } else if (c1 < c2) {
+        return -1;
+      }
+    } else if (!Number.isNaN(c1cn) && Number.isNaN(c2cn)) {
+      return -1;
+    } else if (Number.isNaN(c1cn) && !Number.isNaN(c2cn)) {
+      return 1;
+    } else if (c1cn > c2cn) {
+      return 1;
+    } else if (c1cn < c2cn) {
+      return -1;
+    }
+  }
+
+  if (c1c.length === c2c.length) {
+    return 0;
+  }
+  return -1;
+}
+
+function makeLinkToId(id) {
+  let hash = '#' + id;
+  if (typeof idToSection === 'undefined' || !idToSection[id]) {
+    return hash;
+  }
+  let targetSec = idToSection[id];
+  return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
+}
+
+function doShortcut(e) {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  let target = e.target;
+  let name = target.nodeName.toLowerCase();
+  if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
+    return;
+  }
+  if (e.key === 'm' && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && usesMultipage) {
+    let pathParts = location.pathname.split('/');
+    let hash = location.hash;
+    if (pathParts[pathParts.length - 2] === 'multipage') {
+      if (hash === '') {
+        let sectionName = pathParts[pathParts.length - 1];
+        if (sectionName.endsWith('.html')) {
+          sectionName = sectionName.slice(0, -5);
+        }
+        if (idToSection['sec-' + sectionName] !== undefined) {
+          hash = '#sec-' + sectionName;
+        }
+      }
+      location = pathParts.slice(0, -2).join('/') + '/' + hash;
+    } else {
+      location = 'multipage/' + hash;
+    }
+  }
+}
+
+function init() {
+  menu = new Menu();
+  let $container = document.getElementById('spec-container');
+  $container.addEventListener(
+    'mouseover',
+    debounce(e => {
+      Toolbox.activateIfMouseOver(e);
+    })
+  );
+  document.addEventListener(
+    'keydown',
+    debounce(e => {
+      if (e.code === 'Escape' && Toolbox.active) {
+        Toolbox.deactivate();
+      }
+    })
+  );
+}
+
+document.addEventListener('keypress', doShortcut);
+
+document.addEventListener('DOMContentLoaded', () => {
+  Toolbox.init();
+  referencePane.init();
+});
+
+'use strict';
+let decimalBullet = Array.from({ length: 100 }, (a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }, (a, i) => String.fromCharCode('a'.charCodeAt(0) + i));
+
+// prettier-ignore
+let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
+// prettier-ignore
+let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
+
+function addStepNumberText(ol, parentIndex) {
+  for (let i = 0; i < ol.children.length; ++i) {
+    let child = ol.children[i];
+    let index = parentIndex.concat([i]);
+    let applicable = bullets[Math.min(index.length - 1, 5)];
+    let span = document.createElement('span');
+    span.textContent = (applicable[i] || '?') + '. ';
+    span.style.fontSize = '0';
+    span.setAttribute('aria-hidden', 'true');
+    child.prepend(span);
+    let sublist = child.querySelector('ol');
+    if (sublist != null) {
+      addStepNumberText(sublist, index);
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('emu-alg > ol').forEach(ol => {
+    addStepNumberText(ol, []);
+  });
+});
+
+let sdoMap = JSON.parse(`{"prod-Joc9-5i9":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-og13oFFN"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-JN8cu1mT"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-n7xyt9Uq"]}},"prod-lUgBoKJM":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-yoA81pJx"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-bnH2b59m"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-2_Y196QK"]}},"prod-WzC_-Tli":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-pnNZChTM"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-ztGhnTck"]}},"prod-kFKvlIew":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-XEikQQGc"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-NBAafh2L"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-FYG1zcQs"]}},"prod-izgqBKzQ":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-wyk8qHUC"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-jZlT8Bef"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-jL-uFKFZ"]}},"prod-rL0KzAka":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-ITCaMx3s"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-bDA2HTuE"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-qSA3mL7y"]}},"prod-l_l2o01x":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-Q2nhWNO_"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-jR1Utmsf"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-byz46S5D"]}},"prod-ScOzt1wW":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-iMjjH1kL"]},"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-CUNEQPp0"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-iQVGoPgT"]}},"prod-CvtqIQqr":{"IsFunctionDefinition":{"clause":"1.1.1","ids":["prod-fMjVr-jJ"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-jGf1u1sj"]}},"prod-2GG08dnr":{"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-qDGWvs6X"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-ERpBYrCG"]}},"prod-BjlPLEoy":{"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-s_EYcmqv"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-8X4gnT8X"]}},"prod-qRYwqON3":{"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-ol9pQ3OI"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-yT2Snepb"]}},"prod-4f1krUyY":{"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-6S4OZBnv"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-fwZnfA7O"]}},"prod-Hseyu0a-":{"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-oszQ0h58"]},"AssignmentTargetType":{"clause":"1.3.1","ids":["prod-ZxMoVw8b"]}},"prod-Lu7YZ_Gz":{"IsIdentifierRef":{"clause":"1.1.2","ids":["prod-nAbs7Q-f"]}}}`);
+let biblio = JSON.parse(`{"refsByClause":{"sec-the-environment-record-type-hierarchy":["_ref_0","_ref_21","_ref_22","_ref_23"],"sec-declarative-environment-records":["_ref_1","_ref_2","_ref_3","_ref_24","_ref_25","_ref_26","_ref_27","_ref_28","_ref_29","_ref_30","_ref_31","_ref_32","_ref_33","_ref_34","_ref_35","_ref_36","_ref_37","_ref_38"],"sec-topic-references":["_ref_4","_ref_5","_ref_6","_ref_78","_ref_79","_ref_80","_ref_81","_ref_82","_ref_83","_ref_84","_ref_85","_ref_86","_ref_132","_ref_133","_ref_134","_ref_135"],"sec-topic-references-runtime-semantics-evaluation":["_ref_7","_ref_87","_ref_88","_ref_89","_ref_90","_ref_91"],"sec-pipe-operator-static-semantics-early-errors":["_ref_8","_ref_92","_ref_93","_ref_94","_ref_95","_ref_96","_ref_137","_ref_138","_ref_139","_ref_140","_ref_141","_ref_142","_ref_143","_ref_144"],"sec-createdynamicfunction":["_ref_9","_ref_113","_ref_114","_ref_115","_ref_116","_ref_117","_ref_118","_ref_119","_ref_120","_ref_121","_ref_122","_ref_123","_ref_124","_ref_125"],"introduction":["_ref_10"],"sec-static-semantics-isfunctiondefinition":["_ref_11","_ref_126"],"sec-static-semantics-isidentifierref":["_ref_12"],"sec-syntax-directed-operations-contains":["_ref_13"],"sec-static-semantics-contains":["_ref_14","_ref_15","_ref_16","_ref_17","_ref_18","_ref_19","_ref_127","_ref_128","_ref_129"],"sec-static-semantics-assignmenttargettype":["_ref_20","_ref_130"],"sec-declarative-environment-records-hastopicbinding":["_ref_39","_ref_40","_ref_41","_ref_42"],"sec-declarative-environment-records-bindtopicvalues":["_ref_43","_ref_44","_ref_45","_ref_46","_ref_47"],"sec-object-environment-records-hastopicbinding":["_ref_48","_ref_49"],"sec-global-environment-records-hastopicbinding":["_ref_50","_ref_51"],"sec-topic-bindings":["_ref_52","_ref_53","_ref_54","_ref_55","_ref_56","_ref_57","_ref_58","_ref_59","_ref_60","_ref_61","_ref_62","_ref_63","_ref_131"],"sec-evaluatewithtopics":["_ref_64","_ref_65","_ref_66"],"sec-gettopicenvironment":["_ref_67","_ref_68","_ref_69","_ref_70"],"sec-getprimarytopicvalue":["_ref_71","_ref_72","_ref_73","_ref_74","_ref_75"],"sec-punctuators":["_ref_76"],"sec-primary-expression":["_ref_77"],"sec-pipe-operator-runtime-semantics-evaluation":["_ref_97","_ref_98","_ref_145","_ref_146"],"sec-scripts":["_ref_99"],"sec-scripts-static-semantics-early-errors":["_ref_100","_ref_101","_ref_102","_ref_103","_ref_104","_ref_105","_ref_148","_ref_149"],"sec-module-semantics":["_ref_106"],"sec-module-semantics-static-semantics-early-errors":["_ref_107","_ref_108","_ref_109","_ref_110","_ref_111","_ref_112","_ref_150","_ref_151"],"sec-pipe-operator":["_ref_136"],"sec-assignment-operators":["_ref_147"]},"entries":[{"type":"clause","id":"introduction","aoid":null,"titleHTML":"Introduction","number":"","referencingIds":[],"key":"Introduction"},{"type":"op","aoid":"IsFunctionDefinition","refId":"sec-static-semantics-isfunctiondefinition","referencingIds":[],"key":"IsFunctionDefinition"},{"type":"clause","id":"sec-static-semantics-isfunctiondefinition","aoid":"IsFunctionDefinition","titleHTML":"Static Semantics: IsFunctionDefinition","number":"1.1.1","referencingIds":[],"key":"Static Semantics: IsFunctionDefinition"},{"type":"op","aoid":"IsIdentifierRef","refId":"sec-static-semantics-isidentifierref","referencingIds":[],"key":"IsIdentifierRef"},{"type":"clause","id":"sec-static-semantics-isidentifierref","aoid":"IsIdentifierRef","titleHTML":"Static Semantics: IsIdentifierRef","number":"1.1.2","referencingIds":[],"key":"Static Semantics: IsIdentifierRef"},{"type":"clause","id":"sec-syntax-directed-operations-function-name-inference","aoid":null,"titleHTML":"Function Name Inference","number":"1.1","referencingIds":[],"key":"Function Name Inference"},{"type":"op","aoid":"Contains","refId":"sec-static-semantics-contains","referencingIds":[],"key":"Contains"},{"type":"clause","id":"sec-static-semantics-contains","aoid":"Contains","titleHTML":"Static Semantics: Contains","number":"1.2.1","referencingIds":["_ref_14","_ref_93","_ref_100","_ref_101","_ref_107","_ref_108","_ref_119"],"key":"Static Semantics: Contains"},{"type":"clause","id":"sec-syntax-directed-operations-contains","aoid":null,"titleHTML":"Contains","number":"1.2","referencingIds":["_ref_6","_ref_7","_ref_8","_ref_9"],"key":"Contains"},{"type":"op","aoid":"AssignmentTargetType","refId":"sec-static-semantics-assignmenttargettype","referencingIds":[],"key":"AssignmentTargetType"},{"type":"clause","id":"sec-static-semantics-assignmenttargettype","aoid":"AssignmentTargetType","titleHTML":"Static Semantics: AssignmentTargetType","number":"1.3.1","referencingIds":[],"key":"Static Semantics: AssignmentTargetType"},{"type":"clause","id":"sec-syntax-directed-operations-miscellaneous","aoid":null,"titleHTML":"Miscellaneous","number":"1.3","referencingIds":[],"key":"Miscellaneous"},{"type":"clause","id":"sec-syntax-directed-operations","aoid":null,"titleHTML":"Syntax-Directed Operations","number":"1","referencingIds":[],"key":"Syntax-Directed Operations"},{"type":"table","id":"table-15","node":{},"number":1,"caption":"Table 1: Abstract Methods of Environment Records","referencingIds":["_ref_2"],"key":"Table 1: Abstract Methods of Environment Records"},{"type":"table","id":"table-61","node":{},"number":2,"caption":"Table 2: Additional Fields of Declarative Environment Records","referencingIds":["_ref_1"],"key":"Table 2: Additional Fields of Declarative Environment Records"},{"type":"table","id":"table-62","node":{},"number":3,"caption":"Table 3: Additional Methods of Declarative\\n          Environment Records","referencingIds":["_ref_3"],"key":"Table 3: Additional Methods of Declarative\\n          Environment Records"},{"type":"clause","id":"sec-declarative-environment-records-hastopicbinding","aoid":null,"titleHTML":"<ins>HasTopicBinding ( )</ins>","number":"2.1.1.1.1","referencingIds":["_ref_0"],"key":"HasTopicBinding ( )"},{"type":"clause","id":"sec-declarative-environment-records-bindtopicvalues","aoid":null,"titleHTML":"<ins>BindTopicValues ( <var>V</var> )</ins>","number":"2.1.1.1.2","referencingIds":[],"key":"BindTopicValues ( V )"},{"type":"clause","id":"sec-declarative-environment-records","aoid":null,"titleHTML":"Declarative Environment Records","number":"2.1.1.1","referencingIds":["_ref_5"],"key":"Declarative Environment Records"},{"type":"clause","id":"sec-object-environment-records-hastopicbinding","aoid":null,"titleHTML":"<ins>HasTopicBinding ( )</ins>","number":"2.1.1.2.1","referencingIds":[],"key":"HasTopicBinding ( )"},{"type":"clause","id":"sec-object-environment-records","aoid":null,"titleHTML":"Object Environment Records","number":"2.1.1.2","referencingIds":[],"key":"Object Environment Records"},{"type":"clause","id":"sec-global-environment-records-hastopicbinding","aoid":null,"titleHTML":"<ins>HasTopicBinding ( )</ins>","number":"2.1.1.3.1","referencingIds":[],"key":"HasTopicBinding ( )"},{"type":"clause","id":"sec-global-environment-records","aoid":null,"titleHTML":"Global Environment Records","number":"2.1.1.3","referencingIds":[],"key":"Global Environment Records"},{"type":"clause","id":"sec-the-environment-record-type-hierarchy","aoid":null,"titleHTML":"The Environment Record Type Hierarchy","number":"2.1.1","referencingIds":[],"key":"The Environment Record Type Hierarchy"},{"type":"term","term":"topic binding","refId":"sec-topic-bindings","referencingIds":[],"key":"topic binding"},{"type":"term","term":"topic value","refId":"sec-topic-bindings","referencingIds":[],"key":"topic value"},{"type":"term","term":"topic","refId":"sec-topic-bindings","referencingIds":[],"key":"topic"},{"type":"term","term":"topic-binding environment","refId":"sec-topic-bindings","referencingIds":[],"key":"topic-binding environment"},{"type":"term","term":"topic environment","refId":"sec-topic-bindings","referencingIds":[],"key":"topic environment"},{"type":"clause","id":"sec-topic-bindings","aoid":null,"titleHTML":"<ins>Topic Bindings</ins>","number":"2.1.2","referencingIds":["_ref_4","_ref_19","_ref_22","_ref_23","_ref_26","_ref_27","_ref_29","_ref_30","_ref_32","_ref_33","_ref_35","_ref_38","_ref_41","_ref_44","_ref_45","_ref_49","_ref_51","_ref_65","_ref_66","_ref_68","_ref_69","_ref_70","_ref_73","_ref_74","_ref_75","_ref_79","_ref_80","_ref_81","_ref_82","_ref_83","_ref_84","_ref_86","_ref_88","_ref_94","_ref_105","_ref_112"],"key":"Topic Bindings"},{"type":"clause","id":"sec-environment-records","aoid":null,"titleHTML":"Environment Records","number":"2.1","referencingIds":["_ref_21","_ref_25","_ref_31","_ref_34","_ref_36","_ref_37","_ref_39","_ref_40","_ref_42","_ref_43","_ref_46","_ref_48","_ref_50","_ref_53","_ref_55","_ref_56","_ref_57","_ref_58","_ref_59","_ref_60","_ref_62","_ref_63","_ref_67","_ref_72","_ref_78"],"key":"Environment Records"},{"type":"op","aoid":"EvaluateWithTopics","refId":"sec-evaluatewithtopics","referencingIds":[],"key":"EvaluateWithTopics"},{"type":"clause","id":"sec-evaluatewithtopics","aoid":"EvaluateWithTopics","titleHTML":"EvaluateWithTopics ( <var>topicValues</var>, <var>expression</var> )","number":"2.2.1","referencingIds":["_ref_98"],"key":"EvaluateWithTopics ( topicValues, expression )"},{"type":"op","aoid":"GetTopicEnvironment","refId":"sec-gettopicenvironment","referencingIds":[],"key":"GetTopicEnvironment"},{"type":"clause","id":"sec-gettopicenvironment","aoid":"GetTopicEnvironment","titleHTML":"GetTopicEnvironment ( )","number":"2.2.2","referencingIds":["_ref_61","_ref_71"],"key":"GetTopicEnvironment ( )"},{"type":"op","aoid":"GetPrimaryTopicValue","refId":"sec-getprimarytopicvalue","referencingIds":[],"key":"GetPrimaryTopicValue"},{"type":"clause","id":"sec-getprimarytopicvalue","aoid":"GetPrimaryTopicValue","titleHTML":"GetPrimaryTopicValue ( )","number":"2.2.3","referencingIds":["_ref_91"],"key":"GetPrimaryTopicValue ( )"},{"type":"clause","id":"sec-execution-contexts","aoid":null,"titleHTML":"Execution Contexts","number":"2.2","referencingIds":[],"key":"Execution Contexts"},{"type":"clause","id":"executable-code-and-execution-contexts","aoid":null,"titleHTML":"Executable Code and Execution Contexts","number":"2","referencingIds":[],"key":"Executable Code and Execution Contexts"},{"type":"clause","id":"sec-punctuators","aoid":null,"titleHTML":"Punctuators","number":"3.1","referencingIds":[],"key":"Punctuators"},{"type":"clause","id":"sec-ecmascript-language-lexical-grammar","aoid":null,"titleHTML":"ECMAScript Language: Lexical Grammar","number":"3","referencingIds":[],"key":"ECMAScript Language: Lexical Grammar"},{"type":"production","id":"prod-PrimaryExpression","name":"PrimaryExpression","referencingIds":[],"key":"PrimaryExpression"},{"type":"term","term":"topic reference","refId":"sec-topic-references","referencingIds":[],"key":"topic reference"},{"type":"term","term":"unbound topic reference","refId":"sec-topic-references","referencingIds":[],"key":"unbound topic reference"},{"type":"clause","id":"sec-topic-references-runtime-semantics-evaluation","aoid":null,"titleHTML":"Runtime Semantics: Evaluation","number":"4.1.1.1","referencingIds":[],"key":"Runtime Semantics: Evaluation"},{"type":"clause","id":"sec-topic-references","aoid":null,"titleHTML":"<ins>Topic Reference</ins>","number":"4.1.1","referencingIds":["_ref_10","_ref_11","_ref_12","_ref_13","_ref_16","_ref_17","_ref_18","_ref_20","_ref_24","_ref_28","_ref_52","_ref_54","_ref_76","_ref_77","_ref_87","_ref_90","_ref_92","_ref_95","_ref_96","_ref_99","_ref_102","_ref_103","_ref_104","_ref_106","_ref_109","_ref_110","_ref_111","_ref_113","_ref_118"],"key":"Topic Reference"},{"type":"clause","id":"sec-primary-expression","aoid":null,"titleHTML":"Primary Expression","number":"4.1","referencingIds":[],"key":"Primary Expression"},{"type":"production","id":"prod-PipeExpression","name":"PipeExpression","referencingIds":["_ref_127","_ref_137","_ref_142","_ref_147"],"key":"PipeExpression"},{"type":"production","id":"prod-PipeBody","name":"PipeBody","referencingIds":["_ref_126","_ref_128","_ref_129","_ref_130","_ref_131","_ref_132","_ref_133","_ref_134","_ref_135","_ref_136","_ref_138","_ref_139","_ref_140","_ref_141","_ref_143","_ref_144","_ref_145","_ref_146","_ref_148","_ref_149","_ref_150","_ref_151"],"key":"PipeBody"},{"type":"clause","id":"sec-pipe-operator-static-semantics-early-errors","aoid":null,"titleHTML":"Static Semantics: Early Errors","number":"4.2.1","referencingIds":[],"key":"Static Semantics: Early Errors"},{"type":"clause","id":"sec-pipe-operator-runtime-semantics-evaluation","aoid":null,"titleHTML":"Runtime Semantics: Evaluation","number":"4.2.2","referencingIds":[],"key":"Runtime Semantics: Evaluation"},{"type":"clause","id":"sec-pipe-operator","aoid":null,"titleHTML":"<ins>Pipe Operator</ins>","number":"4.2","referencingIds":[],"key":"Pipe Operator"},{"type":"clause","id":"sec-assignment-operators","aoid":null,"titleHTML":"Assignment Operators","number":"4.3","referencingIds":[],"key":"Assignment Operators"},{"type":"clause","id":"sec-ecmascript-language-expressions","aoid":null,"titleHTML":"ECMAScript Language: Expressions","number":"4","referencingIds":[],"key":"ECMAScript Language: Expressions"},{"type":"clause","id":"sec-scripts-static-semantics-early-errors","aoid":null,"titleHTML":"Static Semantics: Early Errors","number":"5.1.1","referencingIds":[],"key":"Static Semantics: Early Errors"},{"type":"clause","id":"sec-scripts","aoid":null,"titleHTML":"Scripts","number":"5.1","referencingIds":[],"key":"Scripts"},{"type":"clause","id":"sec-module-semantics-static-semantics-early-errors","aoid":null,"titleHTML":"Static Semantics: Early Errors","number":"5.2.1.1","referencingIds":[],"key":"Static Semantics: Early Errors"},{"type":"clause","id":"sec-module-semantics","aoid":null,"titleHTML":"Module Semantics","number":"5.2.1","referencingIds":[],"key":"Module Semantics"},{"type":"clause","id":"sec-modules","aoid":null,"titleHTML":"Modules","number":"5.2","referencingIds":[],"key":"Modules"},{"type":"clause","id":"sec-ecmascript-language-scripts-and-modules","aoid":null,"titleHTML":"ECMAScript Language: Scripts and Modules","number":"5","referencingIds":[],"key":"ECMAScript Language: Scripts and Modules"},{"type":"op","aoid":"CreateDynamicFunction","refId":"sec-createdynamicfunction","referencingIds":[],"key":"CreateDynamicFunction"},{"type":"clause","id":"sec-createdynamicfunction","aoid":"CreateDynamicFunction","titleHTML":"CreateDynamicFunction ( <var>constructor</var>, <var>newTarget</var>, <var>kind</var>, <var>args</var> )","number":"6.1.1.1.1","referencingIds":["_ref_15","_ref_85","_ref_89"],"key":"CreateDynamicFunction ( constructor, newTarget, kind, args )"},{"type":"clause","id":"sec-function-p1-p2-pn-body","aoid":null,"titleHTML":"Function ( <var>p1</var>, <var>p2</var>, … , <var>pn</var>, <var>body</var> )","number":"6.1.1.1","referencingIds":[],"key":"Function ( p1, p2, … , pn, body )"},{"type":"clause","id":"sec-function-constructor","aoid":null,"titleHTML":"The Function Constructor","number":"6.1.1","referencingIds":[],"key":"The Function Constructor"},{"type":"clause","id":"sec-function-objects","aoid":null,"titleHTML":"Function Objects","number":"6.1","referencingIds":[],"key":"Function Objects"},{"type":"clause","id":"sec-fundamental-objects","aoid":null,"titleHTML":"Fundamental Objects","number":"6","referencingIds":[],"key":"Fundamental Objects"},{"type":"clause","id":"sec-copyright-and-software-license","aoid":null,"titleHTML":"Copyright &amp; Software License","number":"A","referencingIds":[],"key":"Copyright & Software License"}]}`);
+;let usesMultipage = false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/styles/base16/solarized-light.min.css"><style>body {
+  display: flex;
+  font-size: 18px;
+  line-height: 1.5;
+  font-family: Cambria, Palatino Linotype, Palatino, Liberation Serif, serif;
+  padding: 0;
+  margin: 0;
+  color: #111;
+}
+
+#spec-container {
+  padding: 0 20px;
+  flex-grow: 1;
+  flex-basis: 66%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-bottom: 1em;
+}
+
+body.oldtoc {
+  margin: 0 auto;
+}
+
+a {
+  text-decoration: none;
+  color: #206ca7;
+}
+
+a:visited {
+  color: #206ca7;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #239dee;
+}
+
+code {
+  font-weight: bold;
+  font-family: Consolas, Monaco, monospace;
+  white-space: pre;
+}
+
+pre code {
+  font-weight: inherit;
+}
+
+pre code.hljs {
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+ol.toc {
+  list-style: none;
+  padding-left: 0;
+}
+
+ol.toc ol.toc {
+  padding-left: 2ex;
+  list-style: none;
+}
+
+var {
+  color: #2aa198;
+  transition: background-color 0.25s ease;
+  cursor: pointer;
+}
+
+var.referenced0 {
+  color: inherit;
+  background-color: #ffff33;
+  box-shadow: 0 0 0 2px #ffff33;
+}
+var.referenced1 {
+  color: inherit;
+  background-color: #ff87a2;
+  box-shadow: 0 0 0 2px #ff87a2;
+}
+var.referenced2 {
+  color: inherit;
+  background-color: #96e885;
+  box-shadow: 0 0 0 2px #96e885;
+}
+var.referenced3 {
+  color: inherit;
+  background-color: #3eeed2;
+  box-shadow: 0 0 0 2px #3eeed2;
+}
+var.referenced4 {
+  color: inherit;
+  background-color: #eacfb6;
+  box-shadow: 0 0 0 2px #eacfb6;
+}
+var.referenced5 {
+  color: inherit;
+  background-color: #82ddff;
+  box-shadow: 0 0 0 2px #82ddff;
+}
+var.referenced6 {
+  color: inherit;
+  background-color: #ffbcf2;
+  box-shadow: 0 0 0 2px #ffbcf2;
+}
+
+emu-const {
+  font-family: sans-serif;
+}
+
+emu-val {
+  font-weight: bold;
+}
+
+/* depth 1 */
+emu-alg ol,
+/* depth 4 */
+emu-alg ol ol ol ol,
+emu-alg ol.nested-thrice,
+emu-alg ol.nested-twice ol,
+emu-alg ol.nested-once ol ol {
+  list-style-type: decimal;
+}
+
+/* depth 2 */
+emu-alg ol ol,
+emu-alg ol.nested-once,
+/* depth 5 */
+emu-alg ol ol ol ol ol,
+emu-alg ol.nested-four-times,
+emu-alg ol.nested-thrice ol,
+emu-alg ol.nested-twice ol ol,
+emu-alg ol.nested-once ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+/* depth 3 */
+emu-alg ol ol ol,
+emu-alg ol.nested-twice,
+emu-alg ol.nested-once ol,
+/* depth 6 */
+emu-alg ol ol ol ol ol ol,
+emu-alg ol.nested-lots,
+emu-alg ol.nested-four-times ol,
+emu-alg ol.nested-thrice ol ol,
+emu-alg ol.nested-twice ol ol ol,
+emu-alg ol.nested-once ol ol ol ol,
+/* depth 7+ */
+emu-alg ol.nested-lots ol {
+  list-style-type: lower-roman;
+}
+
+emu-eqn {
+  display: block;
+  margin-left: 4em;
+}
+
+emu-eqn.inline {
+  display: inline;
+  margin: 0;
+}
+
+emu-eqn div:first-child {
+  margin-left: -2em;
+}
+
+emu-note {
+  margin: 1em 0;
+  display: flex;
+  flex-direction: row;
+  color: inherit;
+  border-left: 5px solid #52e052;
+  background: #e9fbe9;
+  padding: 10px 10px 10px 0;
+}
+
+emu-note > span.note {
+  flex-basis: 100px;
+  min-width: 100px;
+  flex-grow: 0;
+  flex-shrink: 1;
+  text-transform: uppercase;
+  padding-left: 5px;
+}
+
+emu-note[type='editor'] {
+  border-left-color: #faa;
+}
+
+emu-note > div.note-contents {
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: auto;
+}
+
+emu-note > div.note-contents > p:first-of-type {
+  margin-top: 0;
+}
+
+emu-note > div.note-contents > p:last-of-type {
+  margin-bottom: 0;
+}
+
+emu-table td code {
+  white-space: normal;
+}
+
+emu-figure {
+  display: block;
+}
+
+emu-example {
+  display: block;
+  margin: 1em 3em;
+}
+
+emu-example figure figcaption {
+  margin-top: 0.5em;
+  text-align: left;
+}
+
+emu-figure figure,
+emu-example figure,
+emu-table figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+emu-production {
+  display: block;
+}
+
+emu-grammar[type='example'] emu-production,
+emu-grammar[type='definition'] emu-production {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: 5ex;
+}
+
+emu-grammar.inline,
+emu-production.inline,
+emu-grammar.inline emu-production emu-rhs,
+emu-production.inline emu-rhs,
+emu-grammar[collapsed] emu-production emu-rhs {
+  display: inline;
+  padding-left: 1ex;
+  margin-left: 0;
+}
+
+emu-production[collapsed] emu-rhs {
+  display: inline;
+  padding-left: 0.5ex;
+  margin-left: 0;
+}
+
+emu-grammar[collapsed] emu-production,
+emu-production[collapsed] {
+  margin: 0;
+}
+
+emu-constraints {
+  font-size: 0.75em;
+  margin-right: 0.5ex;
+}
+
+emu-gann {
+  margin-right: 0.5ex;
+}
+
+emu-gann emu-t:last-child,
+emu-gann emu-gprose:last-child,
+emu-gann emu-nt:last-child {
+  margin-right: 0;
+}
+
+emu-geq {
+  margin-left: 0.5ex;
+  font-weight: bold;
+}
+
+emu-oneof {
+  font-weight: bold;
+  margin-left: 0.5ex;
+}
+
+emu-nt {
+  display: inline-block;
+  font-style: italic;
+  white-space: nowrap;
+  text-indent: 0;
+}
+
+emu-nt a,
+emu-nt a:visited {
+  color: #333;
+}
+
+emu-rhs emu-nt {
+  margin-right: 0.5ex;
+}
+
+emu-t {
+  display: inline-block;
+  font-family: monospace;
+  font-weight: bold;
+  white-space: nowrap;
+  text-indent: 0;
+}
+
+emu-production emu-t {
+  margin-right: 0.5ex;
+}
+
+emu-rhs {
+  display: block;
+  padding-left: 75px;
+  text-indent: -25px;
+}
+
+emu-production:not([collapsed]) emu-rhs {
+  border: 0.2ex dashed transparent;
+}
+
+emu-production:not([collapsed]) emu-rhs:hover {
+  border-color: #888;
+  background-color: #f0f0f0;
+}
+
+emu-mods {
+  font-size: 0.85em;
+  vertical-align: sub;
+  font-style: normal;
+  font-weight: normal;
+}
+
+emu-params,
+emu-opt {
+  margin-right: 1ex;
+  font-family: monospace;
+}
+
+emu-params,
+emu-constraints {
+  color: #2aa198;
+}
+
+emu-opt {
+  color: #b58900;
+}
+
+emu-gprose {
+  font-size: 0.9em;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+emu-production emu-gprose {
+  margin-right: 1ex;
+}
+
+h1.shortname {
+  color: #f60;
+  font-size: 1.5em;
+  margin: 0;
+}
+
+h1.version {
+  color: #f60;
+  font-size: 1.5em;
+}
+
+h1.title {
+  color: #f60;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  position: relative;
+}
+
+h1 .secnum {
+  text-decoration: none;
+  margin-right: 5px;
+}
+
+h1 span.title {
+  order: 2;
+}
+
+h1 {
+  font-size: 2.67em;
+  margin-bottom: 0;
+  line-height: 1em;
+}
+h2 {
+  font-size: 2em;
+}
+h3 {
+  font-size: 1.56em;
+}
+h4 {
+  font-size: 1.25em;
+}
+h5 {
+  font-size: 1.11em;
+}
+h6 {
+  font-size: 1em;
+}
+
+pre code.hljs {
+  background: transparent;
+}
+
+emu-clause[id],
+emu-annex[id],
+emu-intro[id] {
+  scroll-margin-top: 2ex;
+}
+
+emu-intro h1,
+emu-clause h1,
+emu-annex h1 {
+  font-size: 2em;
+}
+emu-intro h2,
+emu-clause h2,
+emu-annex h2 {
+  font-size: 1.56em;
+}
+emu-intro h3,
+emu-clause h3,
+emu-annex h3 {
+  font-size: 1.25em;
+}
+emu-intro h4,
+emu-clause h4,
+emu-annex h4 {
+  font-size: 1.11em;
+}
+emu-intro h5,
+emu-clause h5,
+emu-annex h5 {
+  font-size: 1em;
+}
+emu-intro h6,
+emu-clause h6,
+emu-annex h6 {
+  font-size: 0.9em;
+}
+emu-intro emu-intro h1,
+emu-clause emu-clause h1,
+emu-annex emu-annex h1 {
+  font-size: 1.56em;
+}
+emu-intro emu-intro h2,
+emu-clause emu-clause h2,
+emu-annex emu-annex h2 {
+  font-size: 1.25em;
+}
+emu-intro emu-intro h3,
+emu-clause emu-clause h3,
+emu-annex emu-annex h3 {
+  font-size: 1.11em;
+}
+emu-intro emu-intro h4,
+emu-clause emu-clause h4,
+emu-annex emu-annex h4 {
+  font-size: 1em;
+}
+emu-intro emu-intro h5,
+emu-clause emu-clause h5,
+emu-annex emu-annex h5 {
+  font-size: 0.9em;
+}
+emu-intro emu-intro emu-intro h1,
+emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex h1 {
+  font-size: 1.25em;
+}
+emu-intro emu-intro emu-intro h2,
+emu-clause emu-clause emu-clause h2,
+emu-annex emu-annex emu-annex h2 {
+  font-size: 1.11em;
+}
+emu-intro emu-intro emu-intro h3,
+emu-clause emu-clause emu-clause h3,
+emu-annex emu-annex emu-annex h3 {
+  font-size: 1em;
+}
+emu-intro emu-intro emu-intro h4,
+emu-clause emu-clause emu-clause h4,
+emu-annex emu-annex emu-annex h4 {
+  font-size: 0.9em;
+}
+emu-intro emu-intro emu-intro emu-intro h1,
+emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex h1 {
+  font-size: 1.11em;
+}
+emu-intro emu-intro emu-intro emu-intro h2,
+emu-clause emu-clause emu-clause emu-clause h2,
+emu-annex emu-annex emu-annex emu-annex h2 {
+  font-size: 1em;
+}
+emu-intro emu-intro emu-intro emu-intro h3,
+emu-clause emu-clause emu-clause emu-clause h3,
+emu-annex emu-annex emu-annex emu-annex h3 {
+  font-size: 0.9em;
+}
+emu-intro emu-intro emu-intro emu-intro emu-intro h1,
+emu-clause emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+  font-size: 1em;
+}
+emu-intro emu-intro emu-intro emu-intro emu-intro h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause h2,
+emu-annex emu-annex emu-annex emu-annex emu-annex h2 {
+  font-size: 0.9em;
+}
+emu-intro emu-intro emu-intro emu-intro emu-intro emu-intro h1,
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+  font-size: 0.9em;
+}
+
+emu-clause,
+emu-intro,
+emu-annex {
+  display: block;
+}
+
+/* these values are twice the font-size for the <h1> titles for clauses */
+emu-intro,
+emu-clause,
+emu-annex {
+  margin-top: 4em;
+}
+emu-intro emu-intro,
+emu-clause emu-clause,
+emu-annex emu-annex {
+  margin-top: 3.12em;
+}
+emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex {
+  margin-top: 2.5em;
+}
+emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex {
+  margin-top: 2.22em;
+}
+emu-intro emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex emu-annex {
+  margin-top: 2em;
+}
+emu-intro emu-intro emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
+  margin-top: 1.8em;
+}
+
+#spec-container > emu-intro:first-of-type,
+#spec-container > emu-clause:first-of-type,
+#spec-container > emu-annex:first-of-type {
+  margin-top: 0;
+}
+
+/* Figures and tables */
+figure {
+  display: block;
+  margin: 1em 0 3em 0;
+}
+figure object {
+  display: block;
+  margin: 0 auto;
+}
+figure table.real-table {
+  margin: 0 auto;
+}
+figure figcaption {
+  display: block;
+  color: #555555;
+  font-weight: bold;
+  text-align: center;
+}
+
+emu-table table {
+  margin: 0 auto;
+}
+
+emu-table table,
+table.real-table {
+  border-collapse: collapse;
+}
+
+emu-table td,
+emu-table th,
+table.real-table td,
+table.real-table th {
+  border: 1px solid black;
+  padding: 0.4em;
+  vertical-align: baseline;
+}
+emu-table th,
+emu-table thead td,
+table.real-table th {
+  background-color: #eeeeee;
+}
+
+emu-table td {
+  background: #fff;
+}
+
+/* Note: the left content edges of table.lightweight-table >tbody >tr >td
+   and div.display line up. */
+table.lightweight-table {
+  border-collapse: collapse;
+  margin: 0 0 0 1.5em;
+}
+table.lightweight-table td,
+table.lightweight-table th {
+  border: none;
+  padding: 0 0.5em;
+  vertical-align: baseline;
+}
+
+/* diff styles */
+ins {
+  background-color: #e0f8e0;
+  text-decoration: none;
+  border-bottom: 1px solid #396;
+}
+
+del {
+  background-color: #fee;
+}
+
+ins.block,
+del.block,
+emu-production > ins,
+emu-production > del,
+emu-grammar > ins,
+emu-grammar > del {
+  display: block;
+}
+emu-rhs > ins,
+emu-rhs > del {
+  display: inline;
+}
+
+tr.ins > td > ins {
+  border-bottom: none;
+}
+
+tr.ins > td {
+  background-color: #e0f8e0;
+}
+
+tr.del > td {
+  background-color: #fee;
+}
+
+/* Menu Styles */
+#menu-toggle {
+  font-size: 2em;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1.5em;
+  height: 1.5em;
+  z-index: 3;
+  visibility: hidden;
+  color: #1567a2;
+  background-color: #fff;
+
+  line-height: 1.5em;
+  text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  cursor: pointer;
+}
+
+#menu {
+  display: flex;
+  flex-direction: column;
+  width: 33%;
+  height: 100vh;
+  max-width: 500px;
+  box-sizing: border-box;
+  background-color: #ddd;
+  overflow: hidden;
+  transition: opacity 0.1s linear;
+  padding: 0 5px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-right: 2px solid #bbb;
+
+  z-index: 2;
+}
+
+#menu-spacer {
+  flex-basis: 33%;
+  max-width: 500px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+#menu a {
+  color: #1567a2;
+}
+
+#menu.active {
+  display: flex;
+  opacity: 1;
+  z-index: 2;
+}
+
+#menu-pins {
+  flex-grow: 1;
+  display: none;
+}
+
+#menu-pins.active {
+  display: block;
+}
+
+#menu-pins-list {
+  margin: 0;
+  padding: 0;
+  counter-reset: pins-counter;
+}
+
+#menu-pins-list > li:before {
+  content: counter(pins-counter);
+  counter-increment: pins-counter;
+  display: inline-block;
+  width: 25px;
+  text-align: center;
+  border: 1px solid #bbb;
+  padding: 2px;
+  margin: 4px;
+  box-sizing: border-box;
+  line-height: 1em;
+  background-color: #ccc;
+  border-radius: 4px;
+}
+#menu-toc > ol {
+  padding: 0;
+  flex-grow: 1;
+}
+
+#menu-toc > ol li {
+  padding: 0;
+}
+
+#menu-toc > ol,
+#menu-toc > ol ol {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#menu-toc > ol ol {
+  padding-left: 0.75em;
+}
+
+#menu-toc li {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#menu-toc .item-toggle {
+  display: inline-block;
+  transform: rotate(-45deg) translate(-5px, -5px);
+  transition: transform 0.1s ease;
+  text-align: center;
+  width: 20px;
+
+  color: #aab;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  cursor: pointer;
+}
+
+#menu-toc .item-toggle-none {
+  display: inline-block;
+  width: 20px;
+}
+
+#menu-toc li.active > .item-toggle {
+  transform: rotate(45deg) translate(-5px, -5px);
+}
+
+#menu-toc li > ol {
+  display: none;
+}
+
+#menu-toc li.active > ol {
+  display: block;
+}
+
+#menu-toc li.revealed > a {
+  background-color: #bbb;
+  font-weight: bold;
+  /*
+  background-color: #222;
+  color: #c6d8e4;
+  */
+}
+
+#menu-toc li.revealed-leaf > a {
+  color: #206ca7;
+  /*
+  background-color: #222;
+  color: #c6d8e4;
+  */
+}
+
+#menu-toc li.revealed > .item-toggle {
+  transform: rotate(45deg) translate(-5px, -5px);
+}
+
+#menu-toc li.revealed > ol {
+  display: block;
+}
+
+#menu-toc li > a {
+  padding: 2px 5px;
+}
+
+#menu > * {
+  margin-bottom: 5px;
+}
+
+.menu-pane-header {
+  padding: 0 5px;
+  text-transform: uppercase;
+  background-color: #aaa;
+  color: #335;
+  font-weight: bold;
+  letter-spacing: 2px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 0.8em;
+}
+
+.menu-pane-header emu-opt,
+.menu-pane-header emu-t,
+.menu-pane-header emu-nt {
+  margin-right: 0px;
+  display: inline;
+  color: inherit;
+}
+
+.menu-pane-header emu-rhs {
+  display: inline;
+  padding-left: 0px;
+  text-indent: 0px;
+}
+
+.menu-pane-header emu-geq {
+  margin-left: 0px;
+}
+
+a.menu-pane-header-production {
+  color: inherit;
+}
+
+.menu-pane-header-production {
+  text-transform: none;
+  letter-spacing: 1.5px;
+  padding-left: 0.5em;
+}
+
+#menu-toc {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+#menu-toc ol.toc {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#menu-search {
+  position: relative;
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  max-height: 300px;
+}
+
+#menu-trace-list {
+  display: none;
+}
+
+#menu-search-box {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 5px 0 0 0;
+  font-size: 1em;
+  padding: 2px;
+  background-color: #bbb;
+  border: 1px solid #999;
+}
+
+#menu-search-results {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+li.menu-search-result-clause:before {
+  content: 'clause';
+  width: 40px;
+  display: inline-block;
+  text-align: right;
+  padding-right: 1ex;
+  color: #666;
+  font-size: 75%;
+}
+li.menu-search-result-op:before {
+  content: 'op';
+  width: 40px;
+  display: inline-block;
+  text-align: right;
+  padding-right: 1ex;
+  color: #666;
+  font-size: 75%;
+}
+
+li.menu-search-result-prod:before {
+  content: 'prod';
+  width: 40px;
+  display: inline-block;
+  text-align: right;
+  padding-right: 1ex;
+  color: #666;
+  font-size: 75%;
+}
+
+li.menu-search-result-term:before {
+  content: 'term';
+  width: 40px;
+  display: inline-block;
+  text-align: right;
+  padding-right: 1ex;
+  color: #666;
+  font-size: 75%;
+}
+
+#menu-search-results ul {
+  padding: 0 5px;
+  margin: 0;
+}
+
+#menu-search-results li {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#menu-trace-list {
+  counter-reset: item;
+  margin: 0 0 0 20px;
+  padding: 0;
+}
+#menu-trace-list li {
+  display: block;
+  white-space: nowrap;
+}
+
+#menu-trace-list li .secnum:after {
+  content: ' ';
+}
+#menu-trace-list li:before {
+  content: counter(item) ' ';
+  background-color: #222;
+  counter-increment: item;
+  color: #999;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  display: inline-block;
+  text-align: center;
+  margin: 2px 4px 2px 0;
+}
+
+@media (max-width: 1000px) {
+  body {
+    margin: 0;
+    display: block;
+  }
+
+  #menu {
+    display: none;
+    padding-top: 3em;
+    width: 450px;
+  }
+
+  #menu.active {
+    position: fixed;
+    height: 100%;
+    left: 0;
+    top: 0;
+    right: 300px;
+  }
+
+  #menu-toggle {
+    visibility: visible;
+  }
+
+  #spec-container {
+    padding: 0 5px;
+  }
+
+  #references-pane-spacer {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  #menu {
+    width: 100%;
+  }
+
+  h1 .secnum:empty {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Toolbox */
+.toolbox-container {
+  position: absolute;
+  display: none;
+  padding-bottom: 7px;
+}
+
+.toolbox-container.active {
+  display: inline-block;
+}
+
+.toolbox {
+  position: relative;
+  background: #ddd;
+  border: 1px solid #aaa;
+  color: #eee;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.toolbox a {
+  text-decoration: none;
+  padding: 0 5px;
+}
+
+.toolbox a:hover {
+  text-decoration: underline;
+}
+
+.toolbox:after,
+.toolbox:before {
+  top: 100%;
+  left: 15px;
+  border: solid transparent;
+  content: ' ';
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.toolbox:after {
+  border-color: rgba(0, 0, 0, 0);
+  border-top-color: #ddd;
+  border-width: 10px;
+  margin-left: -10px;
+}
+.toolbox:before {
+  border-color: rgba(204, 204, 204, 0);
+  border-top-color: #aaa;
+  border-width: 12px;
+  margin-left: -12px;
+}
+
+#references-pane-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 250px;
+  display: none;
+  background-color: #ddd;
+  z-index: 1;
+}
+
+#references-pane-table-container {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#references-pane-spacer {
+  flex-basis: 33%;
+  max-width: 500px;
+}
+
+#references-pane {
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#references-pane-container.active {
+  display: flex;
+}
+
+#references-pane-close:after {
+  content: '✖';
+  float: right;
+  cursor: pointer;
+}
+
+#references-pane table tr td:first-child {
+  text-align: right;
+  padding-right: 5px;
+}
+
+@media print {
+  #menu-toggle {
+    display: none;
+  }
+}
+
+[normative-optional],
+[legacy] {
+  border-left: 5px solid #ff6600;
+  padding: 0.5em;
+  display: block;
+  background: #ffeedd;
+}
+
+.clause-attributes-tag {
+  text-transform: uppercase;
+  color: #884400;
+}
+
+.clause-attributes-tag a {
+  color: #884400;
+}
+</style></head><body><div id="menu-toggle">☰</div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#introduction" title="Introduction">Introduction</a></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations" title="Syntax-Directed Operations"><span class="secnum">1</span> Syntax-Directed Operations</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-function-name-inference" title="Function Name Inference"><span class="secnum">1.1</span> Function Name Inference</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-isfunctiondefinition" title="Static Semantics: IsFunctionDefinition"><span class="secnum">1.1.1</span> SS: IsFunctionDefinition</a></li><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-isidentifierref" title="Static Semantics: IsIdentifierRef"><span class="secnum">1.1.2</span> SS: IsIdentifierRef</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-contains" title="Contains"><span class="secnum">1.2</span> Contains</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-contains" title="Static Semantics: Contains"><span class="secnum">1.2.1</span> SS: Contains</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-miscellaneous" title="Miscellaneous"><span class="secnum">1.3</span> Miscellaneous</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-assignmenttargettype" title="Static Semantics: AssignmentTargetType"><span class="secnum">1.3.1</span> SS: AssignmentTargetType</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#executable-code-and-execution-contexts" title="Executable Code and Execution Contexts"><span class="secnum">2</span> Executable Code and Execution Contexts</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-environment-records" title="Environment Records"><span class="secnum">2.1</span> Environment Records</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-the-environment-record-type-hierarchy" title="The Environment Record Type Hierarchy"><span class="secnum">2.1.1</span> The Environment Record Type Hierarchy</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-declarative-environment-records" title="Declarative Environment Records"><span class="secnum">2.1.1.1</span> Declarative Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-declarative-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.1.1</span> <ins>HasTopicBinding ( )</ins></a></li><li><span class="item-toggle-none"></span><a href="#sec-declarative-environment-records-bindtopicvalues" title="BindTopicValues ( V )"><span class="secnum">2.1.1.1.2</span> <ins>BindTopicValues ( <var>V</var> )</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-object-environment-records" title="Object Environment Records"><span class="secnum">2.1.1.2</span> Object Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-object-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.2.1</span> <ins>HasTopicBinding ( )</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-global-environment-records" title="Global Environment Records"><span class="secnum">2.1.1.3</span> Global Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-global-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.3.1</span> <ins>HasTopicBinding ( )</ins></a></li></ol></li></ol></li><li><span class="item-toggle-none"></span><a href="#sec-topic-bindings" title="Topic Bindings"><span class="secnum">2.1.2</span> <ins>Topic Bindings</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-execution-contexts" title="Execution Contexts"><span class="secnum">2.2</span> Execution Contexts</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-evaluatewithtopics" title="EvaluateWithTopics ( topicValues, expression )"><span class="secnum">2.2.1</span> EvaluateWithTopics ( <var>topicValues</var>, <var>expression</var> )</a></li><li><span class="item-toggle-none"></span><a href="#sec-gettopicenvironment" title="GetTopicEnvironment ( )"><span class="secnum">2.2.2</span> GetTopicEnvironment ( )</a></li><li><span class="item-toggle-none"></span><a href="#sec-getprimarytopicvalue" title="GetPrimaryTopicValue ( )"><span class="secnum">2.2.3</span> GetPrimaryTopicValue ( )</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-lexical-grammar" title="ECMAScript Language: Lexical Grammar"><span class="secnum">3</span> ECMAScript Language: Lexical Grammar</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-punctuators" title="Punctuators"><span class="secnum">3.1</span> Punctuators</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-expressions" title="ECMAScript Language: Expressions"><span class="secnum">4</span> ECMAScript Language: Expressions</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-primary-expression" title="Primary Expression"><span class="secnum">4.1</span> Primary Expression</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-topic-references" title="Topic Reference"><span class="secnum">4.1.1</span> <ins>Topic Reference</ins></a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-topic-references-runtime-semantics-evaluation" title="Runtime Semantics: Evaluation"><span class="secnum">4.1.1.1</span> RS: Evaluation</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-pipe-operator" title="Pipe Operator"><span class="secnum">4.2</span> <ins>Pipe Operator</ins></a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-pipe-operator-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">4.2.1</span> SS: Early Errors</a></li><li><span class="item-toggle-none"></span><a href="#sec-pipe-operator-runtime-semantics-evaluation" title="Runtime Semantics: Evaluation"><span class="secnum">4.2.2</span> RS: Evaluation</a></li></ol></li><li><span class="item-toggle-none"></span><a href="#sec-assignment-operators" title="Assignment Operators"><span class="secnum">4.3</span> Assignment Operators</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-scripts-and-modules" title="ECMAScript Language: Scripts and Modules"><span class="secnum">5</span> ECMAScript Language: Scripts and Modules</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-scripts" title="Scripts"><span class="secnum">5.1</span> Scripts</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-scripts-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">5.1.1</span> SS: Early Errors</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-modules" title="Modules"><span class="secnum">5.2</span> Modules</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-module-semantics" title="Module Semantics"><span class="secnum">5.2.1</span> Module Semantics</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-module-semantics-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">5.2.1.1</span> SS: Early Errors</a></li></ol></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-fundamental-objects" title="Fundamental Objects"><span class="secnum">6</span> Fundamental Objects</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-objects" title="Function Objects"><span class="secnum">6.1</span> Function Objects</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-constructor" title="The Function Constructor"><span class="secnum">6.1.1</span> The Function Constructor</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-p1-p2-pn-body" title="Function ( p1, p2, … , pn, body )"><span class="secnum">6.1.1.1</span> Function ( <var>p1</var>, <var>p2</var>, … , <var>pn</var>, <var>body</var> )</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-createdynamicfunction" title="CreateDynamicFunction ( constructor, newTarget, kind, args )"><span class="secnum">6.1.1.1.1</span> CreateDynamicFunction ( <var>constructor</var>, <var>newTarget</var>, <var>kind</var>, <var>args</var> )</a></li></ol></li></ol></li></ol></li></ol></li><li><span class="item-toggle-none"></span><a href="#sec-copyright-and-software-license" title="Copyright &amp; Software License"><span class="secnum">A</span> Copyright &amp; Software License</a></li></ol></div></div><div id="spec-container"><h1 class="version">Stage 2 Draft / September 4, 2021</h1><h1 class="title">ES pipe operator (2021)</h1>
+<script src="ecmarkup.js" defer=""></script>
+<link rel="stylesheet" href="ecmarkup.css">
+
+<emu-intro id="introduction">
   <h1>Introduction</h1>
-  <p>This document specifies the pipeline operator `|>`. See <a href="https://github.com/tc39/proposal-pipeline-operator/">the explainer</a> for an introduction.</p>
-  <p>The main design decisions made in this specification are:
-    <ol>
-      <li>The right argument of `|>` is treated directly as a function; even if it is a |CallExpression|, the result of evaluating that |CallExpression| is treated as the function, rather than slotting the left argument into the arguments list. That is `x |> y(z)` is similar in semantics to `y(z)(x)`. <a href="https://github.com/tc39/proposal-pipeline-operator/issues/4">bug</a></li>
-      <li>The precedence of `|>` sits between the ternary operator and `||`. It is left-associative. <a href="https://github.com/tc39/proposal-pipeline-operator/issues/23">bug</a></li>
-      <li>All calls to `eval` are indirect eval.</li>
-      <li>The pipeline operator is eligible for proper tail calls, when appropriate.</li>
-      <li>The left argument to `|>` is evaluated before the right one.</li>
-      <li>If the right argument to `|>` has a receiver, it is used for the call, with rules similar to a method call. That is `x |> y.z` gets `y` as a receiver, just as if it were written `y.z(x)`.</li>
-    </ol>
-  </p>
+  <p>This is the formal specification for a proposed Hack-style pipe
+  operator <code>|&gt;</code> in JavaScript. It modifies the original <a href="https://tc39.github.io/ecma262/">ECMAScript specification</a> with
+  several new or revised clauses. See <a href="https://github.com/js-choi/proposal-hack-pipes/blob/main/README.md">the proposal's
+  explainer</a> for the proposal's background, motivation, and usage examples.</p>
+
+  <p>This document presumptively uses <code>^</code> as the token
+  for the <emu-xref href="#sec-topic-references" id="_ref_10"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision;
+  <code>^</code> could instead be <code>%</code>.</p>
 </emu-intro>
 
-<emu-clause id=sec-pipeline-syntax>
-  <h1>Syntax</h1>
+<emu-clause id="sec-syntax-directed-operations">
+  <h1><span class="secnum">1</span> Syntax-Directed Operations</h1>
 
-  <emu-grammar>
-    ConditionalExpression[In, Yield, Await] :
-      <del>LogicalORExpression[?In, ?Yield, ?Await]</del>
-      <del>LogicalORExpression[?In, ?Yield, ?Await] `?` AssignmentExpression[+In, ?Yield, ?Await] `:` AssignmentExpression[?In, ?Yield, ?Await]</del>
-      <ins>PipelineExpression[?In, ?Yield, ?Await]</ins>
-      <ins>PipelineExpression[?In, ?Yield, ?Await] `?` AssignmentExpression[+In, ?Yield, ?Await] `:` AssignmentExpression[?In, ?Yield, ?Await]</ins>
+  <emu-clause id="sec-syntax-directed-operations-function-name-inference">
+    <h1><span class="secnum">1.1</span> Function Name Inference</h1>
 
-    <ins>
-      PipelineExpression[In, Yield, Await] :
-        LogicalORExpression[?In, ?Yield, ?Await]
-        [~Await] PipelineExpression[?In, ?Yield, ?Await] `|>` LogicalORExpression[?In, ?Yield, ?Await]
-        [+Await] PipelineExpression[?In, ?Yield, ?Await] `|>` [lookahead &lt;! {`await`}] LogicalORExpression[?In, ?Yield, ?Await]
-    </ins>
-  </emu-grammar>
+    <emu-clause id="sec-static-semantics-isfunctiondefinition" type="sdo" aoid="IsFunctionDefinition">
+      <h1><span class="secnum">1.1.1</span> Static Semantics: IsFunctionDefinition</h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section augments the <a href="https://tc39.es/ecma262/#sec-static-semantics-isfunctiondefinition">original
+        IsFunctionDefinition clause</a>.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        <emu-xref href="#sec-topic-references" id="_ref_11"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <emu-grammar><emu-production name="PrimaryExpression">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-og13oFFN"><emu-t>this</emu-t></emu-rhs>
+    <ins><emu-rhs a="5yeieuod" id="prod-yoA81pJx"><emu-t>^</emu-t></emu-rhs></ins>
+    <emu-rhs a="i2hxnrih" id="prod-pnNZChTM"><emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierReference">IdentifierReference</a></emu-nt></emu-rhs>
+    <emu-rhs a="kul-a19e" id="prod-XEikQQGc"><emu-nt><a href="https://tc39.es/ecma262/#prod-Literal">Literal</a></emu-nt></emu-rhs>
+    <emu-rhs a="g_mjk5cm" id="prod-wyk8qHUC"><emu-nt><a href="https://tc39.es/ecma262/#prod-ArrayLiteral">ArrayLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="zreje_zz" id="prod-ITCaMx3s"><emu-nt><a href="https://tc39.es/ecma262/#prod-annexB-ObjectLiteral">ObjectLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="mbzy6lvr" id="prod-Q2nhWNO_"><emu-nt><a href="https://tc39.es/ecma262/#prod-RegularExpressionLiteral">RegularExpressionLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="2zis6bbu" id="prod-iMjjH1kL"><emu-nt><a href="https://tc39.es/ecma262/#prod-TemplateLiteral">TemplateLiteral</a></emu-nt></emu-rhs>
+</emu-production>
+<ins><emu-production name="PipeExpression">
+    <emu-nt><a href="#prod-PipeExpression">PipeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="pbun1nvx" id="prod-fMjVr-jJ">
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a></emu-nt>
+        <emu-t>|&gt;</emu-t>
+        <emu-nt id="_ref_126"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+    </emu-rhs>
+</emu-production></ins>
+</emu-grammar>
+      <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-static-semantics-isidentifierref" type="sdo" aoid="IsIdentifierRef">
+      <h1><span class="secnum">1.1.2</span> Static Semantics: IsIdentifierRef</h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section augments the <a href="https://tc39.es/ecma262/#sec-static-semantics-isidentifierref">original IsIdentifierRef
+        clause</a>.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        <emu-xref href="#sec-topic-references" id="_ref_12"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="i2hxnrih" id="prod-ztGhnTck"><emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierReference">IdentifierReference</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+      <emu-alg><ol><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+      <emu-grammar><emu-production name="PrimaryExpression">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-JN8cu1mT"><emu-t>this</emu-t></emu-rhs>
+    <ins><emu-rhs a="5yeieuod" id="prod-bnH2b59m"><emu-t>^</emu-t></emu-rhs></ins>
+    <emu-rhs a="kul-a19e" id="prod-NBAafh2L"><emu-nt><a href="https://tc39.es/ecma262/#prod-Literal">Literal</a></emu-nt></emu-rhs>
+    <emu-rhs a="g_mjk5cm" id="prod-jZlT8Bef"><emu-nt><a href="https://tc39.es/ecma262/#prod-ArrayLiteral">ArrayLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="zreje_zz" id="prod-bDA2HTuE"><emu-nt><a href="https://tc39.es/ecma262/#prod-annexB-ObjectLiteral">ObjectLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="jc7szv1s" id="prod-qDGWvs6X"><emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="2m5tsvzv" id="prod-s_EYcmqv"><emu-nt><a href="https://tc39.es/ecma262/#prod-ClassExpression">ClassExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="q7f39ayg" id="prod-ol9pQ3OI"><emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="rvibtigb" id="prod-6S4OZBnv"><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="naptrn97" id="prod-oszQ0h58"><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorExpression">AsyncGeneratorExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="mbzy6lvr" id="prod-jR1Utmsf"><emu-nt><a href="https://tc39.es/ecma262/#prod-RegularExpressionLiteral">RegularExpressionLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="2zis6bbu" id="prod-CUNEQPp0"><emu-nt><a href="https://tc39.es/ecma262/#prod-TemplateLiteral">TemplateLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="yrb110hm" id="prod-nAbs7Q-f"><emu-nt><a href="https://tc39.es/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList">CoverParenthesizedExpressionAndArrowParameterList</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+      <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-syntax-directed-operations-contains">
+    <h1><span class="secnum">1.2</span> Contains</h1>
+
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section augments the <a href="https://tc39.es/ecma262/#sec-syntax-directed-operations-contains">original
+      Contains clause</a>.</p>
+
+      <p>It presumptively uses <code>^</code> as the placeholder token for the
+      <emu-xref href="#sec-topic-references" id="_ref_13"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+      could instead be <code>%</code>.</p>
+    </div></emu-note>
+
+    <emu-clause id="sec-static-semantics-contains" type="sdo" aoid="Contains">
+      <h1><span class="secnum">1.2.1</span> Static Semantics: Contains</h1>
+      <p>With parameter <var>symbol</var>.</p>
+
+      <ins class="block">
+        <emu-grammar><emu-production name="PipeBody" collapsed="">
+    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="ijerp7um"><emu-nt id="_ref_127"><a href="#prod-PipeExpression">PipeExpression</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+
+        <emu-alg><ol><li>If <var>symbol</var> is <code>^</code>, return <emu-val>false</emu-val>.</li><li>For each child node <var>child</var> of this <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">Parse Node</a></emu-xref>, do<ol><li>If <var>child</var> is an instance of <var>symbol</var>, return <emu-val>true</emu-val>.</li><li>If <var>child</var> is an instance of a nonterminal, then<ol><li>Let <var>contained</var> be the result of <var>child</var> <emu-xref aoid="Contains" id="_ref_14"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <var>symbol</var>.</li><li>If <var>contained</var> is <emu-val>true</emu-val>, return <emu-val>true</emu-val>.</li></ol></li></ol></li><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+
+        <emu-note><span class="note">Note</span><div class="note-contents">
+          <p>Several <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for
+          <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>, as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_15"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>,
+          use the Contains operation to check for any <emu-xref href="#sec-topic-references" id="_ref_16"><a href="#sec-topic-references">unbound topic reference</a></emu-xref> <code>^</code>.
+          Any inner <emu-xref href="#sec-topic-references" id="_ref_17"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_128"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from these rules,
+          preventing them from triggering the rules during program
+          compilation.</p>
+
+          <p>This guarantees that any <emu-xref href="#sec-topic-references" id="_ref_18"><a href="#sec-topic-references">topic reference</a></emu-xref> in a program must be
+          present within a <emu-xref href="#sec-topic-bindings" id="_ref_19"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>
+          created by a <emu-nt id="_ref_129"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that program.</p>
+        </div></emu-note>
+      </ins>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-syntax-directed-operations-miscellaneous">
+    <h1><span class="secnum">1.3</span> Miscellaneous</h1>
+
+    <emu-clause id="sec-static-semantics-assignmenttargettype" type="sdo" aoid="AssignmentTargetType">
+      <h1><span class="secnum">1.3.1</span> Static Semantics: AssignmentTargetType</h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section augments the <a href="https://tc39.es/ecma262/#sec-static-semantics-assignmenttargettype">original
+        AssignmentTargetType clause</a>.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        <emu-xref href="#sec-topic-references" id="_ref_20"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <emu-grammar><emu-production name="PrimaryExpression">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-n7xyt9Uq"><emu-t>this</emu-t></emu-rhs>
+    <ins><emu-rhs a="5yeieuod" id="prod-2_Y196QK"><emu-t>^</emu-t></emu-rhs></ins>
+    <emu-rhs a="kul-a19e" id="prod-FYG1zcQs"><emu-nt><a href="https://tc39.es/ecma262/#prod-Literal">Literal</a></emu-nt></emu-rhs>
+    <emu-rhs a="g_mjk5cm" id="prod-jL-uFKFZ"><emu-nt><a href="https://tc39.es/ecma262/#prod-ArrayLiteral">ArrayLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="zreje_zz" id="prod-qSA3mL7y"><emu-nt><a href="https://tc39.es/ecma262/#prod-annexB-ObjectLiteral">ObjectLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="jc7szv1s" id="prod-ERpBYrCG"><emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="2m5tsvzv" id="prod-8X4gnT8X"><emu-nt><a href="https://tc39.es/ecma262/#prod-ClassExpression">ClassExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="q7f39ayg" id="prod-yT2Snepb"><emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="rvibtigb" id="prod-fwZnfA7O"><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="naptrn97" id="prod-ZxMoVw8b"><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorExpression">AsyncGeneratorExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="mbzy6lvr" id="prod-byz46S5D"><emu-nt><a href="https://tc39.es/ecma262/#prod-RegularExpressionLiteral">RegularExpressionLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="2zis6bbu" id="prod-iQVGoPgT"><emu-nt><a href="https://tc39.es/ecma262/#prod-TemplateLiteral">TemplateLiteral</a></emu-nt></emu-rhs>
+</emu-production>
+<ins><emu-production name="PipeExpression">
+    <emu-nt><a href="#prod-PipeExpression">PipeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="pbun1nvx" id="prod-jGf1u1sj">
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a></emu-nt>
+        <emu-t>|&gt;</emu-t>
+        <emu-nt id="_ref_130"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+    </emu-rhs>
+</emu-production></ins>
+</emu-grammar>
+      <emu-alg><ol><li>Return <emu-const>invalid</emu-const>.</li></ol></emu-alg>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
-<emu-clause id=sec-pipeline-semantics>
-  <h1>Semantics</h1>
-  <emu-clause id="sec-pipeline-evaluate">
-    <h1>Runtime Semantics: PipelineEvaluate</h1>
-    PipelineEvaluate for _lhs_ and _rhs_ performs the following steps:
-    <emu-alg>
-        1. Let _argRef_ be the result of evaluating _lhs_.
-        1. Let _arg_ be ? GetValue(_argRef_).
-        1. Let _funcRef_ be the result of evaluating _rhs_.
-        1. Let _func_ be ? GetValue(_funcRef_).
-        1. If Type(_funcRef_) is Reference, then
-          1. If IsPropertyReference(_funcRef_) is *true*, then
-            1. Let _thisValue_ be GetThisValue(_funcRef_).
-          1. Else the base of _funcRef_ is an Environment Record,
-            1. Let _refEnv_ be GetBase(_funcRef_).
-            1. Let _thisValue_ be _refEnv_.WithBaseObject().
-        1. Else Type(_funcRef_) is not Reference,
-          1. Let _thisValue_ be *undefined*.
-        1. If Type(_func_) is not Object, throw a *TypeError* exception.
-        1. If IsCallable(_func_) is *false*, throw a *TypeError* exception.
-        1. Let _thisCall_ be this outer |PipelineExpression|.
-        1. Let _tailPosition_ be IsInTailPosition(_thisCall_).
-        1. If _tailPosition_ is *true*, perform PrepareForTailCall().
-        1. Let _result_ be Call(_func_, _thisValue_, &laquo; _arg_ &raquo;).
-        1. Assert: If _tailPosition_ is *true*, the above call will not return here, but instead evaluation will continue as if the following return has already occurred.
-        1. Assert: If _result_ is not an abrupt completion, then Type(_result_) is an ECMAScript language type.
-        1. Return _result_.
-    </emu-alg>
-    <emu-note>All calls to eval from a pipeline operator are indirect eval calls.</emu-note>
-    <emu-note type="editor">This definition is somewhat duplicated from the definition of evaluating CallExpression; when merging with the main specification, a refactoring will be done to de-duplicate it.</emu-note>
+<emu-clause id="executable-code-and-execution-contexts">
+  <h1><span class="secnum">2</span> Executable Code and Execution Contexts</h1>
+
+  <emu-clause id="sec-environment-records">
+    <h1><span class="secnum">2.1</span> Environment Records</h1>
+
+    <emu-clause id="sec-the-environment-record-type-hierarchy">
+      <h1><span class="secnum">2.1.1</span> The Environment Record Type Hierarchy</h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section augments the <a href="https://tc39.es/ecma262/#sec-the-environment-record-type-hierarchy">original
+        Environment Records clause</a>.</p>
+      </div></emu-note>
+
+      <emu-table id="table-15" caption="Abstract Methods of Environment Records"><figure><figcaption>Table 1: Abstract Methods of Environment Records</figcaption>
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><ins><emu-xref href="#sec-declarative-environment-records-hastopicbinding" id="_ref_0"><a href="#sec-declarative-environment-records-hastopicbinding">HasTopicBinding()</a></emu-xref></ins></td>
+              <td><ins>Determine whether an <emu-xref href="#sec-environment-records" id="_ref_21"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a
+                <emu-xref href="#sec-topic-bindings" id="_ref_22"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>. Return <emu-val>true</emu-val> if it establishes a
+                <emu-xref href="#sec-topic-bindings" id="_ref_23"><a href="#sec-topic-bindings">topic binding</a></emu-xref> and <emu-val>false</emu-val> if it does not.</ins></td>
+            </tr>
+          </tbody>
+        </table>
+      </figure></emu-table>
+
+      <emu-clause id="sec-declarative-environment-records">
+        <h1><span class="secnum">2.1.1.1</span> Declarative Environment Records</h1>
+
+        <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+          <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-declarative-environment-records">original Declarative Environment Records clause</a>.</p>
+
+          <p>It presumptively uses <code>^</code> as the placeholder token for the
+          <emu-xref href="#sec-topic-references" id="_ref_24"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+          could instead be <code>%</code>.</p>
+        </div></emu-note>
+
+        <ins class="block">
+          <p>Declarative Environment Records have the additional state fields
+          listed in <emu-xref href="#table-61" id="_ref_1"><a href="#table-61">Table 2</a></emu-xref>.</p>
+
+          <emu-table id="table-61" caption="Additional Fields of Declarative Environment Records"><figure><figcaption>Table 2: Additional Fields of Declarative Environment Records</figcaption>
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Value</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>[[TopicValues]]</td>
+                  <td><emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of any</td>
+                  <td>If the declarative <emu-xref href="#sec-environment-records" id="_ref_25"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a <emu-xref href="#sec-topic-bindings" id="_ref_26"><a href="#sec-topic-bindings">topic-binding
+                  environment</a></emu-xref>, then [[TopicValues]] is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> containing the one element
+                  which is the environment's <emu-xref href="#sec-topic-bindings" id="_ref_27"><a href="#sec-topic-bindings">topic value</a></emu-xref> (that is, the value of
+                  the <emu-xref href="#sec-topic-references" id="_ref_28"><a href="#sec-topic-references">topic reference</a></emu-xref> within its program scope).
+                  Otherwise, the value of [[TopicValues]] is an empty <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </figure></emu-table>
+
+          <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+            <p>[[TopicValues]] is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> in order to be forward compatible with
+            future extensions that would use more than one <emu-xref href="#sec-topic-bindings" id="_ref_29"><a href="#sec-topic-bindings">topic value</a></emu-xref>, e.g., <a href="https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md#hack-pipe-functions">"pipe functions".</a></p>
+          </div></emu-note>
+
+          <p>Declarative Environment Records support all of the abstract methods
+          of Environment Records listed in <emu-xref href="#table-15" id="_ref_2"><a href="#table-15">Table 1</a></emu-xref>.
+          In addition, declarative Environment Records support the methods listed
+          in <emu-xref href="#table-62" id="_ref_3"><a href="#table-62">Table 3</a></emu-xref>.</p>
+
+          <emu-table id="table-62" caption="Additional Methods of Declarative
+          Environment Records"><figure><figcaption>Table 3: Additional Methods of Declarative
+          Environment Records</figcaption>
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>BindTopicValues(V)</td>
+                  <td>Establish the immutable <emu-xref href="#sec-topic-bindings" id="_ref_30"><a href="#sec-topic-bindings">topic binding</a></emu-xref> of this
+                  <emu-xref href="#sec-environment-records" id="_ref_31"><a href="#sec-environment-records">Environment Record</a></emu-xref> and set the <emu-xref href="#sec-topic-bindings" id="_ref_32"><a href="#sec-topic-bindings">topic binding</a></emu-xref>'s value.
+                  <var>V</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> containing the one element which is the
+                  <emu-xref href="#sec-topic-bindings" id="_ref_33"><a href="#sec-topic-bindings">topic value</a></emu-xref> and is a value of any <emu-xref href="#sec-ecmascript-language-types"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types">ECMAScript language
+                  type</a></emu-xref>. Afterward, the <emu-xref href="#sec-environment-records" id="_ref_34"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a
+                  <emu-xref href="#sec-topic-bindings" id="_ref_35"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>, and the value returned by the
+                  <emu-xref href="#sec-environment-records" id="_ref_36"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s HasTopicBinding method is <emu-val>true</emu-val>.
+                  This method cannot be called more than once on any
+                  single <emu-xref href="#sec-environment-records" id="_ref_37"><a href="#sec-environment-records">Environment Record</a></emu-xref>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </figure></emu-table>
+
+          <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+          <p>BindTopicValues accepts a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> argument rather than a single-value
+          argument in order to be forward compatible with future extensions that
+          would use more than one <emu-xref href="#sec-topic-bindings" id="_ref_38"><a href="#sec-topic-bindings">topic value</a></emu-xref>, e.g., <a href="https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md#hack-pipe-functions">"pipe functions"</a>.</p>
+          </div></emu-note>
+        </ins>
+
+        <p>The behaviour of the concrete <ins>and additional</ins> specification
+        methods for declarative Environment Records is defined by the following
+        algorithms.</p>
+
+        <emu-clause id="sec-declarative-environment-records-hastopicbinding">
+          <h1><span class="secnum">2.1.1.1.1</span> <ins>HasTopicBinding ( )</ins></h1>
+          <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+          <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-declarative-environment-records">original Declarative Environment Records clause</a>.</p>
+          </div></emu-note>
+
+          <p>The concrete <emu-xref href="#sec-environment-records" id="_ref_39"><a href="#sec-environment-records">Environment Record</a></emu-xref> method HasTopicBinding for
+          declarative Environment Records returns whether the <emu-xref href="#sec-environment-records" id="_ref_40"><a href="#sec-environment-records">Environment Record</a></emu-xref>
+          is a <emu-xref href="#sec-topic-bindings" id="_ref_41"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>. The value is <emu-val>true</emu-val> only if its
+          BindTopicValues method has been called.</p>
+          <emu-alg><ol><li>Let <var>envRec</var> be the declarative <emu-xref href="#sec-environment-records" id="_ref_42"><a href="#sec-environment-records">Environment Record</a></emu-xref> for which the
+               method was invoked.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.[[TopicValues]] is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>If <var>envRec</var>.[[TopicValues]] is an empty <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>, then return <emu-val>false</emu-val>.</li><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+        </emu-clause>
+
+        <emu-clause id="sec-declarative-environment-records-bindtopicvalues">
+          <h1><span class="secnum">2.1.1.1.2</span> <ins>BindTopicValues ( <var>V</var> )</ins></h1>
+          <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+            <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-declarative-environment-records">original Declarative Environment Records clause</a>.</p>
+          </div></emu-note>
+          <p>The method BindTopicValues for declarative Environment Records may
+          only be called on an <emu-xref href="#sec-environment-records" id="_ref_43"><a href="#sec-environment-records">Environment Record</a></emu-xref> when it is not yet a
+          <emu-xref href="#sec-topic-bindings" id="_ref_44"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>, after which it does become a <emu-xref href="#sec-topic-bindings" id="_ref_45"><a href="#sec-topic-bindings">topic-binding
+          environment</a></emu-xref>.</p>
+          <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>V</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>Let <var>envRec</var> be the declarative <emu-xref href="#sec-environment-records" id="_ref_46"><a href="#sec-environment-records">Environment Record</a></emu-xref> for which the
+               method was invoked.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.HasTopicBinding() is <emu-val>false</emu-val>.</li><li>Set <var>envRec</var>.[[TopicValues]] to <var>V</var>.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.HasTopicBinding() is <emu-val>true</emu-val>.</li><li>Return <emu-xref aoid="NormalCompletion" id="_ref_47"><a href="https://tc39.es/ecma262/#sec-normalcompletion">NormalCompletion</a></emu-xref>(<emu-const>empty</emu-const>).</li></ol></emu-alg>
+        </emu-clause>
+      </emu-clause>
+
+      <emu-clause id="sec-object-environment-records">
+        <h1><span class="secnum">2.1.1.2</span> Object Environment Records</h1>
+
+        <emu-clause id="sec-object-environment-records-hastopicbinding">
+          <h1><span class="secnum">2.1.1.2.1</span> <ins>HasTopicBinding ( )</ins></h1>
+
+          <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+          <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-object-environment-records">
+          original Object Environment Records clause</a>.</p>
+          </div></emu-note>
+
+          <p>An Object <emu-xref href="#sec-environment-records" id="_ref_48"><a href="#sec-environment-records">Environment Record</a></emu-xref> may never have a <emu-xref href="#sec-topic-bindings" id="_ref_49"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
+          <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+          </emu-clause>
+      </emu-clause>
+
+      <emu-clause id="sec-global-environment-records">
+          <h1><span class="secnum">2.1.1.3</span> Global Environment Records</h1>
+
+          <emu-clause id="sec-global-environment-records-hastopicbinding">
+            <h1><span class="secnum">2.1.1.3.1</span> <ins>HasTopicBinding ( )</ins></h1>
+
+            <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+              <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-object-environment-records">
+              original Global Environment Records clause</a>.</p>
+            </div></emu-note>
+
+            <p>A Global <emu-xref href="#sec-environment-records" id="_ref_50"><a href="#sec-environment-records">Environment Record</a></emu-xref> may never have a <emu-xref href="#sec-topic-bindings" id="_ref_51"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
+            <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+          </emu-clause>
+        </emu-clause>
+    </emu-clause>
+
+    <emu-clause id="sec-topic-bindings">
+      <h1><span class="secnum">2.1.2</span> <ins>Topic Bindings</ins></h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-environment-records">original
+        Environment Records clause</a>.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        <emu-xref href="#sec-topic-references" id="_ref_52"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <p>The <dfn>topic binding</dfn> of a declarative <emu-xref href="#sec-environment-records" id="_ref_53"><a href="#sec-environment-records">Environment Record</a></emu-xref>
+      immutably binds the <emu-xref href="#sec-topic-references" id="_ref_54"><a href="#sec-topic-references">topic reference</a></emu-xref> <code>^</code> to one value of any
+      <emu-xref href="#sec-ecmascript-language-types"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types">ECMAScript language type</a></emu-xref> (called the <dfn>topic value</dfn> or simply
+      the <dfn>topic</dfn>), within that declarative <emu-xref href="#sec-environment-records" id="_ref_55"><a href="#sec-environment-records">Environment Record</a></emu-xref>, at
+      the time of the <emu-xref href="#sec-environment-records" id="_ref_56"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s instantiation. The topic of a
+      declarative <emu-xref href="#sec-environment-records" id="_ref_57"><a href="#sec-environment-records">Environment Record</a></emu-xref> conceptually serves as the value that its
+      lexical context is "about".</p>
+
+      <p>A <dfn>topic-binding environment</dfn> is a declarative <emu-xref href="#sec-environment-records" id="_ref_58"><a href="#sec-environment-records">Environment
+      Record</a></emu-xref> that establishes a topic binding.
+      The <dfn>topic environment</dfn> of the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref> is its
+      LexicalEnvironment's innermost <emu-xref href="#sec-environment-records" id="_ref_59"><a href="#sec-environment-records">Environment Record</a></emu-xref> that is also a
+      topic-binding environment (or <emu-val>null</emu-val> if no such <emu-xref href="#sec-environment-records" id="_ref_60"><a href="#sec-environment-records">Environment Record</a></emu-xref>
+      exists), as defined by the abstract operator <emu-xref aoid="GetTopicEnvironment" id="_ref_61"><a href="#sec-gettopicenvironment">GetTopicEnvironment</a></emu-xref>.</p>
+
+      <emu-note><span class="note">Note</span><div class="note-contents">
+        <p>An <emu-xref href="#sec-environment-records" id="_ref_62"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a topic-binding environment
+        <strong>only</strong> when it is a declarative <emu-xref href="#sec-environment-records" id="_ref_63"><a href="#sec-environment-records">Environment Record</a></emu-xref> that
+        was created by a <emu-nt id="_ref_131"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.</p>
+      </div></emu-note>
+    </emu-clause>
   </emu-clause>
 
+  <emu-clause id="sec-execution-contexts">
+    <h1><span class="secnum">2.2</span> Execution Contexts</h1>
 
-  <emu-clause id=sec-pipeline-evaluation>
-    <h1>Runtime Semantics: Evaluation</h1>
-    <emu-grammar>PipelineExpression : PipelineExpression `|>` LogicalORExpression</emu-grammar>
-    <emu-alg>
-        1. Let _result_ be the result of PipelineEvaluate for |PipelineExpression| and |LogicalORExpression|.
-        1. Return _result_.
-    </emu-alg>
-    <emu-grammar>PipelineExpression : LogicalORExpression</emu-grammar>
-    <emu-alg>
-        1. Return the result of evaluating |LogicalORExpression|.
-    </emu-alg>
-  </emu-clause>
-  <emu-clause id=sec-pipeline-has-call-in-tail-position>
-    <h1>Static Semantics: HasCallInTailPosition</h1>
-    <emu-grammar>PipelineExpression : PipelineExpression '|>` LogicalORExpression</emu-grammar>
-    <emu-alg>
-      1. If this outer |PipelineExpression| is _call_, return *true*.
-      1. Return *false*.
-    </emu-alg>
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section augments the <a href="https://tc39.es/ecma262/#sec-execution-contexts">original
+      Execution Contexts clause</a>.</p>
+    </div></emu-note>
+
+    <emu-clause id="sec-evaluatewithtopics" aoid="EvaluateWithTopics">
+      <h1><span class="secnum">2.2.1</span> EvaluateWithTopics ( <var>topicValues</var>, <var>expression</var> )</h1>
+      <p>The abstract operation EvaluateWithTopics takes arguments <var>topicValues</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>) and <var>expression</var> (a <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">Parse Node</a></emu-xref>). It performs the following steps when called:</p>
+      <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicValues</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>Let <var>outerEnv</var> be the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment.</li><li>Let <var>topicEnv</var> be <emu-xref aoid="NewDeclarativeEnvironment" id="_ref_64"><a href="https://tc39.es/ecma262/#sec-newdeclarativeenvironment">NewDeclarativeEnvironment</a></emu-xref>(<var>outerEnv</var>).</li><li>Perform ! <var>topicEnv</var>.BindTopicValues(<var>topicValues</var>).</li><li>Set the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment to
+           <var>topicEnv</var>.</li><li>Let <var>result</var> be the result of evaluating <var>expression</var>.</li><li>Set the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment to <var>outerEnv</var>.</li><li>Return <var>result</var>.</li></ol></emu-alg>
+      <emu-note><span class="note">Note</span><div class="note-contents">
+        <p>EvaluateWithTopics creates a new <emu-xref href="#sec-topic-bindings" id="_ref_65"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> and
+        evaluates the given <var>expression</var> with that as its <emu-xref href="#sec-topic-bindings" id="_ref_66"><a href="#sec-topic-bindings">topic environment</a></emu-xref>.
+        The previous <emu-xref href="#sec-lexical-environments"><a href="https://tc39.es/ecma262/#sec-lexical-environments">Lexical Environment</a></emu-xref> is restored afterward.</p>
+      </div></emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-gettopicenvironment" aoid="GetTopicEnvironment">
+      <h1><span class="secnum">2.2.2</span> GetTopicEnvironment ( )</h1>
+      <p>The abstract operation GetTopicEnvironment takes no arguments. It performs the following steps when called:</p>
+      <emu-alg><ol><li>Let <var>envRec</var> be the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment.</li><li>Repeat,<ol><li>Let <var>status</var> be <var>envRec</var>.HasTopicBinding().</li><li>If <var>status</var> is <emu-val>true</emu-val>, return <var>envRec</var>.</li><li>If <var>envRec</var> is a global <emu-xref href="#sec-environment-records" id="_ref_67"><a href="#sec-environment-records">Environment Record</a></emu-xref>, return <emu-val>null</emu-val>.</li><li>Let <var>outer</var> be the value of <var>envRec</var>.[[OuterEnv]].</li><li>Set <var>envRec</var> to <var>outer</var>.</li></ol></li><li>Return <var>envRec</var>.</li></ol></emu-alg>
+      <emu-note><span class="note">Note</span><div class="note-contents">
+        <p>GetTopicEnvironment returns the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_68"><a href="#sec-topic-bindings">topic environment</a></emu-xref>
+        (i.e., its LexicalEnvironment's innermost <emu-xref href="#sec-topic-bindings" id="_ref_69"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>)
+        or <emu-val>null</emu-val> if the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref> has no <emu-xref href="#sec-topic-bindings" id="_ref_70"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
+      </div></emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-getprimarytopicvalue" aoid="GetPrimaryTopicValue">
+      <h1><span class="secnum">2.2.3</span> GetPrimaryTopicValue ( )</h1>
+      <p>The abstract operation GetPrimaryTopicValue takes no arguments. It performs the following steps when called:</p>
+      <emu-alg><ol><li>Let <var>topicEnv</var> be <emu-xref aoid="GetTopicEnvironment" id="_ref_71"><a href="#sec-gettopicenvironment">GetTopicEnvironment</a></emu-xref>().</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicEnv</var> is a declarative <emu-xref href="#sec-environment-records" id="_ref_72"><a href="#sec-environment-records">Environment Record</a></emu-xref>.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicEnv</var>.HasTopicBinding() is <emu-val>true</emu-val>.</li><li>Let <var>topicValues</var> be <var>envRec</var>.[[TopicValues]].</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicValues</var> has at least one element.</li><li>Return <var>topicValues</var>[0].</li></ol></emu-alg>
+      <emu-note><span class="note">Note</span><div class="note-contents">
+        <p>GetPrimaryTopicValue returns the <emu-xref href="#sec-topic-bindings" id="_ref_73"><a href="#sec-topic-bindings">topic value</a></emu-xref>
+        of the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_74"><a href="#sec-topic-bindings">topic environment</a></emu-xref>.
+        It may be called only when the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_75"><a href="#sec-topic-bindings">topic environment</a></emu-xref>
+        is not <emu-val>null</emu-val>.</p>
+      </div></emu-note>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
+
+<emu-clause id="sec-ecmascript-language-lexical-grammar">
+  <h1><span class="secnum">3</span> ECMAScript Language: Lexical Grammar</h1>
+
+  <emu-clause id="sec-punctuators">
+    <h1><span class="secnum">3.1</span> Punctuators</h1>
+
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-punctuators">original
+      Punctuators clause</a>.</p>
+
+      <p>It presumptively uses <code>^</code> as the placeholder token for the
+      <emu-xref href="#sec-topic-references" id="_ref_76"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+      could instead be <code>%</code>.</p>
+    </div></emu-note>
+
+    <emu-grammar><emu-production name="OtherPunctuator" type="lexical" oneof="">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-OtherPunctuator">OtherPunctuator</a></emu-nt> <emu-geq>::</emu-geq> <emu-oneof>one of</emu-oneof> <emu-rhs><emu-t>{</emu-t> <emu-t>(</emu-t> <emu-t>)</emu-t> <emu-t>[</emu-t> <emu-t>]</emu-t> <emu-t>.</emu-t> <emu-t>...</emu-t> <emu-t>;</emu-t> <emu-t>,</emu-t> <emu-t>&lt;</emu-t> <emu-t>&gt;</emu-t> <emu-t>&lt;=</emu-t> <emu-t>&gt;=</emu-t> <emu-t>==</emu-t> <emu-t>!=</emu-t> <emu-t>===</emu-t> <emu-t>!==</emu-t> <emu-t>+</emu-t> <emu-t>-</emu-t> <emu-t>*</emu-t> <emu-t>%</emu-t> <emu-t>**</emu-t> <emu-t>++</emu-t> <emu-t>--</emu-t> <emu-t>&lt;&lt;</emu-t> <emu-t>&gt;&gt;</emu-t> <emu-t>&gt;&gt;&gt;</emu-t> <emu-t>&amp;</emu-t> <emu-t>|</emu-t> <emu-t>^</emu-t> <emu-t>!</emu-t> <emu-t>~</emu-t> <emu-t>&amp;&amp;</emu-t> <emu-t>||</emu-t> <emu-t>??</emu-t> <emu-t>?</emu-t> <emu-t>:</emu-t> <ins><emu-t>|&gt;</emu-t></ins> <emu-t>=</emu-t> <emu-t>+=</emu-t> <emu-t>-=</emu-t> <emu-t>*=</emu-t> <emu-t>%=</emu-t> <emu-t>**=</emu-t> <emu-t>&lt;&lt;=</emu-t> <emu-t>&gt;&gt;=</emu-t> <emu-t>&gt;&gt;&gt;=</emu-t> <emu-t>&amp;=</emu-t> <emu-t>|=</emu-t> <del><emu-t>^=</emu-t></del> <emu-t>&amp;&amp;=</emu-t> <emu-t>||=</emu-t> <emu-t>??=</emu-t> <emu-t>=&gt;</emu-t></emu-rhs>
+</emu-production>
+<emu-production name="DivPunctuator" type="lexical">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-DivPunctuator">DivPunctuator</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="0_1fu2p8"><emu-t>/</emu-t></emu-rhs>
+    <emu-rhs a="lgd_45yr"><emu-t>/=</emu-t></emu-rhs>
+    <ins><emu-rhs a="vgx1-o_n"><emu-t>^=</emu-t></emu-rhs></ins>
+</emu-production>
+</emu-grammar>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-ecmascript-language-expressions">
+  <h1><span class="secnum">4</span> ECMAScript Language: Expressions</h1>
+
+  <emu-clause id="sec-primary-expression">
+    <h1><span class="secnum">4.1</span> Primary Expression</h1>
+
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-primary-expression">original
+      Primary Expression clause</a>.</p>
+
+      <p>It presumptively uses <code>^</code> as the placeholder token for the
+      <emu-xref href="#sec-topic-references" id="_ref_77"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+      could instead be <code>%</code>.</p>
+    </div></emu-note>
+
+    <h2>Syntax</h2>
+    <emu-grammar type="definition"><emu-production name="PrimaryExpression" params="Yield, Await" id="prod-PrimaryExpression">
+    <emu-nt params="Yield, Await"><a href="#prod-PrimaryExpression">PrimaryExpression</a><emu-mods><emu-params>[Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-Joc9-5i9"><emu-t>this</emu-t></emu-rhs>
+    <ins><emu-rhs a="5yeieuod" id="prod-lUgBoKJM"><emu-t>^</emu-t></emu-rhs></ins>
+    <emu-rhs a="dlsgch-w" id="prod-WzC_-Tli"><emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-IdentifierReference">IdentifierReference</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="kul-a19e" id="prod-kFKvlIew"><emu-nt><a href="https://tc39.es/ecma262/#prod-Literal">Literal</a></emu-nt></emu-rhs>
+    <emu-rhs a="l8_i0ob3" id="prod-izgqBKzQ"><emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-ArrayLiteral">ArrayLiteral</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="7pishiof" id="prod-rL0KzAka"><emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-annexB-ObjectLiteral">ObjectLiteral</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="jc7szv1s" id="prod-2GG08dnr"><emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="jqir3v1i" id="prod-BjlPLEoy"><emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-ClassExpression">ClassExpression</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="q7f39ayg" id="prod-qRYwqON3"><emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="rvibtigb" id="prod-4f1krUyY"><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="naptrn97" id="prod-Hseyu0a-"><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorExpression">AsyncGeneratorExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="mbzy6lvr" id="prod-l_l2o01x"><emu-nt><a href="https://tc39.es/ecma262/#prod-RegularExpressionLiteral">RegularExpressionLiteral</a></emu-nt></emu-rhs>
+    <emu-rhs a="stpbjyob" id="prod-ScOzt1wW"><emu-nt params="?Yield, ?Await, ~Tagged"><a href="https://tc39.es/ecma262/#prod-TemplateLiteral">TemplateLiteral</a><emu-mods><emu-params>[?Yield, ?Await, ~Tagged]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="kcra71qq" id="prod-Lu7YZ_Gz"><emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList">CoverParenthesizedExpressionAndArrowParameterList</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+
+    <emu-clause id="sec-topic-references">
+      <h1><span class="secnum">4.1.1</span> <ins>Topic Reference</ins></h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section is a wholly new sub-clause to be inserted between the <a href="https://tc39.github.io/ecma262/#sec-this-keyword">original <code>this</code>
+        Keyword clause</a> and the <a href="https://tc39.github.io/ecma262/#sec-identifier-reference">original
+        Identifier Reference clause</a>.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        topic reference. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <emu-note><span class="note">Note 1</span><div class="note-contents">
+        <p>The <dfn>topic reference</dfn>, which is the token <code>^</code>, is a
+        nullary operator that evaluates to the current <emu-xref href="#sec-environment-records" id="_ref_78"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s
+        <emu-xref href="#sec-topic-bindings" id="_ref_79"><a href="#sec-topic-bindings">topic value</a></emu-xref>. The topic reference acts as if it were a special variable,
+        implicitly bound to the <emu-xref href="#sec-topic-bindings" id="_ref_80"><a href="#sec-topic-bindings">topic value</a></emu-xref>, yet still lexically scoped. But
+        <code>^</code> is not actually an <emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt> and the topic reference is
+        not a variable, and it cannot be bound by typical assignment.
+        Instead, the topic reference is immutably bound to a value
+        during the instantiation of any <emu-xref href="#sec-topic-bindings" id="_ref_81"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> by a <emu-nt id="_ref_132"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.</p>
+
+        <p>The concept of the <emu-xref href="#sec-topic-bindings" id="_ref_82"><a href="#sec-topic-bindings">topic binding</a></emu-xref> is further discussed in <emu-xref href="#sec-topic-bindings" id="_ref_4"><a href="#sec-topic-bindings">Topic Bindings</a></emu-xref> and in <emu-xref href="#sec-declarative-environment-records" id="_ref_5"><a href="#sec-declarative-environment-records">Declarative Environment
+        Records</a></emu-xref>.</p>
+      </div></emu-note>
+
+      <emu-note><span class="note">Note 2</span><div class="note-contents">
+        <p>An <dfn>unbound topic reference</dfn> is a topic reference that
+        is not present within any <emu-xref href="#sec-topic-bindings" id="_ref_83"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created by a <emu-nt id="_ref_133"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.
+        All unbound <emu-xref href="#sec-topic-bindings" id="_ref_84"><a href="#sec-topic-bindings">topic</a></emu-xref> references are invalid syntax.
+        Several <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>, as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_85"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>,
+        use the
+        <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_6"><a href="#sec-syntax-directed-operations-contains">Contains</a></emu-xref>
+        operation to check for any unbound topic reference <code>^</code>.
+        Any inner topic reference within a <emu-nt id="_ref_134"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from these rules,
+        preventing them from triggering the rules during program
+        compilation.</p>
+
+        <p>This guarantees that every topic reference in a program must be
+        present within a <emu-xref href="#sec-topic-bindings" id="_ref_86"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>
+        created by a <emu-nt id="_ref_135"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that program.</p>
+      </div></emu-note>
+
+      <emu-clause id="sec-topic-references-runtime-semantics-evaluation">
+        <h1><span class="secnum">4.1.1.1</span> Runtime Semantics: Evaluation</h1>
+        <emu-note><span class="note">Note</span><div class="note-contents">
+          <p>A <emu-xref href="#sec-topic-references" id="_ref_87"><a href="#sec-topic-references">topic reference</a></emu-xref> may be evaluated only when
+          the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_88"><a href="#sec-topic-bindings">topic environment</a></emu-xref> is not <emu-val>null</emu-val>.
+          This is syntactically enforced by <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules
+          for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>,
+          as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_89"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>.
+          These rules use the
+          <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_7"><a href="#sec-syntax-directed-operations-contains">Contains</a></emu-xref>
+          operation to check for any <emu-xref href="#sec-topic-references" id="_ref_90"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.</p>
+        </div></emu-note>
+
+        <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="5yeieuod"><emu-t>^</emu-t></emu-rhs>
+</emu-production>
+</emu-grammar>
+        <emu-alg><ol><li>Return <emu-xref aoid="GetPrimaryTopicValue" id="_ref_91"><a href="#sec-getprimarytopicvalue">GetPrimaryTopicValue</a></emu-xref>().</li></ol></emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-pipe-operator">
+    <h1><span class="secnum">4.2</span> <ins>Pipe Operator</ins></h1>
+
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section is a wholly new sub-clause to be inserted between the <a href="https://tc39.github.io/ecma262/#sec-conditional-operator">original
+      Conditional Operator (<code>?</code> <code>:</code>) clause</a> and the <a href="https://tc39.github.io/ecma262/#sec-assignment-operators">original
+      Assignment Operators clause</a>.</p>
+    </div></emu-note>
+
+    <h2>Syntax</h2>
+    <emu-grammar type="definition"><emu-production name="PipeExpression" params="In, Yield, Await" id="prod-PipeExpression">
+    <emu-nt params="In, Yield, Await"><a href="#prod-PipeExpression">PipeExpression</a><emu-mods><emu-params>[In, Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="k6zttxw-" id="prod-CvtqIQqr">
+        <emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+        <emu-t>|&gt;</emu-t>
+        <emu-nt params="?In, ?Yield, ?Await" id="_ref_136"><a href="#prod-PipeBody">PipeBody</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+    </emu-rhs>
+</emu-production>
+<emu-production name="PipeBody" params="In, Yield, Await" id="prod-PipeBody">
+    <emu-nt params="In, Yield, Await"><a href="#prod-PipeBody">PipeBody</a><emu-mods><emu-params>[In, Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="dtjihnfx"><emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+
+    <emu-clause id="sec-pipe-operator-static-semantics-early-errors">
+      <h1><span class="secnum">4.2.1</span> Static Semantics: Early Errors</h1>
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section is a wholly new sub-clause.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        <emu-xref href="#sec-topic-references" id="_ref_92"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <emu-grammar><emu-production name="PipeBody" collapsed="">
+    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="ijerp7um"><emu-nt id="_ref_137"><a href="#prod-PipeExpression">PipeExpression</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+      <emu-alg><ol><li>It is a Syntax Error if <emu-nt id="_ref_138"><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-xref aoid="Contains" id="_ref_93"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>^</code> is <emu-val>false</emu-val>.</li></ol></emu-alg>
+
+      <emu-note><span class="note">Note 1</span><div class="note-contents">
+        <p>A <emu-nt id="_ref_139"><a href="#prod-PipeBody">PipeBody</a></emu-nt> must use its <emu-xref href="#sec-topic-bindings" id="_ref_94"><a href="#sec-topic-bindings">topic</a></emu-xref> at least once.
+        <code>value |&gt; foo + 1</code> is an <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref>,
+        because its <emu-nt id="_ref_140"><a href="#prod-PipeBody">PipeBody</a></emu-nt> does not
+        <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_8"><a href="#sec-syntax-directed-operations-contains">contain</a></emu-xref>
+        a <emu-xref href="#sec-topic-references" id="_ref_95"><a href="#sec-topic-references">topic reference</a></emu-xref> <code>^</code>.
+        This design is such because omission of any <emu-xref href="#sec-topic-references" id="_ref_96"><a href="#sec-topic-references">topic reference</a></emu-xref> from a <emu-nt id="_ref_141"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+        is almost certainly an accidental programmer error.</p>
+      </div></emu-note>
+
+      <emu-grammar><emu-production name="PipeBody" collapsed="">
+    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="ijerp7um"><emu-nt id="_ref_142"><a href="#prod-PipeExpression">PipeExpression</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+      <emu-alg><ol><li>It is a Syntax Error if one of the following productions is <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">covering</a></emu-xref> <emu-nt id="_ref_143"><a href="#prod-PipeBody">PipeBody</a></emu-nt>:<ul><li><emu-nt><a href="https://tc39.es/ecma262/#prod-ConditionalExpression">ConditionalExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncArrowFunction">AsyncArrowFunction</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentOperator">AssignmentOperator</a></emu-nt> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>&amp;&amp;=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>||=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>??=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li></ul></li></ol></emu-alg>
+
+      <emu-note><span class="note">Note 2</span><div class="note-contents">
+        <p>A <emu-nt id="_ref_144"><a href="#prod-PipeBody">PipeBody</a></emu-nt> must not be an unparenthesized expression that is formed from any other operator with identical precedence, such as a <emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a></emu-nt> or an <emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a></emu-nt>.</p>
+        <p>This is to prevent confusing expressions from being valid, such as
+        <code>x |&gt; yield % |&gt; % + 1</code>.<br>
+        That expression would otherwise be unexpectedly equivalent to
+        <code>x |&gt; (yield % |&gt; % + 1)</code>.<br>
+        Likewise, the confusing expression
+        <code>x |&gt; y ? % : z |&gt; % + 1</code>.<br>
+        would otherwise be unexpectedly equivalent to
+        <code>x |&gt; (y ? % : z |&gt; % + 1)</code>.</p>
+        <p>Such invalid expressions would become valid with explicit parentheses:
+        <code>x |&gt; (yield %) |&gt; % + 1</code> or<br>
+        <code>x |&gt; (yield % |&gt; % + 1)</code>;<br>
+        <code>x |&gt; (y ? % : z) |&gt; % + 1</code> or<br>
+        <code>x |&gt; (y ? % : z |&gt; % + 1)</code>.</p>
+      </div></emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-pipe-operator-runtime-semantics-evaluation">
+    <h1><span class="secnum">4.2.2</span> Runtime Semantics: Evaluation</h1>
+
+    <emu-grammar><emu-production name="PipeExpression" collapsed="">
+    <emu-nt><a href="#prod-PipeExpression">PipeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="a28alu8f">
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ConditionalExpression">ConditionalExpression</a></emu-nt>
+        <emu-t>|&gt;</emu-t>
+        <emu-nt id="_ref_145"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+    </emu-rhs>
+</emu-production>
+</emu-grammar>
+    <emu-alg><ol><li>Let <var>inputRef</var> be the result of evaluating <var>ConditionalExpression</var>.</li><li>Let <var>inputValues</var> be « ?&nbsp;<emu-xref aoid="GetValue" id="_ref_97"><a href="https://tc39.es/ecma262/#sec-getvalue">GetValue</a></emu-xref>(<var>inputRef</var>) ».</li><li>Let <var>outputValue</var> be ?&nbsp;<emu-xref aoid="EvaluateWithTopics" id="_ref_98"><a href="#sec-evaluatewithtopics">EvaluateWithTopics</a></emu-xref>(<var>inputValues</var>, <emu-nt id="_ref_146"><a href="#prod-PipeBody">PipeBody</a></emu-nt>).</li><li>Return <var>outputValue</var>.</li></ol></emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-assignment-operators">
+    <h1><span class="secnum">4.3</span> Assignment Operators</h1>
+
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-assignment-operators">original
+      Assignment Operators clause</a>.</p>
+    </div></emu-note>
+
+    <h2>Syntax</h2>
+    <emu-grammar><emu-production name="AssignmentExpression" params="In, Yield, Await">
+    <emu-nt params="In, Yield, Await"><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a><emu-mods><emu-params>[In, Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="gqos3l-s"><emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-ConditionalExpression">ConditionalExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="xu2tbseh" constraints="+Yield"><emu-constraints>[+Yield]</emu-constraints><emu-nt params="?In, ?Await"><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a><emu-mods><emu-params>[?In, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <ins><emu-rhs a="3ahlarhw"><emu-nt params="?In, ?Yield, ?Await" id="_ref_147"><a href="#prod-PipeExpression">PipeExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs></ins>
+    <emu-rhs a="m23qgn_1"><emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="3h9r6dls"><emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-AsyncArrowFunction">AsyncArrowFunction</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="dfasni1i">
+        <emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+        <emu-t>=</emu-t>
+        <emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+    </emu-rhs>
+    <emu-rhs a="3cvjfmjy">
+        <emu-nt params="?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentOperator">AssignmentOperator</a></emu-nt>
+        <emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+    </emu-rhs>
+</emu-production>
+<del><emu-production name="AssignmentOperator" oneof="">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentOperator">AssignmentOperator</a></emu-nt> <emu-geq>:</emu-geq> <emu-oneof>one of</emu-oneof> <emu-rhs><emu-t>*=</emu-t> <emu-t>/=</emu-t> <emu-t>%=</emu-t> <emu-t>+=</emu-t> <emu-t>-=</emu-t> <emu-t>&lt;&lt;=</emu-t> <emu-t>&gt;&gt;=</emu-t> <emu-t>&gt;&gt;&gt;=</emu-t> <emu-t>&amp;=</emu-t> <emu-t>^=</emu-t> <emu-t>|=</emu-t> <emu-t>**=</emu-t></emu-rhs>
+</emu-production></del>
+<ins><emu-production name="AssignmentOperator">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentOperator">AssignmentOperator</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="eun5p6ws"><emu-t>*=</emu-t></emu-rhs>
+    <emu-rhs a="lgd_45yr"><emu-t>/=</emu-t></emu-rhs>
+    <emu-rhs a="zw0z_jxe"><emu-t>%=</emu-t></emu-rhs>
+    <emu-rhs a="lfw6ppvb"><emu-t>+=</emu-t></emu-rhs>
+    <emu-rhs a="kj5vu_ei"><emu-t>-=</emu-t></emu-rhs>
+    <emu-rhs a="woc5krqx"><emu-t>&lt;&lt;=</emu-t></emu-rhs>
+    <emu-rhs a="pu5pyy60"><emu-t>&gt;&gt;=</emu-t></emu-rhs>
+    <emu-rhs a="y_ovsz4i"><emu-t>&gt;&gt;&gt;=</emu-t></emu-rhs>
+    <emu-rhs a="9bwua-on"><emu-t>&amp;=</emu-t></emu-rhs>
+    <emu-rhs a="-ivl3rur">
+        <emu-t>^</emu-t>
+        <emu-t>=</emu-t>
+    </emu-rhs>
+    <emu-rhs a="src5egn8"><emu-t>|=</emu-t></emu-rhs>
+    <emu-rhs a="eiumq4fk"><emu-t>**=</emu-t></emu-rhs>
+</emu-production></ins>
+</emu-grammar>
+
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-ecmascript-language-scripts-and-modules">
+  <h1><span class="secnum">5</span> ECMAScript Language: Scripts and Modules</h1>
+
+  <emu-clause id="sec-scripts">
+    <h1><span class="secnum">5.1</span> Scripts</h1>
+
+    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+      <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-scripts">original
+      Scripts clause</a>.</p>
+
+      <p>It presumptively uses <code>^</code> as the placeholder token for the
+      <emu-xref href="#sec-topic-references" id="_ref_99"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+      could instead be <code>%</code>.</p>
+    </div></emu-note>
+
+    <emu-clause id="sec-scripts-static-semantics-early-errors">
+      <h1><span class="secnum">5.1.1</span> Static Semantics: Early Errors</h1>
+
+      <emu-grammar><emu-production name="Script" collapsed="">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="t4-zzfei"><emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+      <ul>
+        <li>
+          <ins>It is a Syntax Error if <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> <emu-xref aoid="Contains" id="_ref_100"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>^</code> is <emu-val>true</emu-val>.</ins>
+        </li>
+      </ul>
+      <ins class="block">
+      <emu-note><span class="note">Note</span><div class="note-contents">
+        <p>An <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rule uses the <emu-xref aoid="Contains" id="_ref_101"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> operation
+        to check for any <emu-xref href="#sec-topic-references" id="_ref_102"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.
+        Any inner <emu-xref href="#sec-topic-references" id="_ref_103"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_148"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from this rule,
+        preventing them from triggering the rule during program
+        compilation.</p>
+
+        <p>This guarantees that every <emu-xref href="#sec-topic-references" id="_ref_104"><a href="#sec-topic-references">topic reference</a></emu-xref> in a <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt> must be
+        present within a <emu-xref href="#sec-topic-bindings" id="_ref_105"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created
+        by a <emu-nt id="_ref_149"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt>.</p>
+      </div></emu-note>
+      </ins>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-modules">
+    <h1><span class="secnum">5.2</span> Modules</h1>
+
+    <emu-clause id="sec-module-semantics">
+      <h1><span class="secnum">5.2.1</span> Module Semantics</h1>
+
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-module-semantics">original
+        Module Semantics clause</a>.</p>
+
+        <p>It presumptively uses <code>^</code> as the placeholder token for the
+        <emu-xref href="#sec-topic-references" id="_ref_106"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+        could instead be <code>%</code>.</p>
+      </div></emu-note>
+
+      <emu-clause id="sec-module-semantics-static-semantics-early-errors">
+        <h1><span class="secnum">5.2.1.1</span> Static Semantics: Early Errors</h1>
+        <emu-grammar><emu-production name="ModuleBody" collapsed="">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="iqenfemp"><emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
+        <ul>
+          <li>
+            <ins>It is a Syntax Error if <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt> <emu-xref aoid="Contains" id="_ref_107"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>^</code>
+            is <emu-val>true</emu-val>.</ins>
+          </li>
+        </ul>
+
+        <ins class="block">
+        <emu-note><span class="note">Note</span><div class="note-contents">
+          <p>An <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rule uses the <emu-xref aoid="Contains" id="_ref_108"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> operation
+          to check for any <emu-xref href="#sec-topic-references" id="_ref_109"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.
+          Any inner <emu-xref href="#sec-topic-references" id="_ref_110"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_150"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from this rule,
+          preventing them from triggering the rule during program
+          compilation.</p>
+
+          <p>This guarantees that every <emu-xref href="#sec-topic-references" id="_ref_111"><a href="#sec-topic-references">topic reference</a></emu-xref> in a <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt> must be
+          present within a <emu-xref href="#sec-topic-bindings" id="_ref_112"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created
+          by a <emu-nt id="_ref_151"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt>.</p>
+        </div></emu-note>
+        </ins>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-fundamental-objects">
+  <h1><span class="secnum">6</span> Fundamental Objects</h1>
+
+  <emu-clause id="sec-function-objects">
+    <h1><span class="secnum">6.1</span> Function Objects</h1>
+
+    <emu-clause id="sec-function-constructor">
+      <h1><span class="secnum">6.1.1</span> The Function Constructor</h1>
+
+      <emu-clause id="sec-function-p1-p2-pn-body">
+        <h1><span class="secnum">6.1.1.1</span> Function ( <var>p1</var>, <var>p2</var>, … , <var>pn</var>, <var>body</var> )</h1>
+
+        <emu-clause id="sec-createdynamicfunction" aoid="CreateDynamicFunction">
+          <h1><span class="secnum">6.1.1.1.1</span> CreateDynamicFunction ( <var>constructor</var>, <var>newTarget</var>, <var>kind</var>, <var>args</var> )</h1>
+          <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+            <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-createdynamicfunction">original
+            CreateDynamicFunction clause</a>.</p>
+
+            <p>It presumptively uses <code>^</code> as the placeholder token for the
+            <emu-xref href="#sec-topic-references" id="_ref_113"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>^</code>
+            could instead be <code>%</code>.</p>
+          </div></emu-note>
+
+          <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: The <emu-xref href="#execution-context-stack"><a href="https://tc39.es/ecma262/#execution-context-stack">execution context stack</a></emu-xref> has at least two elements.</li><li>Let <var>callerContext</var> be the second to top element of the <emu-xref href="#execution-context-stack"><a href="https://tc39.es/ecma262/#execution-context-stack">execution context stack</a></emu-xref>.</li><li>Let <var>callerRealm</var> be <var>callerContext</var>'s <emu-xref href="#realm"><a href="https://tc39.es/ecma262/#realm">Realm</a></emu-xref>.</li><li>Let <var>calleeRealm</var> be <emu-xref href="#current-realm"><a href="https://tc39.es/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Perform ?&nbsp;<emu-xref aoid="HostEnsureCanCompileStrings" id="_ref_114"><a href="https://tc39.es/ecma262/#sec-hostensurecancompilestrings">HostEnsureCanCompileStrings</a></emu-xref>(<var>callerRealm</var>, <var>calleeRealm</var>).</li><li>If <var>newTarget</var> is <emu-val>undefined</emu-val>, set <var>newTarget</var> to <var>constructor</var>.</li><li>If <var>kind</var> is <emu-const>normal</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt params="~Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FunctionBody">FunctionBody</a><emu-mods><emu-params>[~Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="~Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[~Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%Function.prototype%"</emu-val>.</li></ol></li><li>Else if <var>kind</var> is <emu-const>generator</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorBody">GeneratorBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="+Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[+Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%GeneratorFunction.prototype%"</emu-val>.</li></ol></li><li>Else if <var>kind</var> is <emu-const>async</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionBody">AsyncFunctionBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="~Yield, +Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[~Yield, +Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%AsyncFunction.prototype%"</emu-val>.</li></ol></li><li>Else,<ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>kind</var> is <emu-const>asyncGenerator</emu-const>.</li><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorExpression">AsyncGeneratorExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorBody">AsyncGeneratorBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="+Yield, +Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[+Yield, +Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%AsyncGeneratorFunction.prototype%"</emu-val>.</li></ol></li><li>Let <var>argCount</var> be the number of elements in <var>args</var>.</li><li>Let <var>P</var> be the empty String.</li><li>If <var>argCount</var> = 0, let <var>bodyArg</var> be the empty String.</li><li>Else if <var>argCount</var> = 1, let <var>bodyArg</var> be <var>args</var>[0].</li><li>Else,<ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>argCount</var> &gt; 1.</li><li>Let <var>firstArg</var> be <var>args</var>[0].</li><li>Set <var>P</var> to ?&nbsp;<emu-xref aoid="ToString" id="_ref_115"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>firstArg</var>).</li><li>Let <var>k</var> be 1.</li><li>Repeat, while <var>k</var> &lt; <var>argCount</var> - 1,<ol><li>Let <var>nextArg</var> be <var>args</var>[<var>k</var>].</li><li>Let <var>nextArgString</var> be ?&nbsp;<emu-xref aoid="ToString" id="_ref_116"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>nextArg</var>).</li><li>Set <var>P</var> to the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of <var>P</var>, <emu-val>","</emu-val> (a comma), and <var>nextArgString</var>.</li><li>Set <var>k</var> to <var>k</var> + 1.</li></ol></li><li>Let <var>bodyArg</var> be <var>args</var>[<var>k</var>].</li></ol></li><li>Let <var>bodyString</var> be the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of 0x000A (LINE FEED), ?&nbsp;<emu-xref aoid="ToString" id="_ref_117"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>bodyArg</var>), and 0x000A (LINE FEED).</li><li>Let <var>prefix</var> be the prefix associated with <var>kind</var> in <emu-xref href="#table-dynamic-function-sourcetext-prefixes"><a href="https://tc39.es/ecma262/#table-dynamic-function-sourcetext-prefixes">Table 50</a></emu-xref>.</li><li>Let <var>sourceString</var> be the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of <var>prefix</var>, <emu-val>" anonymous("</emu-val>, <var>P</var>, 0x000A (LINE FEED), <emu-val>") {"</emu-val>, <var>bodyString</var>, and <emu-val>"}"</emu-val>.</li><li>Let <var>sourceText</var> be !&nbsp;StringToCodePoints(<var>sourceString</var>).</li><li>Let <var>parameters</var> be ParseText(! StringToCodePoints(<var>P</var>), <var>parameterSym</var>).</li><li>If <var>parameters</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li>Let <var>body</var> be ParseText(! StringToCodePoints(<var>bodyString</var>), <var>bodySym</var>).</li><li>If <var>body</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li>NOTE: The parameters and body are parsed separately to ensure that each is valid alone. For example, <code>new Function("/*", "*/ ) {")</code> is not legal.</li><li>NOTE: If this step is reached, <var>sourceText</var> must match <var>exprSym</var> (although the reverse implication does not hold). The purpose of the next two steps is to enforce any Early Error rules which apply to <var>exprSym</var> directly.</li><li>Let <var>expr</var> be ParseText(<var>sourceText</var>, <var>exprSym</var>).</li><li>If <var>expr</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li><ins>NOTE: The dynamic function must not <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_9"><a href="#sec-syntax-directed-operations-contains">contain</a></emu-xref> an <emu-xref href="#sec-topic-references" id="_ref_118"><a href="#sec-topic-references">unbound topic reference</a></emu-xref> <code>^</code>.)</ins></li><li><ins>If <var>expr</var> <emu-xref aoid="Contains" id="_ref_119"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>^</code> is <emu-val>true</emu-val>, throw a <emu-val>SyntaxError</emu-val> exception.</ins></li><li>Let <var>proto</var> be ?&nbsp;<emu-xref aoid="GetPrototypeFromConstructor" id="_ref_120"><a href="https://tc39.es/ecma262/#sec-getprototypefromconstructor">GetPrototypeFromConstructor</a></emu-xref>(<var>newTarget</var>, <var>fallbackProto</var>).</li><li>Let <var>realmF</var> be <emu-xref href="#current-realm"><a href="https://tc39.es/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Let <var>scope</var> be <var>realmF</var>.[[GlobalEnv]].</li><li>Let <var>privateScope</var> be <emu-val>null</emu-val>.</li><li>Let <var>F</var> be !&nbsp;<emu-xref aoid="OrdinaryFunctionCreate" id="_ref_121"><a href="https://tc39.es/ecma262/#sec-ordinaryfunctioncreate">OrdinaryFunctionCreate</a></emu-xref>(<var>proto</var>, <var>sourceText</var>, <var>parameters</var>, <var>body</var>, <emu-const>non-lexical-this</emu-const>, <var>scope</var>, <var>privateScope</var>).</li><li>Perform <emu-xref aoid="SetFunctionName" id="_ref_122"><a href="https://tc39.es/ecma262/#sec-setfunctionname">SetFunctionName</a></emu-xref>(<var>F</var>, <emu-val>"anonymous"</emu-val>).</li><li>If <var>kind</var> is <emu-const>generator</emu-const>, then<ol><li>Let <var>prototype</var> be !&nbsp;OrdinaryObjectCreate(%GeneratorFunction.prototype.prototype%).</li><li>Perform <emu-xref aoid="DefinePropertyOrThrow" id="_ref_123"><a href="https://tc39.es/ecma262/#sec-definepropertyorthrow">DefinePropertyOrThrow</a></emu-xref>(<var>F</var>, <emu-val>"prototype"</emu-val>, PropertyDescriptor { [[Value]]: <var>prototype</var>, [[Writable]]: <emu-val>true</emu-val>, [[Enumerable]]: <emu-val>false</emu-val>, [[Configurable]]: <emu-val>false</emu-val> }).</li></ol></li><li>Else if <var>kind</var> is <emu-const>asyncGenerator</emu-const>, then<ol><li>Let <var>prototype</var> be !&nbsp;OrdinaryObjectCreate(%AsyncGeneratorFunction.prototype.prototype%).</li><li>Perform <emu-xref aoid="DefinePropertyOrThrow" id="_ref_124"><a href="https://tc39.es/ecma262/#sec-definepropertyorthrow">DefinePropertyOrThrow</a></emu-xref>(<var>F</var>, <emu-val>"prototype"</emu-val>, PropertyDescriptor { [[Value]]: <var>prototype</var>, [[Writable]]: <emu-val>true</emu-val>, [[Enumerable]]: <emu-val>false</emu-val>, [[Configurable]]: <emu-val>false</emu-val> }).</li></ol></li><li>Else if <var>kind</var> is <emu-const>normal</emu-const>, perform <emu-xref aoid="MakeConstructor" id="_ref_125"><a href="https://tc39.es/ecma262/#sec-makeconstructor">MakeConstructor</a></emu-xref>(<var>F</var>).</li><li>NOTE: Functions whose <var>kind</var> is <emu-const>async</emu-const> are not constructible and do not have a [[Construct]] internal method or a <emu-val>"prototype"</emu-val> property.</li><li>Return <var>F</var>.</li></ol></emu-alg>
+        </emu-clause>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+</emu-clause><emu-annex id="sec-copyright-and-software-license">
+      <h1><span class="secnum">A</span> Copyright &amp; Software License</h1>
+      
+      <h2>Copyright Notice</h2>
+      <p>© 2021 J.&nbsp;S. Choi, Ecma International</p>
+
+      <h2>Software License</h2>
+      <p>All Software contained in this document ("Software") is protected by copyright and is being made available under the "BSD License", included below. This Software may be subject to third party rights (rights from parties other than Ecma International), including patent rights, and no licenses under such third party rights are granted under this license even if the third party concerned is a member of Ecma International. SEE THE ECMA CODE OF CONDUCT IN PATENT MATTERS AVAILABLE AT https://ecma-international.org/memento/codeofconduct.htm FOR INFORMATION REGARDING THE LICENSING OF PATENT CLAIMS THAT ARE REQUIRED TO IMPLEMENT ECMA INTERNATIONAL STANDARDS.</p>
+
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+
+<ol>
+  <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+  <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+  <li>Neither the name of the authors nor Ecma International may be used to endorse or promote products derived from this software without specific prior written permission.</li>
+</ol>
+
+<p>THIS SOFTWARE IS PROVIDED BY THE ECMA INTERNATIONAL "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ECMA INTERNATIONAL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+
+    </emu-annex>
+</div></body>
