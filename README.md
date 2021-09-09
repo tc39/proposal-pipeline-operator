@@ -1,7 +1,7 @@
 # Pipe Operator (`|>`) for JavaScript
 
 * **Stage**: 2
-* **Champions**: J. S. Choi, Ron Buckton, Tab Atkins-Bittner, \[list incomplete] <!-- Alpha order by first name, plz -->
+* **Champions**: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner, \[list incomplete] <!-- Alpha order by first name, plz -->
 * **[Specification][]**
 * **Babel plugin**: [Implemented in v7.15][Babel 7.15]. See [Babel documentation][].
 
