@@ -692,8 +692,8 @@ it is **invalid** syntax to use **other** operators that have the **same precede
 (the arrow `=>`, the ternary conditional operator `?` `:`,
 the assignment operators, and the `yield` operator)
 as a **pipe head or body**.
-When using, we must use **parentheses**
-to explicitly indicate which precedence is correct.
+When using `|>` with these operators, we must use **parentheses**
+to explicitly indicate what grouping is correct.
 For example, `a |> b ? ^ : c |> ^.d` is invalid syntax;
 it should be corrected to either `a |> (b ? ^ : c) |> ^.d`
 or `a |> (b ? ^ : c |> ^.d)`.
