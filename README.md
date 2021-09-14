@@ -263,9 +263,9 @@ function double(x) { return x * 2; }
 function three() { return 3; }
 
 let _ = one(); // _ is now 1
-    _ = double($); // _ is now 2
-    _ = Promise.resolve().then(() => console.log($)); // _ is now a promise, that's meant to log 2
-    _ = three($); // _ is now 3
+    _ = double(_); // _ is now 2
+    _ = Promise.resolve().then(() => console.log(_)); // _ is now a promise, that's meant to log 2
+    _ = three(_); // _ is now 3
 ```
 
 This issue wouldn't happen in a pipeline, due to scoping of the placeholder token:
