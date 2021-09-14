@@ -225,97 +225,123 @@ when they perceive their benefit to be relatively small.
 
 [naming hard]: https://martinfowler.com/bliki/TwoHardThings.html
 
-### Mutable variables are unsafe and hard to read
-
-One could argue that using a single **mutable variable** with a short name will reduce the wordiness, achieving
+### Reusing temporary variables is prone to unexpected mutation
+One could argue that using a single **mutable variable** with a short name
+would reduce the wordiness of temporary variables, achieving
 similar results as with the pipe operator.
 
 <details>
 <summary><strong>Real-world example</strong>, continued</summary>
 
 For example, our previous modified
-[real-world example from React][react/scripts/jest/jest-cli.js] can be re-written like this:
-
+[real-world example from React][react/scripts/jest/jest-cli.js]
+could be re-written like this:
 ```js
-let _ = envars
-    _ = Object.keys(_)
-    _ = _.map(envar =>
-      `${envar}=${envars[envar]}`)
-    _ = _.join(' ')
-    _ = `$ ${_}`
-    _ = chalk.dim(_, 'node', args.join(' '))
-    _ = console.log(_);
+let _;
+_ = envars;
+_ = Object.keys(_);
+_ = _.map(envar =>
+  `${envar}=${envars[envar]}`);
+_ = _.join(' ');
+_ = `$ ${_}`;
+_ = chalk.dim(_, 'node', args.join(' '));
+_ = console.log(_);
 ```
   
 </details>
 
-One of the main reasons code like this **isn't common in real world**, is that mutable variables
-can change unexpectedly, causing silent bugs that are hard to find. The variable might be accidentally referenced in a closure.
+But code like this is **not common** in real-world code.
+One reason for this is that mutable variables can **change unexpectedly**,
+causing silent bugs that are hard to find.
+For example, the variable might be accidentally referenced in a closure.
 Or it might be mistakenly reassigned within an expression.
 
 <details>
-<summary>Example</summary>
+<summary>Example code</summary>
 
 ```js
 // setup
-function one() { return 1; }
-function double(x) { return x * 2; }
-function three() { return 3; }
+function one () { return 1; }
+function double (x) { return x * 2; }
 
-let _ = one(); // _ is now 1
-    _ = double(_); // _ is now 2
-    _ = Promise.resolve().then(() => console.log(_)); // _ is now a promise, that's meant to log 2
-    _ = three(_); // _ is now 3
+let _;
+_ = one(); // _ is now 1.
+_ = double(_); // _ is now 2.
+_ = Promise.resolve().then(() =>
+  // This does *not* print 2!
+  // It prints 1, because `_` is reassigned downstream.
+  console.log(_));
+
+// _ becomes 1 before the promise callback.
+_ = one(_);
 ```
 
-This issue wouldn't happen in a pipeline, due to scoping of the placeholder token:
+This issue would not happen with the pipe operator.
+The topic token cannot be reassigned, and
+code outside of each step cannot change its binding.
 
 ```js
-const _ = one()
+let _;
+_ = one()
 |> double(^)
-|> Promise.resolve().then(() => console.log(^)) // 2 is logged, as intended
-|> three(^); // _ is now 3
+|> Promise.resolve().then(() =>
+  // This prints 2, as intended.
+  console.log(^));
+
+_ = one();
 ```
 
 </details>
 
-Code with mutable variables is also harder to read. For understanding what the variable
-represents at any given point, you need to search all of the preceding scope and find places it is reassigned.
+For this reason, code with mutable variables is also harder to read.
+To determine what the variable represents at any given point,
+you must to **search the entire preceding scope** for places where it is **reassigned**.
 
-The placeholder token of a pipeline, on the other hand, has limited scope and is immutable within its scope. It cannot be accidentally reassigned,
-it can be safely used in closures. While the token's value also changes based on which pipeline step
-you are looking at, you need to only scan the previous step of the pipeline to make sense of it, leading to code that is easier to read.
+The topic reference of a pipeline, on the other hand, has a limited lexical scope,
+and its binding is immutable within its scope.
+It cannot be accidentally reassigned, and it can be safely used in closures.
 
-### Pipelines are expressions
+Although the topic value also changes with each pipeline step,
+we only scan the previous step of the pipeline to make sense of it,
+leading to code that is easier to read.
 
-Another benefit of pipelines over sequences of assignment statements (with mutable or immutable temporary variables), is that they are expressions, i.e. they resolve to a value that can be directly returned, assigned to a variable, or used in contexts such as JSX expressions. Using temporary variables, on the other hand, is based on sequences of statements, and would require an additional statement for such use.
+### Temporary variables must be declared in statements
+Another benefit of the pipe operator over sequences of assignment statements
+(whether with mutable or with immutable temporary variables)
+is that they are **expressions**.
+
+Pipe expressions are expressions that can be directly returned,
+assigned to a variable, or used in contexts such as JSX expressions.
+
+Using temporary variables, on the other hand, requires sequences of statements.
 
 <details>
 <summary>Examples</summary>
   
 <table>
 <thead>
-  <td>Pipelines</td>
-  <td>Temporary Variables</td>
+<th>Pipelines</th>
+<th>Temporary Variables</th>
 </thead>
+
 <tbody>
 <tr>
 <td>
 
 ```js
-const numberedList = list
-  |> ^.map((each, i) => `${i + 1} - ${each}`)
-  |> ^.join('\n')
+const numberedList = input
+|> ^.map((each, i) => `${i + 1} - ${each}`)
+|> ^.join('\n');
 ```
 
 </td>
 <td>
 
 ```js
-let _ = list
-    _ = _.map((each, i) => `${i + 1} - ${each}`)
-    _ = _.join('\n')
-const numberedList = _
+let _ = input;
+_ = _.map((each, i) => `${i + 1} - ${each}`)
+_ = _.join('\n')
+const numberedList = _;
 ```
 
 </td>
@@ -324,11 +350,11 @@ const numberedList = _
 <td>
 
 ```js
-const envVarFormat = (vars) =>
+const envVarFormat = vars =>
   Object.keys(vars)
   |> ^.map(var => `${var}=${vars[var]}`)
   |> ^.join(' ')
-  |> chalk.dim(^, 'node', args.join(' '))
+  |> chalk.dim(^, 'node', args.join(' '));
 ```
 
 </td>
@@ -336,11 +362,10 @@ const envVarFormat = (vars) =>
 
 ```js
 const envVarFormat = (vars) => {
-  let _ = Object.keys(vars)
-      _ = _.map(var => `${var}=${vars[var]}`)
-      _ = _.join(' ')
-      _ = chalk.dim(_, 'node', args.join(' '))
-  return _
+  let _ = Object.keys(vars);
+  _ = _.map(var => `${var}=${vars[var]}`);
+  _ = _.join(' ');
+  return chalk.dim(_, 'node', args.join(' '));
 }
 ```
 
@@ -350,37 +375,39 @@ const envVarFormat = (vars) => {
 <td>
 
 ```jsx
+// This example uses JSX.
 return (
   <ul>
     {
       values
-       |> Object.keys(^)
-       |> [...Array.from(new Set(^))]
-       |> ^.map(envar => (
-        <li onClick={() => doStuff(values)}>{envar}</li>
-       ))
+      |> Object.keys(^)
+      |> [...Array.from(new Set(^))]
+      |> ^.map(envar => (
+        <li onClick={
+          () => doStuff(values)
+        }>{envar}</li>
+      ))
     }
   </ul>
-)
+);
 ```
 
 </td>
 <td>
   
 ```js
-let _ = values
-_= Object.keys(_)
-_= [...Array.from(new Set(_))]
+// This example uses JSX.
+let _ = values;
+_= Object.keys(_);
+_= [...Array.from(new Set(_))];
 _= _.map(envar => (
-  <li onClick={() => doStuff(values)}>{envar}</li>
-))
-const uniqKeys = _
-
+  <li onClick={
+    () => doStuff(values)
+  }>{envar}</li>
+));
 return (
-  <ul>
-    {uniqKeys}
-  </ul>
-)
+  <ul>{_}</ul>
+);
 ```
 
 </td>
