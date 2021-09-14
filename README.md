@@ -286,6 +286,72 @@ The placeholder token of a pipeline, on the other hand, has limited scope and is
 it can be safely used in closures. While the token's value also changes based on which pipeline step
 you are looking at, you need to only scan the previous step of the pipeline to make sense of it, leading to code that is easier to read.
 
+### Pipelines are expressions
+
+Another benefit of pipelines over sequences of assignment statements (with mutable or immutable temporary variables), is that they are expressions, i.e. they resolve to a value that can be directly returned, assigned to a variable, or used in contexts such as JSX expressions. Using temporary variables, on the other hand, is based on sequences of statements, and would require an additional statement for such use.
+
+<details>
+<summary>Examples</summary>
+
+```js
+// with pipelines
+const numberedList = list |> ^.map((each, i) => `${i + 1} - ${each}`) |> ^.join('\n')
+
+// with temporary variables
+let _ = list
+    _ = _.map((each, i) => `${i + 1} - ${each}`)
+    _ = _.join('\n')
+const numberedList = _
+```
+```js
+// with pipelines
+const envVarFormat = (vars) =>
+  Object.keys(vars)
+  |> ^.map(var => `${var}=${vars[var]}`)
+  |> ^.join(' ')
+  |> chalk.dim(^, 'node', args.join(' '))
+
+// with temporary variables
+const envVarFormat = (vars) => {
+  let _ = Object.keys(vars)
+      _ = _.map(var => `${var}=${vars[var]}`)
+      _ = _.join(' ')
+      _ = chalk.dim(_, 'node', args.join(' '))
+  return _
+}
+```
+```jsx
+// with pipelines
+return (
+  <ul>
+    {
+      values
+       |> Object.keys(^)
+       |> [...Array.from(new Set(^))]
+       |> ^.map(envar => (
+        <li onClick={() => doStuff(values)}>{envar}</li>
+       ))
+    }
+  </ul>
+)
+
+// with temporary variables
+let _ = values
+_= Object.keys(_)
+_= [...Array.from(new Set(_))]
+_= _.map(envar => (
+  <li onClick={() => doStuff(values)}>{envar}</li>
+))
+const uniqKeys = _
+
+return (
+  <ul>
+    {uniqKeys}
+  </ul>
+)
+```
+</details>
+
 ## Why the Hack pipe operator
 There were **two competing proposals** for the pipe operator: Hack pipes and F# pipes.
 (Before that, there **was** a [third proposal for a “smart mix” of the first two proposals][smart mix],
