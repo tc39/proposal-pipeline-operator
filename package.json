@@ -8,7 +8,7 @@
   "license": "SEE LICENSE IN https://tc39.github.io/ecma262/#sec-copyright-and-software-license",
   "homepage": "https://tc39.github.io/proposal-pipeline-operator/",
   "dependencies": {
-    "ecmarkup": "^3.12.0"
+    "ecmarkup": "^9.2.0"
   },
   "devDependencies": {
     "@alrra/travis-scripts": "^3.0.0"
