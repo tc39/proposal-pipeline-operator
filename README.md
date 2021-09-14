@@ -225,6 +225,67 @@ when they perceive their benefit to be relatively small.
 
 [naming hard]: https://martinfowler.com/bliki/TwoHardThings.html
 
+### Mutable variables are unsafe and hard to read
+
+One could argue that using a single **mutable variable** with a short name will reduce the wordiness, achieving
+similar results as with the pipe operator.
+
+<details>
+<summary><strong>Real-world example</strong>, continued</summary>
+
+For example, our previous modified
+[real-world example from React][react/scripts/jest/jest-cli.js] can be re-written like this:
+
+```js
+let _ = envars
+    _ = Object.keys(_)
+    _ = _.map(envar =>
+      `${envar}=${envars[envar]}`)
+    _ = _.join(' ')
+    _ = `$ ${_}`
+    _ = chalk.dim(_, 'node', args.join(' '))
+    _ = console.log(_);
+```
+  
+</details>
+
+One of the main reasons code like this **isn't common in real world**, is that mutable variables
+can change unexpectedly, causing silent bugs that are hard to find. The variable might be accidentally referenced in a closure.
+Or it might be mistakenly reassigned within an expression.
+
+<details>
+<summary>Example</summary>
+
+```js
+// setup
+function one() { return 1; }
+function double(x) { return x * 2; }
+function three() { return 3; }
+
+let _ = one(); // _ is now 1
+    _ = double($); // _ is now 2
+    _ = Promise.resolve().then(() => console.log($)); // _ is now a promise, that's meant to log 2
+    _ = three($); // _ is now 3
+```
+
+This issue wouldn't happen in a pipeline, due to scoping of the placeholder token:
+
+```js
+const _ = one()
+|> double(^)
+|> Promise.resolve().then(() => console.log(^)) // 2 is logged, as intended
+|> three(^); // _ is now 3
+```
+
+</details>
+
+Code with mutable variables is also harder to read. For understanding what the variable
+represents at any given point, you need to search all of the preceding scope and find places it is reassigned.
+
+The placeholder token of a pipeline, on the other hand, has limited scope and is immutable within its scope. It cannot be accidentally reassigned,
+it can be safely used in closures. While the token's value also changes based on which pipeline step
+you are looking at, you need to only scan the previous step of the pipeline to make sense of it, leading to code that is easier to read.
+
 ## Why the Hack pipe operator
 There were **two competing proposals** for the pipe operator: Hack pipes and F# pipes.
 (Before that, there **was** a [third proposal for a “smart mix” of the first two proposals][smart mix],
