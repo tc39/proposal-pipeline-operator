@@ -9,6 +9,10 @@
   "homepage": "https://tc39.github.io/proposal-pipeline-operator/",
   "dependencies": {
     "ecmarkup": "^9.2.0"
-  }
+  },
+  "scripts": {
+    "prebuild": "mkdir -p dist",
+    "build": "ecmarkup --verbose spec.html dist/index.html --css dist/ecmarkup.css --js dist/ecmarkup.js",
+    "watch": "npm run build -- --watch"
   }
 }
