@@ -292,26 +292,49 @@ Another benefit of pipelines over sequences of assignment statements (with mutab
 
 <details>
 <summary>Examples</summary>
+  
+<table>
+<thead>
+  <td>Pipelines</td>
+  <td>Temporary Variables</td>
+</thead>
+<tbody>
+<tr>
+<td>
 
 ```js
-// with pipelines
-const numberedList = list |> ^.map((each, i) => `${i + 1} - ${each}`) |> ^.join('\n')
+const numberedList = list
+  |> ^.map((each, i) => `${i + 1} - ${each}`)
+  |> ^.join('\n')
+```
 
-// with temporary variables
+</td>
+<td>
+
+```js
 let _ = list
     _ = _.map((each, i) => `${i + 1} - ${each}`)
     _ = _.join('\n')
 const numberedList = _
 ```
+
+</td>
+</tr>
+<tr>
+<td>
+
 ```js
-// with pipelines
 const envVarFormat = (vars) =>
   Object.keys(vars)
   |> ^.map(var => `${var}=${vars[var]}`)
   |> ^.join(' ')
   |> chalk.dim(^, 'node', args.join(' '))
+```
 
-// with temporary variables
+</td>
+<td>
+
+```js
 const envVarFormat = (vars) => {
   let _ = Object.keys(vars)
       _ = _.map(var => `${var}=${vars[var]}`)
@@ -320,8 +343,13 @@ const envVarFormat = (vars) => {
   return _
 }
 ```
+
+</td>
+</tr>
+<tr>
+<td>
+
 ```jsx
-// with pipelines
 return (
   <ul>
     {
@@ -334,8 +362,12 @@ return (
     }
   </ul>
 )
+```
 
-// with temporary variables
+</td>
+<td>
+  
+```js
 let _ = values
 _= Object.keys(_)
 _= [...Array.from(new Set(_))]
@@ -350,6 +382,12 @@ return (
   </ul>
 )
 ```
+
+</td>
+</tr>
+</tbody>
+</table>
+
 </details>
 
 ## Why the Hack pipe operator
