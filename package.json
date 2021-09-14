@@ -2,10 +2,10 @@
   "private": true,
   "name": "proposal-pipeline-operator",
   "version": "1.0.0",
-  "description": "ECMAScript Pipeline Operator proposal",
+  "description": "ECMAScript pipe-operator proposal",
   "repository": "tc39/proposal-pipeline-operator",
-  "author": "ECMA TC39",
-  "license": "SEE LICENSE IN https://tc39.github.io/ecma262/#sec-copyright-and-software-license",
+  "author": "Ecma TC39",
+  "license": "BSD-3-Clause",
   "homepage": "https://tc39.github.io/proposal-pipeline-operator/",
   "dependencies": {
     "ecmarkup": "^9.2.0"
