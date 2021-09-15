@@ -710,7 +710,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <emu-grammar>PipeBody : PipeExpression</emu-grammar>
       <emu-alg>
         1. It is a Syntax Error if one of the following productions is covering |PipeBody|:
-            * |ConditionalExpression|
+            * |ShortCircuitExpression| ? |AssignmentExpression| : |AssignmentExpression|
             * |YieldExpression|
             * |ArrowFunction|
             * |AsyncArrowFunction|
@@ -722,7 +722,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       </emu-alg>
 
       <emu-note>
-        <p>A |PipeBody| must not be an unparenthesized expression that is formed from any other operator with identical precedence, such as a |YieldExpression| or an |ArrowFunction|.</p>
+        <p>A |PipeBody| must not be an unparenthesized expression that is formed from any other operator with identical precedence (such as |YieldExpression| or |ArrowFunction|) or from the <emu-xref="#sec-conditional-operator">conditional operator</emu-xref>.</p>
         <p>This is to prevent confusing expressions from being valid, such as
         `x |> yield % |> % + 1`.<br>
         That expression would otherwise be unexpectedly equivalent to
