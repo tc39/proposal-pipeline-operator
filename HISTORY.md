@@ -167,7 +167,7 @@ after three years of indecision.
 ## 2021-08
 [@tabatkins][] (Google) plans to present *some* pipe-operator style for Stage 2.
 Based on the results of the the preceding meeting, they pick Hack pipes.
-This has support from [@ljharb][] (Node.js) and some other TC39 members.
+This has support from [@ljharb][] and some other TC39 members.
 
 Through this month, [@tabatkins][] (Google) continues to debate offline
 with [@mAAdhaTTah][] regarding Hack pipes vs. F# pipes.
