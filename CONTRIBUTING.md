@@ -15,7 +15,7 @@ before making new issues or comments:
 3. The guide on [contributing to TC39 proposals][contributing guide].
 4. The [TC39 Code of Conduct][CoC]:
    It has important information about how we’re all expected to act
-   and what to do when we feel like someone is not meeting the Code.
+   and what to do when we feel like someone’s conduct does not meet the Code.
    We all want to maintain a friendly, productive working environment!
 5. The [TC39 How to Give Feedback][feedback] article.
 6. The [proposal explainer][] to make sure that it is
@@ -35,7 +35,7 @@ or [participate on Matrix][TC39 Matrix guide].
 
 Please try to keep any existing GitHub issues on their original topic.
 
-If you feel that someone is not meeting the [TC39 Code of Conduct][CoC],
+If you feel that someone’s conduct is not meeting the [TC39 Code of Conduct][CoC],
 whether in this GitHub repository or in a [TC39 Matrix room][TC39 Matrix guide],
 then please follow the [Code of Conduct][CoC]’s directions for reporting the violation,
 including emailing [tc39-conduct-reports@googlegroups.com][].
