@@ -3,6 +3,9 @@ The pipe operator in JavaScript has a long and twisty history.
 Understanding that history can give context behind
 what’s been happening to the proposal since its creation in 2017.
 
+For information on what “Stage 1” and “Stage 2” mean,
+read about the [TC39 Process][].
+
 More information about contributing is also available in [CONTRIBUTING.md][].
 
 ## 2015–2017
