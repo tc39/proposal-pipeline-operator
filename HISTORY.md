@@ -191,7 +191,7 @@ There are several responses from other members:
 [@ljharb][] (Node.js) voices concern that advancing pipe
 would kill any future bind operator (see [§ 2017-09](#2017-09)).
 Other members respond that Hack pipes are now orthogonal to any bind operator
-and would not kill it. [@ljharb][] (Node.js) decides not to block Stage 2.
+and would not kill it. [@ljharb][] decides not to block Stage 2.
 
 [@codehag][] (Mozilla SpiderMonkey) voices some concerns:
 the Mozilla SpiderMonkey team is still somewhat against any pipe operator,
