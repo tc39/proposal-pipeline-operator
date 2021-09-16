@@ -73,9 +73,6 @@ volunteer to collaborate on competing specs:
 and [@js-choi][] writes a [spec for smart-mix pipes][smart-mix-pipes spec].
 
 ## 2018–2020
-For three years, debate happens back and forth in circles
-about smart-mix pipes vs. F# pipes.
-
 On [2018-03-22][S2 2018], [@littledan][] presents F# pipes again—alongside
 smart-mix pipes—in an
 [update presentation, trying to gain more consensus within TC39 for Stage 2][S2 2018].
@@ -107,8 +104,12 @@ and its results suggests that the JavaScript community
 is much more interested in partial function application than any pipe operator.)
 The Mozilla SpiderMonkey team becomes weakly against any pipe operator.
 
-Work on F# pipes, smart-mix pipes, and PFA syntax stalls,
-while GitHub debate and debate offline continues in circles.
+Work on F# pipes, smart-mix pipes, and PFA syntax stalls.
+
+For the three years, GitHub debate online and debate offline
+continues back and forth in circles:
+about the best way to increase the odds that smart-mix pipes vs. F# pipes
+will reach consensus in TC39.
 
 ## 2021-01
 The State of JS 2020 is published,
