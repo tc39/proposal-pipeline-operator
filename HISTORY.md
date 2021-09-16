@@ -33,7 +33,7 @@ aligns with the F# pipe that he had been planning to present,
 and he switches to focusing on syntax for [partial function application][].
 
 ## 2017-07
-[@littledan][] makes a first
+On [2017-09-26][S1], [@littledan][] makes a first
 [presentation for F#-or-Elixir pipes to TC39, successfully advancing to Stage 1][S1].
 
 However, parts of TC39 object to redundancy with a bind operator.
@@ -54,8 +54,8 @@ including a problem related to unexpected automatic semicolon insertion.
 [@littledan][] decides to try to defer handling `await` at all to a later proposal;
 he also drops Elixir pipes in favor of F# pipes.
 
-[@littledan][] makes
-[another presentation for F# pipes and does not succeed in advancing to Stage 2][S2-2017].
+On [2017-11-29][S2 2017], [@littledan][] makes
+[another presentation for F# pipes and does not succeed in advancing to Stage 2][S2 2017].
 During the presentation, he proposes to TC39 that `|> await` be deferred,
 but there is pushback from several other representatives, and presentation time overflows.
 
@@ -76,9 +76,10 @@ and [@js-choi][] writes a [spec for smart-mix pipes][smart-mix-pipes spec].
 For three years, debate happens back and forth in circles
 about smart-mix pipes vs. F# pipes.
 
-[@littledan][] presents smart-mix pipes and F# pipes in
-[a presentation on 2018-03][S2 2018-03].
-Neither proposal is able to achieve much consensus among TC39 representatives
+On [2018-03-22][S2 2018], [@littledan][] presents F# pipes again—alongside
+smart-mix pipes—in an
+[update presentation, trying to gain more consensus within TC39 for Stage 2][S2 2018].
+However, neither proposal is able to achieve much consensus among TC39 representatives
 due to syntactic concerns.
 Some TC39 representatives state that no pipe operator
 may be worth standardizing at all.
@@ -188,9 +189,9 @@ Therefore feeling that F# pipes would continue to be indefinitely stuck at an im
 
 ***
 
-On 2021-08-31, [@tabatkins][] (Google) therefore
-presents Hack pipes as the tentative consensus among the champions,
-proposing that TC39 advance them to Stage 2.
+On [2021-08-31][S2 2021], [@tabatkins][] (Google) therefore
+[presents Hack pipes as the tentative consensus among the champions,
+proposing that TC39 advance them to Stage 2][S2 2021].
 There are several responses from other representatives:
 
 [@ljharb][] voices concern that advancing pipe
@@ -237,12 +238,13 @@ and in the [pipe proposal’s issues][issues].
 [I89]: https://github.com/tc39/proposal-pipeline-operator/issues/89
 
 [S1]: https://github.com/tc39/notes/blob/master/meetings/2017-09/sept-26.md#11iia-pipeline-operator
-[S2-2017]: https://github.com/tc39/notes/blob/master/meetings/2017-11/nov-29.md#9iii-pipeline-operator-for-stage-2
+[S2 2017]: https://github.com/tc39/notes/blob/master/meetings/2017-11/nov-29.md#9iii-pipeline-operator-for-stage-2
 [PFA S1]: https://github.com/tc39/notes/blob/master/meetings/2017-09/sept-28.md#13i-partial-application
-[S2 2018-03]: https://github.com/tc39/notes/blob/master/meetings/2018-03/mar-22.md#10ive-pipeline-operator
+[S2 2018]: https://github.com/tc39/notes/blob/master/meetings/2018-03/mar-22.md#10ive-pipeline-operator
 [PFA 2018-07]: https://github.com/tc39/notes/blob/master/meetings/2018-07/july-25.md#partial-application
 [2021-07 incubator]: https://github.com/tc39/incubator-agendas/blob/master/notes/2021/06-17.md#pipeline
 [Mozilla study]: https://github.com/tc39/notes/blob/master/meetings/2019-06/june-6.md#javascript-and-syntax-research-methods
+[S2 2021]: https://github.com/tc39/notes/blob/master/meetings/2021-08/aug-31.md#pipeline-operator-for-stage-2
 
 [TC39 process]: https://tc39.es/process-document/
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
