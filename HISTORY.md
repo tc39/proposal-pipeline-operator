@@ -34,7 +34,7 @@ and he switches to focusing on syntax for [partial function application][].
 [presentation for F#-or-Elixir pipes to TC39, successfully advancing to Stage 1][S1].
 
 However, parts of TC39 object to redundancy with a bind operator.
-A condition of the advancement to Stage 1 is that it would not be redundant
+A condition of the advancement to Stage 1 is that it would not be redundant
 with a bind operator; this will become relevant later.
 
 In addition, parts of TC39 object to aspects of F# pipes,
@@ -143,15 +143,15 @@ Attendees of special note in this meeting are [@syg][] (Google V8),
 F# pipes, Hack pipes, and Elixir pipes.
 
 [@rbuckton][] (Microsoft) is still in favor of F# pipes with his proposed syntax for
-[partial function application][] (see [§ 2016–2017](#20162017)).
+[partial function application][] (see [§ 2016–2017](#20162017)).
 [@rbuckton][] (Microsoft) debates with [@tabatkins][] (Google)
 about whether F# pipes or Hack pipes are more intuitive.
 (He also mentions that [@codehag][] (Mozilla SpiderMonkey)
 might be interested in co-championing partial function application without pipes,
-based on her user studies’ findings; see [§ 2018–2020](#20182020).)
+based on her user studies’ findings; see [§ 2018–2020](#20182020).)
 
 [@syg][] (Google V8) voices concerns again about engine performance
-of partial function application and F# pipes (see [§ 2018–2020](#20182020)).
+of partial function application and F# pipes (see [§ 2018–2020](#20182020)).
 
 [@tabatkins][] (Google) and [@ljharb][] are supportive
 of either Hack pipes or F# pipes:
@@ -165,7 +165,7 @@ Most everyone in the meeting seems to be in favor of picking some style for pipe
 after three years of indecision.
 
 ## 2021-08
-[@tabatkins][] (Google) plans to present *some* pipe-operator style for Stage 2.
+[@tabatkins][] (Google) plans to present *some* pipe-operator style for Stage 2.
 Based on the results of the the preceding meeting, they pick Hack pipes.
 This has support from [@ljharb][] and some other TC39 members.
 
@@ -185,32 +185,32 @@ Therefore feeling that F# pipes would continue to be indefinitely stuck at an im
 
 On 2021-08-31, [@tabatkins][] (Google) therefore
 presents Hack pipes as the tentative consensus among the champions,
-proposing that TC39 advance them to Stage 2.
+proposing that TC39 advance them to Stage 2.
 There are several responses from other members:
 
 [@ljharb][] voices concern that advancing pipe
-would kill any future bind operator (see [§ 2017-09](#2017-09)).
+would kill any future bind operator (see [§ 2017-09](#2017-09)).
 Other members respond that Hack pipes are now orthogonal to any bind operator
-and would not kill it. [@ljharb][] decides not to block Stage 2.
+and would not kill it. [@ljharb][] decides not to block Stage 2.
 
 [@codehag][] (Mozilla SpiderMonkey) voices some concerns:
 the Mozilla SpiderMonkey team is still somewhat against any pipe operator,
 whatever the style.
-However, she decides that these concerns are not strong enough for her to block Stage 2.
+However, she decides that these concerns are not strong enough for her to block Stage 2.
 
 [@syg][] (Google V8), having previously expressed concerns about memory allocation
 encouraged by F# pipes and partial function application
-(see [§ 2021-07](#2021-07)), does not give any objection.
+(see [§ 2021-07](#2021-07)), does not give any objection.
 
 [@rbuckton][] (Microsoft) continues to give tentative agreement to Hack pipes.
 
-No other representatives give objections to Stage 2.
-Hack pipes therefore succeed in advancing to Stage 2.
+No other representatives give objections to Stage 2.
+Hack pipes therefore succeed in advancing to Stage 2.
 [@tabatkins][] (Google) resolves to continue discussing concerns
 with [@rbuckton][] (Microsoft), [@codehag][] (Mozilla SpiderMonkey), [@mAAdhaTTah][],
 and others offline.
 They also discuss concerns with the community on GitHub,
-both in the [2021-03 comparison Gist][Gist]’s comments (see [§ 2021-03](#2021-03))
+both in the [2021-03 comparison Gist][Gist]’s comments (see [§ 2021-03](#2021-03))
 and in the [pipe proposal’s issues][issues].
 
 [issues]: https://github.com/tc39/proposal-pipeline-operator/issues?q=is%3Aissue+
@@ -239,6 +239,7 @@ and in the [pipe proposal’s issues][issues].
 [2021-07 incubator]: https://github.com/tc39/incubator-agendas/blob/master/notes/2021/06-17.md#pipeline
 [Mozilla study]: https://github.com/tc39/notes/blob/master/meetings/2019-06/june-6.md#javascript-and-syntax-research-methods
 
+[TC39 process]: https://tc39.es/process-document/
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
 [@rbuckton’s narrative]: https://github.com/tc39/proposal-pipeline-operator/issues/91#issuecomment-917645179
 [SoJS 20]: https://2020.stateofjs.com/en-US/opinions/?missing_from_js
