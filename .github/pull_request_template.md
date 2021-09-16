@@ -4,7 +4,7 @@ We’re so happy you’re helping out.
 1. Please take a look at the [contributing guidelines][]
    and the resources to which it links.
 2. Please include the purpose of the pull request. For example:
-   * “This is adds…”
+   * “This adds…”
    * “This simplifies…”
    * “This fixes…”
 3. Please be explicit about what feedback, if any, you want:
