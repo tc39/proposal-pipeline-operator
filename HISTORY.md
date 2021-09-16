@@ -1,7 +1,7 @@
 # Brief history of the JavaScript pipe operator
 The pipe operator in JavaScript has a long and twisty history.
 Understanding that history can give context behind
-what’s been happening to the proposal since its creation in 2017.
+what’s been happening to the proposal since its creation in 2015.
 
 For information on what “Stage 1” and “Stage 2” mean,
 read about the [TC39 Process][].
@@ -33,7 +33,7 @@ aligns with the F# pipe that he had been planning to present,
 and he switches to focusing on syntax for [partial function application][].
 
 ## 2017-07
-[@littledan][] makes a
+[@littledan][] makes a first
 [presentation for F#-or-Elixir pipes to TC39, successfully advancing to Stage 1][S1].
 
 However, parts of TC39 object to redundancy with a bind operator.
@@ -57,7 +57,7 @@ he also drops Elixir pipes in favor of F# pipes.
 [@littledan][] makes
 [another presentation for F# pipes and does not succeed in advancing to Stage 2][S2-2017].
 During the presentation, he proposes to TC39 that `|> await` be deferred,
-but there is pushback from several other members, and presentation time overflows.
+but there is pushback from several other representatives, and presentation time overflows.
 
 Advancement of F# pipes is therefore stymied.
 
@@ -78,9 +78,9 @@ about smart-mix pipes vs. F# pipes.
 
 [@littledan][] presents smart-mix pipes and F# pipes in
 [a presentation on 2018-03][S2 2018-03].
-Neither proposal is able to achieve much consensus among TC39 members
+Neither proposal is able to achieve much consensus among TC39 representatives
 due to syntactic concerns.
-Some TC39 members state that no pipe operator
+Some TC39 representatives state that no pipe operator
 may be worth standardizing at all.
 
 Advancement of F# pipes therefore continues to be stymied;
@@ -88,7 +88,7 @@ advancement of smart-mix pipes is also stymied.
 
 [@rbuckton][] (Microsoft) also presents [partial function application][]
 again [on 2018-07, attempting to advance it to Stage 2][PFA 2018-07].
-However, several TC39 members continue to push back against its syntax.
+However, several TC39 representatives continue to push back against its syntax.
 [@syg][] (Google V8) also expresses “strong reservations” about PFA syntax
 increasing the “ease with which [developers] can allocate many many closures”,
 with regards to memory use.
@@ -170,30 +170,32 @@ after three years of indecision.
 ## 2021-08
 [@tabatkins][] (Google) plans to present *some* pipe-operator style for Stage 2.
 Based on the results of the the preceding meeting, they pick Hack pipes.
-This has support from [@ljharb][] and some other TC39 members.
+This has support from [@ljharb][] and some other TC39 representatives.
 
 Through this month, [@tabatkins][] (Google) continues to debate offline
 with [@mAAdhaTTah][] regarding Hack pipes vs. F# pipes.
 As a result, [@mAAdhaTTah][] changes his mind from being in favor of F# pipes
 to being in favor of Hack pipes,
-deciding that Hack pipes would be better for bridging functional programming
+deciding that [Hack pipes would be better for bridging functional programming][JDG essay]
 with the rest of the JavaScript ecosystem.
 
 [@rbuckton][] (Microsoft) joins in debating with [@tabatkins][] (Google) in late August.
-[@rbuckton][] (Microsoft) notes the groundswell of support among TC39 about Hack pipes
-due to “some of the limitations of F# pipes’ limitations”.
+[@rbuckton][] (Microsoft) notes the groundswell of support within TC39 about Hack pipes
+due to “some of the limitations of F# pipes”.
 Therefore feeling that F# pipes would continue to be indefinitely stuck at an impasse,
 [@rbuckton][] (Microsoft) thus decides to give “tentative agreement” to Hack pipes.
 (See [@rbuckton’s narrative][].)
 
+***
+
 On 2021-08-31, [@tabatkins][] (Google) therefore
 presents Hack pipes as the tentative consensus among the champions,
 proposing that TC39 advance them to Stage 2.
-There are several responses from other members:
+There are several responses from other representatives:
 
 [@ljharb][] voices concern that advancing pipe
 would kill any future bind operator (see [§ 2017-09](#2017-09)).
-Other members respond that Hack pipes are now orthogonal to any bind operator
+Other representatives respond that Hack pipes are now orthogonal to any bind operator
 and would not kill it. [@ljharb][] decides not to block Stage 2.
 
 [@codehag][] (Mozilla SpiderMonkey) voices some concerns:
@@ -246,6 +248,7 @@ and in the [pipe proposal’s issues][issues].
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
 [@rbuckton’s narrative]: https://github.com/tc39/proposal-pipeline-operator/issues/91#issuecomment-917645179
 [SoJS 20]: https://2020.stateofjs.com/en-US/opinions/?missing_from_js
+[JDG essay]: https://jamesdigioia.com/hack-pipe-for-functional-programmers-how-i-learned-to-stop-worrying-and-love-the-placeholder/
 
 [@littledan]: https://github.com/littledan/
 [@gilbert]: https://github.com/gilbert/

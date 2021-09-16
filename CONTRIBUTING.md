@@ -9,7 +9,7 @@ Bearing that in mind, please try to read the following
 before making new issues or comments:
 
 1. [HISTORY.md][]: This will give a lot of context
-   behind what’s been happening to the proposal since its creation in 2017.
+   behind what’s been happening to the proposal since its creation in 2015.
 2. The general [TC39 Process][], which summarizes
    how TC39’s “consensus” and “Stages” work.
 3. The guide on [contributing to TC39 proposals][contributing guide].
