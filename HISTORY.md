@@ -137,7 +137,7 @@ to writing a [Hack-pipes spec][].
 [TC39 incubator meeting devoted to pipes][2021-07 incubator]
 (see [general information on incubator calls][]).
 Attendees of special note in this meeting are [@syg][] (Google V8),
-[@littledan][] (Igalia), [@rbuckton][] (Microsoft), and [@ljharb][] (Node.js). [@codehag][] (Mozilla SpiderMonkey) is unable to attend.
+[@littledan][] (Igalia), [@rbuckton][] (Microsoft), and [@ljharb][]. [@codehag][] (Mozilla SpiderMonkey) is unable to attend.
 
 [@tabatkins][] (Google) presents three choices to the attendees again:
 F# pipes, Hack pipes, and Elixir pipes.
