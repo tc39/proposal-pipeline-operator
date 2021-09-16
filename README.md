@@ -3,6 +3,8 @@
 * **Stage**: 2
 * **Champions**: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner, \[list incomplete] <!-- Alpha order by first name, plz -->
 * **[Specification][]**
+* **[Contributing guidelines][]**
+* **[Proposal history][]**
 * **Babel plugin**: [Implemented in v7.15][Babel 7.15]. See [Babel documentation][].
 
 (This document presumptively uses `^`
@@ -15,6 +17,8 @@ This [choice of token is not a final decision][token bikeshedding];
 [Babel documentation]: https://babeljs.io/docs/en/babel-plugin-proposal-pipeline-operator
 [essay by Tab Atkins]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
 [token bikeshedding]: https://github.com/tc39/proposal-pipeline-operator/issues/91
+[contributing guidelines]: https://github.com/tc39/proposal-pipeline-operator/blob/main/CONTRIBUTING.md
+[proposal history]: https://github.com/tc39/proposal-pipeline-operator/blob/main/HISTORY.md
 
 ## Why a pipe operator
 In the State of JS 2020 survey, the **fourth top answer** to
