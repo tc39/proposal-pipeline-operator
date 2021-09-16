@@ -153,7 +153,7 @@ based on her user studies’ findings; see [§ 2018–2020](#20182020).)
 [@syg][] (Google V8) voices concerns again about engine performance
 of partial function application and F# pipes (see [§ 2018–2020](#20182020)).
 
-[@tabatkins][] (Google) and [@ljharb][] (Node.js) are supportive
+[@tabatkins][] (Google) and [@ljharb][] are supportive
 of either Hack pipes or F# pipes:
 “90%” F# pipes and “100%” Hack pipes.
 However, their 90% support of F# pipes would drop a lot if [@syg][]
