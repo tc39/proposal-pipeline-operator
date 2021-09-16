@@ -247,7 +247,7 @@ _ = `$ ${_}`;
 _ = chalk.dim(_, 'node', args.join(' '));
 _ = console.log(_);
 ```
-  
+
 </details>
 
 But code like this is **not common** in real-world code.
@@ -317,7 +317,7 @@ Using temporary variables, on the other hand, requires sequences of statements.
 
 <details>
 <summary>Examples</summary>
-  
+
 <table>
 <thead>
 <th>Pipelines</th>
@@ -394,7 +394,7 @@ return (
 
 </td>
 <td>
-  
+
 ```js
 // This example uses JSX.
 let _ = values;
