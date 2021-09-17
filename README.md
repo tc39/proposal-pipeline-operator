@@ -441,7 +441,7 @@ correspondingly have **small** and nearly **symmetrical trade-offs**.
 ### This proposal: Hack pipes
 In the **Hack language**’s pipe syntax,
 the righthand side of the pipe is an **expression** containing a special **placeholder**,
-which is evaluated with the placeholder bound to the lefthand side’s value.
+which is evaluated with the placeholder bound to the result of evaluating the lefthand side's expression.
 That is, we write `value |> one(^) |> two(^) |> three(^)`
 to pipe `value` through the three functions.
 
