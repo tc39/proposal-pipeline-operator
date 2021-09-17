@@ -16,7 +16,7 @@ would serve as a “pipe” operator in JavaScript
 (e.g., `a::f(b, c)::g(d, e)` would be a “pipeline” equivalent to
 `g.call(f.call(a, b, c), d, e)`).
 However, parts of TC39 object to using `this`,
-citing that using `this` is strange outside of methods.
+saying that using `this` is strange outside of methods.
 Debate online in the `::` repository (and also offline) is bogged down in circles.
 
 [@littledan][] (Igalia) and [@gilbert][] create a proposal
