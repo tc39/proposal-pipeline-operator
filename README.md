@@ -963,7 +963,7 @@ and `for (of) |>` would consecutively bind each of its iterator’s values to `^
 A **short-circuiting** optional-pipe operator `|?>` could also be useful,
 much in the way `?.` is useful for optional method calls.
 
-For example, `value |> ^ != null ? await foo(^) : ^ |> ^ != null ? ^ + 1 : ^`\
+For example, `value |> (^ == null ? ^ : await foo(^) |> (^ == null ? ^ : ^ + 1))`\
 would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
 
 ### Tacit unary function application
