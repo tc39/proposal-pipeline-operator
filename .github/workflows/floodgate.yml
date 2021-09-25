@@ -6,7 +6,6 @@ jobs:
     steps:
     - uses: js-choi/github-floodgate@v1.0.0
       with:
-        # Sixty minutes is the default period.
         minutes-in-period: 60
-        # Twelve comments per issue is the default maximum.
+        # This number is how many comments are allowed per period per issue.
         max-comments-per-period: 12
