@@ -1,0 +1,12 @@
+name: Comment Floodgate
+on: issue_comment
+jobs:
+  floodgate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: js-choi/github-floodgate@v0.0.1
+      with:
+        # Sixty minutes is the default period.
+        minutes-in-period: 60
+        # Twelve comments per issue is the default maximum.
+        max-comments-per-period: 12
