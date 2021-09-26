@@ -4,7 +4,7 @@ jobs:
   floodgate:
     runs-on: ubuntu-latest
     steps:
-    - uses: js-choi/github-floodgate@v1.0.0
+    - uses: js-choi/github-floodgate@v2
       with:
         minutes-in-period: 60
         # This number is how many comments are allowed per period per issue.
