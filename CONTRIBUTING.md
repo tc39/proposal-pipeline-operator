@@ -35,7 +35,7 @@ or [participate on Matrix][TC39 Matrix guide].
 Please try to keep any existing GitHub issues on their original topic.
 
 We’ve also installed a [“floodgate” moderation bot](https://github.com/marketplace/actions/comment-floodgate)
-(see [issue #231](https://github.com/tc39/proposal-pipeline-operator/issues/231).
+(see [issue #231](https://github.com/tc39/proposal-pipeline-operator/issues/231)).
 When a issue gets a huge flood of new comments (i.e., new comments are being created at a very high rate),
 then the bot will temporarily lock that issue.
 (The threshold rate is currently set to twelve messages in the same thread in the same sixty minutes.)
