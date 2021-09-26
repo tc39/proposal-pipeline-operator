@@ -22,7 +22,6 @@ before making new issues or comments:
    not already addressed there.
 7. The [TC39 Matrix guide][] (if you want to chat with TC39 members on Matrix,
    which is a real-time chat platform).
-
 8. If the explainer does not already explain your topic adequately,
    then please [search the GitHub repository’s issues][issues]
    to see if any issues match the topic you had in mind.
@@ -34,6 +33,14 @@ create a new issue (but really do try to [find an existing GitHub issue][issues]
 or [participate on Matrix][TC39 Matrix guide].
 
 Please try to keep any existing GitHub issues on their original topic.
+
+We’ve also installed a [“floodgate” moderation bot](https://github.com/marketplace/actions/comment-floodgate)
+(see [issue #231](https://github.com/tc39/proposal-pipeline-operator/issues/231).
+When a issue gets a huge flood of new comments (i.e., new comments are being created at a very high rate),
+then the bot will temporarily lock that issue.
+(The threshold rate is currently set to twelve messages in the same thread in the same sixty minutes.)
+This doesn’t mean that the automatically locked high-traffic threads will get locked permanently.
+It just means that the issue’s thread will cool down until a volunteer moderator is able to look at what’s going on.
 
 If you feel that someone’s conduct is not meeting the [TC39 Code of Conduct][CoC],
 whether in this GitHub repository or in a [TC39 Matrix room][TC39 Matrix guide],
