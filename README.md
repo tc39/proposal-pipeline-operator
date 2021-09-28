@@ -157,14 +157,12 @@ console.log(
 and a placeholder token (`^`) standing in for the previous operation’s value:
 
 ```js
-envars
-|> Object.keys(^)
-|> ^.map(envar =>
-  `${envar}=${envars[envar]}`)
-|> ^.join(' ')
-|> `$ ${^}`
-|> chalk.dim(^, 'node', args.join(' '))
-|> console.log(^);
+Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ')
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 Now, the human reader can **rapidly find** the **initial data**
@@ -188,23 +186,20 @@ For example, using our previous modified
 [real-world example from React][react/scripts/jest/jest-cli.js]:
 
 ```js
-envars
-|> Object.keys(^)
-|> ^.map(envar =>
-  `${envar}=${envars[envar]}`)
-|> ^.join(' ')
-|> `$ ${^}`
-|> chalk.dim(^, 'node', args.join(' '))
-|> console.log(^);
+Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ')
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 …a version using temporary variables would look like this:
 
 ```js
-const envarKeys = Object.keys(envars)
-const envarPairs = envarKeys.map(envar =>
-  `${envar}=${envars[envar]}`);
-const envarString = envarPairs.join(' ');
+const envarString = Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ');
 const consoleText = `$ ${envarString}`;
 const coloredConsoleText = chalk.dim(consoleText, 'node', args.join(' '));
 console.log(coloredConsoleText);
@@ -241,11 +236,9 @@ For example, our previous modified
 could be re-written like this:
 ```js
 let _;
-_ = envars;
-_ = Object.keys(_);
-_ = _.map(envar =>
-  `${envar}=${envars[envar]}`);
-_ = _.join(' ');
+_ = Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ');
 _ = `$ ${_}`;
 _ = chalk.dim(_, 'node', args.join(' '));
 _ = console.log(_);
@@ -332,32 +325,11 @@ Using temporary variables, on the other hand, requires sequences of statements.
 <td>
 
 ```js
-const numberedList = input
-|> ^.map((each, i) => `${i + 1} - ${each}`)
-|> ^.join('\n');
-```
-
-</td>
-<td>
-
-```js
-let _ = input;
-_ = _.map((each, i) => `${i + 1} - ${each}`)
-_ = _.join('\n')
-const numberedList = _;
-```
-
-</td>
-</tr>
-<tr>
-<td>
-
-```js
 const envVarFormat = vars =>
   Object.keys(vars)
-  |> ^.map(var => `${var}=${vars[var]}`)
-  |> ^.join(' ')
-  |> chalk.dim(^, 'node', args.join(' '));
+    .map(var => `${var}=${vars[var]}`)
+    .join(' ')
+    |> chalk.dim(^, 'node', args.join(' '));
 ```
 
 </td>
@@ -366,8 +338,8 @@ const envVarFormat = vars =>
 ```js
 const envVarFormat = (vars) => {
   let _ = Object.keys(vars);
-  _ = _.map(var => `${var}=${vars[var]}`);
-  _ = _.join(' ');
+    .map(var => `${var}=${vars[var]}`);
+    .join(' ');
   return chalk.dim(_, 'node', args.join(' '));
 }
 ```
@@ -501,27 +473,23 @@ For example, using our previous modified
 [real-world example from React][react/scripts/jest/jest-cli.js]:
 
 ```js
-envars
-|> Object.keys(^)
-|> ^.map(envar =>
-  `${envar}=${envars[envar]}`)
-|> ^.join(' ')
-|> `$ ${^}`
-|> chalk.dim(^, 'node', args.join(' '))
-|> console.log(^);
+Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ')
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 …a version using F# pipes instead of Hack pipes would look like this:
 
 ```js
-envars
-|> Object.keys
-|> x=> x.map(envar =>
-  `${envar}=${envars[envar]}`)
-|> x=> x.join(' ')
-|> x=> `$ ${x}`
-|> x=> chalk.dim(x, 'node', args.join(' '))
-|> console.log;
+Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ')
+  |> x=> `$ ${x}`
+  |> x=> chalk.dim(x, 'node', args.join(' '))
+  |> console.log;
 ```
 
 </details>
@@ -811,13 +779,12 @@ console.log(
 );
 
 // With pipes
-envars
-|> Object.keys(^)
-|> ^.map(envar => `${envar}=${envars[envar]}`)
-|> ^.join(' ')
-|> `$ ${^}`
-|> chalk.dim(^, 'node', args.join(' '))
-|> console.log(^);
+Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ')
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 From [ramda.js][].
