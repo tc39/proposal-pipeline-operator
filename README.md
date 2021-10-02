@@ -22,7 +22,7 @@ This [choice of token is not a final decision][token bikeshedding];
 ## Why a pipe operator
 In the State of JS 2020 survey, the **fourth top answer** to
 [“What do you feel is currently missing from
-JavaScript?”](https://2020.stateofjs.com/en-US/opinions/?missing_from_js)
+JavaScript?”](https://2020.stateofjs.com/en-US/opinions/#missing_from_js)
 was a **pipe operator**. Why?
 
 When we perform **consecutive operations** (e.g., function calls)
