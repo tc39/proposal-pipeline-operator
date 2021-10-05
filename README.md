@@ -22,7 +22,7 @@ This [choice of token is not a final decision][token bikeshedding];
 ## Why a pipe operator
 In the State of JS 2020 survey, the **fourth top answer** to
 [“What do you feel is currently missing from
-JavaScript?”](https://2020.stateofjs.com/en-US/opinions/?missing_from_js)
+JavaScript?”](https://2020.stateofjs.com/en-US/opinions/#missing_from_js)
 was a **pipe operator**. Why?
 
 When we perform **consecutive operations** (e.g., function calls)
@@ -279,10 +279,10 @@ code outside of each step cannot change its binding.
 ```js
 let _;
 _ = one()
-|> double(^)
-|> Promise.resolve().then(() =>
-  // This prints 2, as intended.
-  console.log(^));
+  |> double(^)
+  |> Promise.resolve().then(() =>
+    // This prints 2, as intended.
+    console.log(^));
 
 _ = one();
 ```
@@ -355,13 +355,13 @@ return (
   <ul>
     {
       values
-      |> Object.keys(^)
-      |> [...Array.from(new Set(^))]
-      |> ^.map(envar => (
-        <li onClick={
-          () => doStuff(values)
-        }>{envar}</li>
-      ))
+        |> Object.keys(^)
+        |> [...Array.from(new Set(^))]
+        |> ^.map(envar => (
+          <li onClick={
+            () => doStuff(values)
+          }>{envar}</li>
+        ))
     }
   </ul>
 );
@@ -660,7 +660,7 @@ is also **invalid syntax**.
 
 To prevent confusing grouping,
 it is **invalid** syntax to use **other** operators that have the **same precedence**
-(the arrow `=>`, the ternary conditional operator `?` `:`,
+(the arrow `=>`, the ternary conditional operator `?` `:`,
 the assignment operators, and the `yield` operator)
 as a **pipe head or body**.
 When using `|>` with these operators, we must use **parentheses**
@@ -724,9 +724,9 @@ return xf['@@transducer/result'](obj[methodName](bind(xf['@@transducer/step'], x
 
 // With pipes
 return xf
-|> bind(^['@@transducer/step'], ^)
-|> obj[methodName](^, acc)
-|> xf['@@transducer/result'](^);
+  |> bind(^['@@transducer/step'], ^)
+  |> obj[methodName](^, acc)
+  |> xf['@@transducer/result'](^);
 ```
 
 From [ramda.js][].
@@ -741,11 +741,11 @@ try {
 // With pipes: Note the visual parallelism between the two clauses.
 try {
   return arguments
-  |> tryer.apply(this, ^);
+    |> tryer.apply(this, ^);
 } catch (e) {
   return arguments
-  |> _concat([e], ^)
-  |> catcher.apply(this, ^);
+    |> _concat([e], ^)
+    |> catcher.apply(this, ^);
 }
 ```
 
@@ -758,11 +758,11 @@ return this.set('Link', link + Object.keys(links).map(function(rel){
 
 // With pipes
 return links
-|> Object.keys(^).map(function (rel) {
-  return '<' + links[rel] + '>; rel="' + rel + '"';
-})
-|> link + ^.join(', ')
-|> this.set('Link', ^);
+  |> Object.keys(^).map(function (rel) {
+    return '<' + links[rel] + '>; rel="' + rel + '"';
+  })
+  |> link + ^.join(', ')
+  |> this.set('Link', ^);
 ```
 
 From [react/scripts/jest/jest-cli.js][].
@@ -794,9 +794,9 @@ return _reduce(xf(typeof fn === 'function' ? _xwrap(fn) : fn), acc, list);
 
 // With pipes
 return fn
-|> (typeof ^ === 'function' ? _xwrap(^) : ^)
-|> xf(^)
-|> _reduce(^, acc, list);
+  |> (typeof ^ === 'function' ? _xwrap(^) : ^)
+  |> xf(^)
+  |> _reduce(^, acc, list);
 ```
 
 From [jquery/src/core/init.js][].
@@ -810,9 +810,9 @@ jQuery.merge( this, jQuery.parseHTML(
 
 // With pipes
 context
-|> (^ && ^.nodeType ? ^.ownerDocument || ^ : document)
-|> jQuery.parseHTML(match[1], ^, true)
-|> jQuery.merge(^);
+  |> (^ && ^.nodeType ? ^.ownerDocument || ^ : document)
+  |> jQuery.parseHTML(match[1], ^, true)
+  |> jQuery.merge(^);
 ```
 
 [ramda.js]: https://github.com/ramda/ramda/blob/v0.27.1/dist/ramda.js
