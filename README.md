@@ -160,9 +160,9 @@ and a placeholder token (`^`) standing in for the previous operation’s value:
 Object.keys(envars)
   .map(envar => `${envar}=${envars[envar]}`)
   .join(' ')
-    |> `$ ${^}`
-    |> chalk.dim(^, 'node', args.join(' '))
-    |> console.log(^);
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 Now, the human reader can **rapidly find** the **initial data**
@@ -189,9 +189,9 @@ For example, using our previous modified
 Object.keys(envars)
   .map(envar => `${envar}=${envars[envar]}`)
   .join(' ')
-    |> `$ ${^}`
-    |> chalk.dim(^, 'node', args.join(' '))
-    |> console.log(^);
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 …a version using temporary variables would look like this:
@@ -329,7 +329,7 @@ const envVarFormat = vars =>
   Object.keys(vars)
     .map(var => `${var}=${vars[var]}`)
     .join(' ')
-      |> chalk.dim(^, 'node', args.join(' '));
+    |> chalk.dim(^, 'node', args.join(' '));
 ```
 
 </td>
@@ -476,9 +476,9 @@ For example, using our previous modified
 Object.keys(envars)
   .map(envar => `${envar}=${envars[envar]}`)
   .join(' ')
-    |> `$ ${^}`
-    |> chalk.dim(^, 'node', args.join(' '))
-    |> console.log(^);
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 …a version using F# pipes instead of Hack pipes would look like this:
@@ -487,9 +487,9 @@ Object.keys(envars)
 Object.keys(envars)
   .map(envar => `${envar}=${envars[envar]}`)
   .join(' ')
-    |> x=> `$ ${x}`
-    |> x=> chalk.dim(x, 'node', args.join(' '))
-    |> console.log;
+  |> x=> `$ ${x}`
+  |> x=> chalk.dim(x, 'node', args.join(' '))
+  |> console.log;
 ```
 
 </details>
@@ -782,9 +782,9 @@ console.log(
 Object.keys(envars)
   .map(envar => `${envar}=${envars[envar]}`)
   .join(' ')
-    |> `$ ${^}`
-    |> chalk.dim(^, 'node', args.join(' '))
-    |> console.log(^);
+  |> `$ ${^}`
+  |> chalk.dim(^, 'node', args.join(' '))
+  |> console.log(^);
 ```
 
 From [ramda.js][].
