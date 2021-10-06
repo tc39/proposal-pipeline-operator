@@ -876,18 +876,23 @@ which has [already been proposed in proposal-partial-application][PFA].
 This eager PFA syntax would add an `…~(…)` operator.
 The operator’s right-hand side would be a list of arguments,
 each of which is an ordinary expression or a `?` placeholder.
-Ordinary expressions would be evaluated **before** the function is created.
+Each consecutive `?` placeholder would represent another parameter.
 
+Ordinary expressions would be evaluated **before** the function is created.
 For example, `f~(g(), ?, h(), ?)` would evaluate `f`, then `g()`, then `h()`,
 and *then* it would create a partially applied version of `f` with two arguments.
 
-The **second approach** is with a **lazily** evaluated PFA syntax.
+An optional number after `?` placeholder
+would override the parameter’s position.
+For example, `f~(?1, ?0)` would have two parameters but would switch them when calling `f`.
+
+The **second approach** is with a **lazily** evaluated syntax.
 This could be handled with an **extension to Hack pipes**,
 with a syntax further inspired by
 [Clojure’s `#(%1 %2)` function literals][Clojure function literals].
 It would do so by **combining** the Hack pipe `|>`
 with the **arrow function** `=>`
-into a **topic-function** operator `+>`,
+into a **pipe-function** operator `+>`,
 which would use the same general rules as `|>`.
 
 `+>` would be a **prefix operator** that **creates a new function**,
@@ -901,14 +906,13 @@ And just as with `|>`, `+>` would require its body
 to contain at least one topic reference
 in order to be syntactically valid.
 
-| `?`-PFA                    | Hack pipe functions        |
+| Eager PFA                  | Pipe functions             |
 | ---------------------------| -------------------------- |
+|`a.map(f~(?, 0))`           |`a.map(+> f(^, 0))`         |
+|`a.map(f~(?, ?, 0))`        |`a.map(+> f(^0, ^1, 0))`    |
 |`a.map(x=> x + 1)`          |`a.map(+> ^ + 1)`           |
-|`a.map(f(?, 0))`            |`a.map(+> f(^, 0))`         |
 |`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
 |`a.map(x=> f(x, x))`        |`a.map(+> f(^, ^))`         |
-|`a.sort((x,y)=> x - y)`     |`a.sort(+> ^0 - ^1)`        |
-|`a.sort(f(?, ?, 0))`        |`a.sort(+> f(^0, ^1, 0))`   |
 
 In contrast to the [eagerly evaluated PFA syntax][PFA],
 topic functions would **lazily** evaluate its arguments,
