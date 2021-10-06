@@ -824,48 +824,9 @@ context
 [jquery/src/core/init.js]: https://github.com/jquery/jquery/blob/2.2-stable/src/core/init.js
 [underscore.js]: https://underscorejs.org/docs/underscore-esm.html
 
-## Possible future extensions
+## Relationships with other proposals
 
-### Hack-pipe syntax for `if`, `catch`, and `for`–`of`
-Many **`if`, `catch`, and `for` statements** could become pithier
-if they gained **“pipe syntax”** that bound the topic reference.
-
-`if () |>` would bind its condition value to `^`,\
-`catch |>` would bind its caught error to `^`,\
-and `for (of) |>` would consecutively bind each of its iterator’s values to `^`.
-
-| Status quo                  | Hack-pipe statement syntax |
-| --------------------------- | -------------------------- |
-|`const c = f(); if (c) g(c);`|`if (f()) \|> b(^);`        |
-|`catch (e) f(e);`            |`catch \|> f(^);`           |
-|`for (const v of f()) g(v);` |`for (f()) \|> g(^);`       |
-
-### Optional Hack pipes
-A **short-circuiting** optional-pipe operator `|?>` could also be useful,
-much in the way `?.` is useful for optional method calls.
-
-For example, `value |> (^ == null ? ^ : await foo(^) |> (^ == null ? ^ : ^ + 1))`\
-would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
-
-### Tacit unary function application
-**Tacit unary function application** – that is, F# pipes –
-could still be added to the language with **another pipe operator** `|>>` –
-similarly to how [Clojure has multiple pipe macros][Clojure pipes]
-`->`, `->>`, and `as->`.
-
-[Clojure pipes]: https://clojure.org/guides/threading_macros
-
-For example, `value |> ^ + 1 |>> f |> g(^, 0)`\
-would mean `value |> ^ + 1 |> f(^) |> g(^, 0)`.
-
-There was an [informal proposal for such a **split mix** of two pipe operators][split mix],
-which was set aside in favor of single-operator proposals.
-
-[split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
-
-# Relationships with other proposals
-
-## Partial-function-application syntax
+### Partial-function-application syntax
 
 Hack pipes can coexist with a syntax for **partial function application** (PFA).
 There are two approaches with which they may coexist.
@@ -924,7 +885,7 @@ until the every time the created function is called.
 
 No matter the approach taken, Hack pipes could coexist with PFA.
 
-## Eventual sending / pipelining
+### Eventual sending / pipelining
 Despite sharing the word “pipe” in their name,
 the pipe operator and the [eventual-send proposal][]’s remote-object pipelines
 are orthogonal and independent.
@@ -941,3 +902,42 @@ const fileP = target
 ```
 
 [eventual-send proposal]: https://github.com/tc39/proposal-eventual-send/
+
+## Possible future extensions
+
+### Hack-pipe syntax for `if`, `catch`, and `for`–`of`
+Many **`if`, `catch`, and `for` statements** could become pithier
+if they gained **“pipe syntax”** that bound the topic reference.
+
+`if () |>` would bind its condition value to `^`,\
+`catch |>` would bind its caught error to `^`,\
+and `for (of) |>` would consecutively bind each of its iterator’s values to `^`.
+
+| Status quo                  | Hack-pipe statement syntax |
+| --------------------------- | -------------------------- |
+|`const c = f(); if (c) g(c);`|`if (f()) \|> b(^);`        |
+|`catch (e) f(e);`            |`catch \|> f(^);`           |
+|`for (const v of f()) g(v);` |`for (f()) \|> g(^);`       |
+
+### Optional Hack pipes
+A **short-circuiting** optional-pipe operator `|?>` could also be useful,
+much in the way `?.` is useful for optional method calls.
+
+For example, `value |> (^ == null ? ^ : await foo(^) |> (^ == null ? ^ : ^ + 1))`\
+would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
+
+### Tacit unary function application
+**Tacit unary function application** – that is, F# pipes –
+could still be added to the language with **another pipe operator** `|>>` –
+similarly to how [Clojure has multiple pipe macros][Clojure pipes]
+`->`, `->>`, and `as->`.
+
+[Clojure pipes]: https://clojure.org/guides/threading_macros
+
+For example, `value |> ^ + 1 |>> f |> g(^, 0)`\
+would mean `value |> ^ + 1 |> f(^) |> g(^, 0)`.
+
+There was an [informal proposal for such a **split mix** of two pipe operators][split mix],
+which was set aside in favor of single-operator proposals.
+
+[split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
