@@ -826,8 +826,30 @@ context
 
 ## Relationships with other proposals
 
-### Partial-function-application syntax
+### `Function` helpers
+Hack pipes can and would coexist with the [`Function` helpers proposal][helpers],
+including its `pipe` and `flow` functions.
+These simple (and commonly downloaded) convenience functions
+manipulate unary functions without extra syntax.
 
+[helpers]: https://github.com/js-choi/proposal-function-helpers
+
+The pipe champion group has presented F# pipes for Stage 2 twice to TC39,
+being unsuccessful both times
+due to pushback from multiple other TC39 representatives’
+memory performance concerns, syntax concerns about await,
+and concerns about encouraging ecosystem bifurcation/forking.
+(For more information, see the [proposal history][].)
+
+Given this reality, TC39 is considerably more likely to pass
+`pipe` and `flow` helper functions than a similar syntactic operator.
+
+Standardized `pipe` and `flow` convenience functions
+may also obviate some of the need for a F#-pipe infix operator.
+(They would not preclude standardizing an equivalent operator later.
+For example, TC39 standardized binary `**` even when `Math.pow` existed.)
+
+### Partial-function-application syntax
 Hack pipes can coexist with a syntax for **partial function application** (PFA).
 There are two approaches with which they may coexist.
 
@@ -928,16 +950,30 @@ would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
 
 ### Tacit unary function application
 **Tacit unary function application** – that is, F# pipes –
-could still be added to the language with **another pipe operator** `|>>` –
+could still be added to the language in two ways.
+
+First, it can be added as a convenience function `Function.pipe`.
+This is what the [the function-helpers proposal][helpers].
+
+Secondly, it can be added as **another pipe operator** `|>>` –
 similarly to how [Clojure has multiple pipe macros][Clojure pipes]
-`->`, `->>`, and `as->`.
-
-[Clojure pipes]: https://clojure.org/guides/threading_macros
-
+`->`, `->>`, and `as->`.\
 For example, `value |> ^ + 1 |>> f |> g(^, 0)`\
 would mean `value |> ^ + 1 |> f(^) |> g(^, 0)`.
+
+[Clojure pipes]: https://clojure.org/guides/threading_macros
 
 There was an [informal proposal for such a **split mix** of two pipe operators][split mix],
 which was set aside in favor of single-operator proposals.
 
 [split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
+
+The pipe champion group has presented F# pipes for Stage 2 twice to TC39,
+being unsuccessful both times
+due to pushback from multiple other TC39 representatives’
+memory performance concerns, syntax concerns about await,
+and concerns about encouraging ecosystem bifurcation/forking.
+(For more information, see the [proposal history][].)
+
+Split mix might return as a proposal after Hack pipes, but it is much more likely
+that [`Function.pipe` would get standardized instead][helpers].
