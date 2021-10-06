@@ -826,92 +826,6 @@ context
 
 ## Possible future extensions
 
-### Hack-pipe functions
-If Hack pipes are added to JavaScript,
-then they could also elegantly handle
-**partial function application** in the future
-with a syntax further inspired by
-[Clojure’s `#(^1 ^2)` function literals][Clojure function literals].
-
-There is **already** a [proposed special syntax
-for partial function application (PFA) with `?` placeholders][PFA]
-(abbreviated here as **`?`-PFA**).
-Both `?`-PFA and Hack pipes address a **similar problem** –
-binding values to **placeholder tokens** –
-but they address it in different ways.
-
-With **`?`-PFA**, `?` placeholders are valid
-only directly within function-call expressions,
-and **each consecutive** `?` placeholder in an expression
-refers to a **different** argument **value**.
-This is in contrast to **Hack pipes**,
-in which every `^` token in an expression
-refers to the **same value**.
-`?`-PFA’s design integrates well with **F# pipes**,
-rather than Hack pipes, but this could be changed.
-
-[PFA]: https://github.com/tc39/proposal-partial-application/
-
-| `?`-PFA with F# pipes      | Hack pipes                 |
-| -------------------------- | -------------------------- |
-|`x \|> y=> y + 1`           |`x \|> ^ + 1`               |
-|`x \|> f(?, 0)`             |`x \|> f(^, 0)`             |
-|`a.map(x=> x + 1)`          |`a.map(x=> x + 1)`          |
-|`a.map(f(?, 0))`            |`a.map(x=> f(x, 0))`        |
-|`a.map(x=> x + x)`          |`a.map(x=> x + x)`          |
-|`a.map(x=> f(x, x))`        |`a.map(x=> f(x, x))`        |
-|`a.sort((x,y)=> x - y)`     |`a.sort((x,y)=> x - y)`     |
-|`a.sort(f(?, ?, 0))`        |`a.sort((x,y)=> f(x, y, 0))`|
-
-The PFA proposal could instead **switch from `?` placeholders**
-to **Hack-pipe topic references**.
-It could do so by combining the Hack pipe `|>`
-with the arrow function `=>`
-into a **topic-function** operator `+>`,
-which would use the same general rules as `|>`.
-
-`+>` would be a **prefix operator** that **creates a new function**,
-which in turn **binds its argument(s)** to topic references.
-**Non-unary functions** would be created
-by including topic references with **numbers** (`^0`, `^1`, `^2`, etc.) or `...`.
-`^0` (equivalent to plain `^`) would be bound to the **zeroth argument**,
-`^1` would be bound to the next argument, and so on.
-`^...` would be bound to an array of **rest arguments**.
-And just as with `|>`, `+>` would require its body
-to contain at least one topic reference
-in order to be syntactically valid.
-
-| `?`-PFA                    | Hack pipe functions        |
-| ---------------------------| -------------------------- |
-|`a.map(x=> x + 1)`          |`a.map(+> ^ + 1)`           |
-|`a.map(f(?, 0))`            |`a.map(+> f(^, 0))`         |
-|`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
-|`a.map(x=> f(x, x))`        |`a.map(+> f(^, ^))`         |
-|`a.sort((x,y)=> x - y)`     |`a.sort(+> ^0 - ^1)`        |
-|`a.sort(f(?, ?, 0))`        |`a.sort(+> f(^0, ^1, 0))`   |
-
-Pipe functions would **avoid** the `?`-PFA syntax’s **[garden-path problem][]**.
-When we read the expression **from left to right**,
-the `+>` prefix operator makes it readily apparent
-that the expression is **creating a new function** from `f`,
-rather than **calling** `f` **immediately**.
-In contrast, `?`-PFA would require us
-to **check every function call for a `?` placeholder**
-in order to determine whether it is actually an immediate function call.
-
-[garden-path problem]: https://en.wikipedia.org/wiki/Garden-path_sentence
-
-In addition, pipe functions wouldn’t help only partial function application.
-Their **flexibility** would allow for **partial expression application**,
-concisely creating functions from other kinds of expressions
-in ways that would not be possible with `?`-PFA.
-
-| `?`-PFA                    | Hack pipe functions        |
-| -------------------------- | -------------------------- |
-|`a.map(x=> x + 1)`          |`a.map(+> ^ + 1)`           |
-|`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
-|`a.sort((x,y)=> x - y)`     |`a.sort(+> ^0 - ^1)`        |
-
 ### Hack-pipe syntax for `if`, `catch`, and `for`–`of`
 Many **`if`, `catch`, and `for` statements** could become pithier
 if they gained **“pipe syntax”** that bound the topic reference.
@@ -948,3 +862,79 @@ There was an [informal proposal for such a **split mix** of two pipe operators][
 which was set aside in favor of single-operator proposals.
 
 [split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
+
+# Relationships with other 
+
+## Partial-function-application syntax
+
+### Hack-pipe functions
+Hack pipes can coexist with a syntax for **partial function application** (PFA).
+There are two approaches with which they may coexist.
+
+The **first approach** is with an **eagerly** evaluated PFA syntax,
+which has [already been proposed in proposal-partial-application][PFA].
+This eager PFA syntax would add an `…~(…)` operator.
+The operator’s right-hand side would be a list of arguments,
+each of which is an ordinary expression or a `?` placeholder.
+Ordinary expressions would be evaluated **before** the function is created.
+
+For example, `f~(g(), ?, h(), ?)` would evaluate `f`, then `g()`, then `h()`,
+and *then* it would create a partially applied version of `f` with two arguments.
+
+The **second approach** is with a **lazily** evaluated PFA syntax.
+This could be handled with an **extension to Hack pipes**,
+with a syntax further inspired by
+[Clojure’s `#(%1 %2)` function literals][Clojure function literals].
+It would do so by **combining** the Hack pipe `|>`
+with the **arrow function** `=>`
+into a **topic-function** operator `+>`,
+which would use the same general rules as `|>`.
+
+`+>` would be a **prefix operator** that **creates a new function**,
+which in turn **binds its argument(s)** to topic references.
+**Non-unary functions** would be created
+by including topic references with **numbers** (`^0`, `^1`, `^2`, etc.) or `...`.
+`^0` (equivalent to plain `^`) would be bound to the **zeroth argument**,
+`^1` would be bound to the next argument, and so on.
+`^...` would be bound to an array of **rest arguments**.
+And just as with `|>`, `+>` would require its body
+to contain at least one topic reference
+in order to be syntactically valid.
+
+| `?`-PFA                    | Hack pipe functions        |
+| ---------------------------| -------------------------- |
+|`a.map(x=> x + 1)`          |`a.map(+> ^ + 1)`           |
+|`a.map(f(?, 0))`            |`a.map(+> f(^, 0))`         |
+|`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
+|`a.map(x=> f(x, x))`        |`a.map(+> f(^, ^))`         |
+|`a.sort((x,y)=> x - y)`     |`a.sort(+> ^0 - ^1)`        |
+|`a.sort(f(?, ?, 0))`        |`a.sort(+> f(^0, ^1, 0))`   |
+
+In contrast to the [eagerly evaluated PFA syntax][PFA],
+topic functions would **lazily** evaluate its arguments,
+just like how an arrow function would.
+
+For example, `+> f(g(), ^0, h(), ^1)` would evaluate `f`,
+and then it would create an arrow function that closes over `g` and `h`.
+The created function would **not** evaluate `g()` or `h()`
+until the every time the created function is called.
+
+No matter the approach taken, Hack pipes could coexist with PFA.
+
+## Eventual sending / pipelining
+Despite sharing the word “pipe” in their name,
+the pipe operator and the [eventual-send proposal][]’s remote-object pipelines
+are orthogonal and independent.
+They can coexist and even work together.
+
+```js
+const fileP = E(
+  E(target).openDirectory(dirName)
+).openFile(fileName);
+
+const fileP = target
+|> E(^).openDirectory(dirName)
+|> E(^).openFile(fileName);
+```
+
+[eventual-send proposal]: https://github.com/tc39/proposal-eventual-send/
