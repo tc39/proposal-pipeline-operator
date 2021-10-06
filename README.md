@@ -603,6 +603,45 @@ But with F# pipes, `value |> someFunction + 1` is **still valid syntax** –
 it’ll just **fail late** at **runtime**,
 because `someFunction + 1` isn’t callable.
 
+### TC39 has rejected F# pipes multiple times
+The pipe champion group has presented F# pipes for Stage 2 to TC39 **twice**.
+It was **unsuccessful** in advancing to Stage 2 both times.
+Both F# pipes (and [partial function application (PFA)][PFA syntax])
+have run into strong pushback from multiple other TC39 representatives
+due to various concerns. These have included:
+
+* Memory performance concerns (e.g., [especially from browser-engine implementors][V8 pushback]),
+* Syntax concerns about `await`.
+* Concerns about encouraging ecosystem bifurcation/forking, etc.
+
+[V8 pushback]: https://github.com/tc39/proposal-pipeline-operator/blob/main/HISTORY.md#2021-07
+
+This pushback has occurred from **outside** the pipe champion group.
+See [HISTORY.md][] for more information.
+
+It is the pipe champion group’s belief that any pipe operator is better than none,
+in order to [easily linearize deeply nested expressions](#why-a-pipe-operator)
+without resorting to named variables.
+Many members of the champion group believe that Hack pipes are slightly better than F# pipes,
+and some members of the champion group believe that F# pipes are slightly better than Hack pipes.
+But everyone in the champion group agrees that F# pipes have met with far too much resistance
+to be able to pass TC39 in the foreseeable future.
+
+To emphasize, it is likely than an attempt to switch from Hack pipes back to F# pipes
+will result in TC39 never agreeing to any pipes at all.
+[PFA syntax][] is similarly facing an uphill battle in TC39 (see [HISTORY.md][]).
+Many members of the pipe champion group think this is unfortunate,
+and they are willing to fight again **later** for an [F#-pipe split mix][split mix] and [PFA syntax][].
+But there are quite a few representatives (including [browser-engine implementers][V8 pushback])
+outside of the Pipe Champion Group
+who are generally against encouraging [tacit programming][] (and [PFA syntax][]),
+regardless of Hack pipes.
+
+[HISTORY.md]: https://github.com/tc39/proposal-pipeline-operator/blob/main/HISTORY.md
+[tacit programming]: https://en.wikipedia.org/wiki/Tacit_programming
+[PFA syntax]: https://github.com/tc39/proposal-partial-application
+[split mix]: #tacit-unary-function-application-syntax
+
 ## Description
 (A [formal draft specification][specification] is available.)
 
@@ -834,15 +873,11 @@ manipulate unary functions without extra syntax.
 
 [helpers]: https://github.com/js-choi/proposal-function-helpers
 
-The pipe champion group has presented F# pipes for Stage 2 twice to TC39,
-being unsuccessful both times
-due to pushback from multiple other TC39 representatives’
-memory performance concerns, syntax concerns about await,
-and concerns about encouraging ecosystem bifurcation/forking.
-(For more information, see the [proposal history][].)
-
+[TC39 has rejected the F# pipe operator twice][rejected].
 Given this reality, TC39 is considerably more likely to pass
 `pipe` and `flow` helper functions than a similar syntactic operator.
+
+[rejected]: #tc39-has-rejected-f-pipes-multiple-times
 
 Standardized `pipe` and `flow` convenience functions
 may also obviate some of the need for a F#-pipe infix operator.
@@ -854,7 +889,7 @@ Hack pipes can coexist with a syntax for **partial function application** (PFA).
 There are two approaches with which they may coexist.
 
 The **first approach** is with an **eagerly** evaluated PFA syntax,
-which has [already been proposed in proposal-partial-application][PFA].
+which has [already been proposed in proposal-partial-application][PFA syntax].
 This eager PFA syntax would add an `…~(…)` operator.
 The operator’s right-hand side would be a list of arguments,
 each of which is an ordinary expression or a `?` placeholder.
@@ -896,7 +931,7 @@ in order to be syntactically valid.
 |`a.map(x=> x + x)`          |`a.map(+> ^ + ^)`           |
 |`a.map(x=> f(x, x))`        |`a.map(+> f(^, ^))`         |
 
-In contrast to the [eagerly evaluated PFA syntax][PFA],
+In contrast to the [eagerly evaluated PFA syntax][PFA syntax],
 topic functions would **lazily** evaluate its arguments,
 just like how an arrow function would.
 
@@ -948,8 +983,9 @@ much in the way `?.` is useful for optional method calls.
 For example, `value |> (^ == null ? ^ : await foo(^) |> (^ == null ? ^ : ^ + 1))`\
 would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
 
-### Tacit unary function application
-**Tacit unary function application** – that is, F# pipes –
+### Tacit unary function application syntax
+**Syntax** for **tacit unary function application** – that is, the F# pipe operator –
+has been [rejected twice by TC39][rejected].
 could still be added to the language in two ways.
 
 First, it can be added as a convenience function `Function.pipe`.
@@ -967,13 +1003,6 @@ There was an [informal proposal for such a **split mix** of two pipe operators][
 which was set aside in favor of single-operator proposals.
 
 [split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
-
-The pipe champion group has presented F# pipes for Stage 2 twice to TC39,
-being unsuccessful both times
-due to pushback from multiple other TC39 representatives’
-memory performance concerns, syntax concerns about await,
-and concerns about encouraging ecosystem bifurcation/forking.
-(For more information, see the [proposal history][].)
 
 Split mix might return as a proposal after Hack pipes.
 In the meantime, [`Function.pipe` might get standardized][helpers],
