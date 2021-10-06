@@ -863,11 +863,10 @@ which was set aside in favor of single-operator proposals.
 
 [split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
 
-# Relationships with other 
+# Relationships with other proposals
 
 ## Partial-function-application syntax
 
-### Hack-pipe functions
 Hack pipes can coexist with a syntax for **partial function application** (PFA).
 There are two approaches with which they may coexist.
 
