@@ -975,5 +975,7 @@ memory performance concerns, syntax concerns about await,
 and concerns about encouraging ecosystem bifurcation/forking.
 (For more information, see the [proposal history][].)
 
-Split mix might return as a proposal after Hack pipes, but it is much more likely
-that [`Function.pipe` would get standardized instead][helpers].
+Split mix might return as a proposal after Hack pipes.
+In the meantime, [`Function.pipe` might get standardized][helpers],
+which may obviate much of the need for an F#-pipe operator,
+while not closing off an F#-pipe operator either.
