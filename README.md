@@ -986,10 +986,12 @@ would be equivalent to `value |?> await foo(^) |?> ^ + 1`.
 ### Tacit unary function application syntax
 **Syntax** for **tacit unary function application** – that is, the F# pipe operator –
 has been [rejected twice by TC39][rejected].
-could still be added to the language in two ways.
+However, they could still eventually be added to the language in two ways.
 
 First, it can be added as a convenience function `Function.pipe`.
-This is what the [the function-helpers proposal][helpers].
+This is what the [function-helpers proposal][helpers] proposes.
+`Function.pipe` may obviate much of the need for an F#-pipe operator,
+while still not closing off the possibility of an F#-pipe operator.
 
 Secondly, it can be added as **another pipe operator** `|>>` –
 similarly to how [Clojure has multiple pipe macros][Clojure pipes]
@@ -1001,10 +1003,6 @@ would mean `value |> ^ + 1 |> f(^) |> g(^, 0)`.
 
 There was an [informal proposal for such a **split mix** of two pipe operators][split mix],
 which was set aside in favor of single-operator proposals.
+This split mix might return as a proposal after Hack pipes.
 
 [split mix]: https://github.com/tc39/proposal-pipeline-operator/wiki#proposal-3-split-mix
-
-Split mix might return as a proposal after Hack pipes.
-In the meantime, [`Function.pipe` might get standardized][helpers],
-which may obviate much of the need for an F#-pipe operator,
-while not closing off an F#-pipe operator either.
