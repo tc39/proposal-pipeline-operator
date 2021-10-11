@@ -2,6 +2,7 @@
 
 * **Stage**: 2
 * **Champions**: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner, \[list incomplete] <!-- Alpha order by first name, plz -->
+* **Former champions**: Daniel Ehrenberg
 * **[Specification][]**
 * **[Contributing guidelines][]**
 * **[Proposal history][]**
