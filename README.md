@@ -627,7 +627,7 @@ and some members of the champion group believe that F# pipes are slightly better
 But everyone in the champion group agrees that F# pipes have met with far too much resistance
 to be able to pass TC39 in the foreseeable future.
 
-To emphasize, it is likely than an attempt to switch from Hack pipes back to F# pipes
+To emphasize, it is likely that an attempt to switch from Hack pipes back to F# pipes
 will result in TC39 never agreeing to any pipes at all.
 [PFA syntax][] is similarly facing an uphill battle in TC39 (see [HISTORY.md][]).
 Many members of the pipe champion group think this is unfortunate,
