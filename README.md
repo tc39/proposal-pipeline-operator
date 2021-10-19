@@ -518,7 +518,7 @@ in a unary **arrow function**:
 * `value |> x=> x.foo()` for method calls,
 * `value |> x=> x + 1` for arithmetic,
 * `value |> x=> [x, 0]` for array literals,
-* `value |> x=> {foo: x}` for object literals,
+* `value |> x=> ({foo: x})` for object literals,
 * `` value |> x=> `${x}` `` for template literals,
 * `value |> x=> new Foo(x)` for constructing objects,
 * `value |> x=> import(x)` for calling function-like keywords,
