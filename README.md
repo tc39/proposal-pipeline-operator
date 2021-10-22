@@ -735,6 +735,10 @@ From [jquery/build/tasks/sourceMap.js][]:
 // Status quo
 var minLoc = Object.keys( grunt.config( "uglify.all.files" ) )[ 0 ];
 
+// Temp vars
+const files = grunt.config("uglify.all.files")
+const minLoc = Object.keys(files)[0];
+
 // With pipes
 var minLoc = grunt.config('uglify.all.files') |> Object.keys(%)[0];
 ```
@@ -743,6 +747,11 @@ From [node/deps/npm/lib/unpublish.js][]:
 ```js
 // Status quo
 const json = await npmFetch.json(npa(pkgs[0]).escapedName, opts);
+
+// Temp vars
+const firstPkg = pkgs[0]
+const {escapedName} = npa(firstPkg)
+const json = await npmFetch.json(escapedName, opts);
 
 // With pipes
 const json = pkgs[0] |> npa(%).escapedName |> await npmFetch.json(%, opts);
@@ -753,6 +762,11 @@ From [underscore.js][]:
 // Status quo
 return filter(obj, negate(cb(predicate)), context);
 
+// Temp vars
+const fn = cb(predicate)
+const negatedFn = negate(fn) 
+return filter(obj, negatedFn, context)
+
 // With pipes
 return cb(predicate) |> _.negate(%) |> _.filter(obj, %, context);
 ```
@@ -761,6 +775,11 @@ From [ramda.js][].
 ```js
 // Status quo
 return xf['@@transducer/result'](obj[methodName](bind(xf['@@transducer/step'], xf), acc));
+
+// Temp vars
+const boundStep = bind(xf['@@transducer/step'], xf)
+const fn = obj[methodName](boundStep)
+return xf['@@transducer/result'](fn)
 
 // With pipes
 return xf
@@ -776,6 +795,14 @@ try {
   return tryer.apply(this, arguments);
 } catch (e) {
   return catcher.apply(this, _concat([e], arguments));
+}
+
+// Temp vars
+try {
+  return tryer.apply(this, arguments);
+} catch (e) {
+  const concatenated = _concat([e], arguments)
+  return catcher.apply(this, concatenated);
 }
 
 // With pipes: Note the visual parallelism between the two clauses.
@@ -795,6 +822,12 @@ From [express/lib/response.js][].
 return this.set('Link', link + Object.keys(links).map(function(rel){
   return '<' + links[rel] + '>; rel="' + rel + '"';
 }).join(', '));
+
+// Temp vars
+const links = Object.keys(links).map((rel) => {
+  return '<' + links[rel] + '>; rel="' + rel + '"';
+});
+return this.set('Link', link + links.join(', '))
 
 // With pipes
 return links
@@ -818,6 +851,14 @@ console.log(
   )
 );
 
+// Temp vars
+const envvars = Object.keys(envars)
+  .map(envar => `${envar}=${envars[envar]}`)
+  .join(' ')}
+const str = `$ ${envvars}`
+const val = chalk.dim(str,  'node', args.join(' '))
+console.log(val);
+
 // With pipes
 Object.keys(envars)
   .map(envar => `${envar}=${envars[envar]}`)
@@ -831,6 +872,11 @@ From [ramda.js][].
 ```js
 // Status quo
 return _reduce(xf(typeof fn === 'function' ? _xwrap(fn) : fn), acc, list);
+
+// Temp vars
+const fn = (typeof fn === 'function' ? _xwrap(fn) : fn)
+const wrapped = xf(%)
+const out = _reduce(%, acc, list);
 
 // With pipes
 return fn
@@ -847,6 +893,11 @@ jQuery.merge( this, jQuery.parseHTML(
   context && context.nodeType ? context.ownerDocument || context : document,
   true
 ) );
+
+// Temp vars
+const doc = context && context.nodeType ? context.ownerDocument || context : document
+const parsedHtml = jQuery.parseHTML(match[1], doc, true)
+const mergedHtml = jQuery.merge(parsedHtml);
 
 // With pipes
 context
