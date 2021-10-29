@@ -105,46 +105,48 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
   <emu-clause id="sec-syntax-directed-operations-contains">
     <h1>Contains</h1>
 
-    <emu-note type=editor>
-      <p>This section augments the <a
-      href=https://tc39.es/ecma262/#sec-syntax-directed-operations-contains>original
-      Contains clause</a>.</p>
+    <emu-clause id="sec-static-semantics-ContainsOuterTopic" type="sdo" aoid="ContainsOuterTopic">
+      <h1>Static Semantics: ContainsOuterTopic</h1>
+      <emu-note type=editor>
+        <p>This section is a wholly new sub-clause of the <a
+        href=https://tc39.github.io/ecma262/#sec-syntax-directed-operations-contains
+        >original Contains clause</a>.</p>
+      </emu-note>
 
-      <p>It presumptively uses `%` as the placeholder token for the
-      topic reference. This choice of token is not a final decision; `%`
-      could instead be `^` or some other token.</p>
-    </emu-note>
+      <emu-note>
+        <p>Several early error rules for |ScriptBody| and for
+        |ModuleItemList|, as well as a step in CreateDynamicFunction,
+        use the ContainsOuterTopic operation to check for any unbound topic reference `%`.
+        Any inner topic reference within a |PipeBody| is hidden from these rules,
+        preventing them from triggering the rules during program
+        compilation.</p>
 
-    <emu-clause id="sec-static-semantics-contains" type="sdo" aoid="Contains">
-      <h1>Static Semantics: Contains</h1>
-      <p>With parameter _symbol_.</p>
+        <p>This guarantees that any topic reference in a program must be
+        present within a topic-binding environment
+        created by a |PipeBody| within that program.</p>
+      </emu-note>
 
-      <ins class=block>
-        <emu-grammar>PipeBody : PipeExpression</emu-grammar>
+      <p>Every grammar production alternative in this specification which is not listed below implicitly has the following default definition of ContainsOuterTopic:</p>
 
-        <emu-alg>
-        1. If _symbol_ is `%`, return *false*.
+      <emu-alg>
         1. For each child node _child_ of this Parse Node, do
-          1. If _child_ is an instance of _symbol_, return *true*.
-          1. If _child_ is an instance of a nonterminal, then
-            1. Let _contained_ be the result of _child_ Contains _symbol_.
-            1. If _contained_ is *true*, return *true*.
+          1. If _child_ is an instance of `%`, return *true*.
+          1. If _child_ is an instance of a nonterminal, and if ContainsOuterTopic of _child_ is *true*, return *true*.
         1. Return *false*.
-        </emu-alg>
+      </emu-alg>
 
-        <emu-note>
-          <p>Several early error rules for |ScriptBody| and for
-          |ModuleItemList|, as well as a step in CreateDynamicFunction,
-          use the Contains operation to check for any unbound topic reference `%`.
-          Any inner topic reference within a |PipeBody| is hidden from these rules,
-          preventing them from triggering the rules during program
-          compilation.</p>
+      <emu-grammar>MultiplicativeExpression : MultiplicativeExpression MultiplicativeOperator ExponentiationExpression</emu-grammar>
 
-          <p>This guarantees that any topic reference in a program must be
-          present within a topic-binding environment
-          created by a |PipeBody| within that program.</p>
-        </emu-note>
-      </ins>
+      <emu-alg>
+        1. If ContainsOuterTopic of |MultiplicativeExpression| is *true*, or if ContainsOuterTopic of |ExponentiationExpression| is *true*, return *true*.
+        1. Return *false*.
+      </emu-alg>
+
+      <emu-grammar>PipeBody : AssignmentExpression</emu-grammar>
+
+      <emu-alg>
+        1. Return *false*.
+      </emu-alg>
     </emu-clause>
   </emu-clause>
 
@@ -629,9 +631,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         All unbound topic references are invalid syntax.
         Several early error rules for |ScriptBody| and for
         |ModuleItemList|, as well as a step in CreateDynamicFunction,
-        use the
-        <emu-xref href="#sec-syntax-directed-operations-contains">Contains</emu-xref>
-        operation to check for any unbound topic reference `%`.
+        use ContainsOuterTopic to check for any unbound topic reference `%`.
         Any inner topic reference within a |PipeBody| is hidden from these rules,
         preventing them from triggering the rules during program
         compilation.</p>
@@ -649,9 +649,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
           This is syntactically enforced by early error rules
           for |ScriptBody| and for |ModuleItemList|,
           as well as a step in CreateDynamicFunction.
-          These rules use the
-          <emu-xref href="#sec-syntax-directed-operations-contains">Contains</emu-xref>
-          operation to check for any unbound topic reference.</p>
+          These rules use ContainsOuterTopic to check for any unbound topic reference.</p>
         </emu-note>
 
         <emu-grammar>PrimaryExpression : `%`</emu-grammar>
@@ -692,22 +690,20 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         could instead be `^` or some other token.</p>
       </emu-note>
 
-      <emu-grammar>PipeBody : PipeExpression</emu-grammar>
+      <emu-grammar>PipeBody : AssignmentExpression</emu-grammar>
       <emu-alg>
-        1. It is a Syntax Error if |PipeBody| Contains `%` is *false*.
+        1. It is a Syntax Error if |PipeBody| ContainsOuterTopic is *false*.
       </emu-alg>
 
       <emu-note>
         <p>A |PipeBody| must use its topic at least once.
         `value |&gt; foo + 1` is an early error,
-        because its |PipeBody| does not
-        <emu-xref href="#sec-syntax-directed-operations-contains">contain</emu-xref>
-        a topic reference `%`.
+        because ContainsOuterTopic of its |PipeBody| is *false*.
         This design is such because omission of any topic reference from a |PipeBody|
         is almost certainly an accidental programmer error.</p>
       </emu-note>
 
-      <emu-grammar>PipeBody : PipeExpression</emu-grammar>
+      <emu-grammar>PipeBody : AssignmentExpression</emu-grammar>
       <emu-alg>
         1. It is a Syntax Error if one of the following productions is covering |PipeBody|:
             * |ShortCircuitExpression| ? |AssignmentExpression| : |AssignmentExpression|
@@ -775,12 +771,12 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <emu-grammar>Script : ScriptBody</emu-grammar>
       <ul>
         <li>
-          <ins>It is a Syntax Error if |ScriptBody| Contains `%` is *true*.</ins>
+          <ins>It is a Syntax Error if ContainsOuterTopic of |ScriptBody| is *true*.</ins>
         </li>
       </ul>
       <ins class="block">
       <emu-note>
-        <p>An early error rule uses the Contains operation
+        <p>An early error rule uses ContainsOuterTopic
         to check for any unbound topic reference.
         Any inner topic reference within a |PipeBody| is hidden from this rule,
         preventing them from triggering the rule during program
@@ -815,14 +811,14 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <emu-grammar>ModuleBody : ModuleItemList</emu-grammar>
         <ul>
           <li>
-            <ins>It is a Syntax Error if |ModuleItemList| Contains `%`
+            <ins>It is a Syntax Error if ContainsOuterTopic of |ModuleItemList|
             is *true*.</ins>
           </li>
         </ul>
 
         <ins class="block">
         <emu-note>
-          <p>An early error rule uses the Contains operation
+          <p>An early error rule uses ContainsOuterTopic
           to check for any unbound topic reference.
           Any inner topic reference within a |PipeBody| is hidden from this rule,
           preventing them from triggering the rule during program
@@ -917,8 +913,8 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
             1. NOTE: If this step is reached, _sourceText_ must match _exprSym_ (although the reverse implication does not hold). The purpose of the next two steps is to enforce any Early Error rules which apply to _exprSym_ directly.
             1. Let _expr_ be ParseText(_sourceText_, _exprSym_).
             1. If _expr_ is a List of errors, throw a *SyntaxError* exception.
-            1. <ins>NOTE: The dynamic function must not <emu-xref href="#sec-syntax-directed-operations-contains">contain</emu-xref> an unbound topic reference `%`.)</ins>
-            1. <ins>If _expr_ Contains `%` is *true*, throw a *SyntaxError* exception.</ins>
+            1. <ins>NOTE: The dynamic function must not contain an unbound topic reference `%`.)</ins>
+            1. <ins>If ContainsOuterTopic of _expr_ is *true*, throw a *SyntaxError* exception.</ins>
             1. Let _proto_ be ? GetPrototypeFromConstructor(_newTarget_, _fallbackProto_).
             1. Let _realmF_ be the current Realm Record.
             1. Let _scope_ be _realmF_.[[GlobalEnv]].
