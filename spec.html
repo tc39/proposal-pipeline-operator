@@ -544,15 +544,15 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         `&amp;&amp;` `||` `??`
         `?` `:`
         <ins>`|&gt;`</ins>
-        `=` `+=` `-=` `*=` `%=` `**=`
-        `&lt;&lt;=` `&gt;&gt;=` `&gt;&gt;&gt;=` `&amp;=` `|=` <del>`^=`</del>
+        `=` `+=` `-=` `*=` <del>`%=`</del> `**=`
+        `&lt;&lt;=` `&gt;&gt;=` `&gt;&gt;&gt;=` `&amp;=` `|=` `^=`
         `&amp;&amp;=` `||=` `??=`
         `=&gt;`
 
       DivPunctuator ::
         `/`
         `/=`
-        <ins>`^=`</ins>
+        <ins>`%=`</ins>
     </emu-grammar>
   </emu-clause>
 </emu-clause>
@@ -750,45 +750,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       1. Return _outputValue_.
     </emu-alg>
     </emu-clause>
-  </emu-clause>
-
-  <emu-clause id=sec-assignment-operators>
-    <h1>Assignment Operators</h1>
-
-    <emu-note type=editor>
-      <p>This section augments the <a
-      href=https://tc39.github.io/ecma262/#sec-assignment-operators>original
-      Assignment Operators clause</a>.</p>
-    </emu-note>
-
-    <h2>Syntax</h2>
-    <emu-grammar>
-      AssignmentExpression[In, Yield, Await] :
-        ConditionalExpression[?In, ?Yield, ?Await]
-        [+Yield] YieldExpression[?In, ?Await]
-        <ins>PipeExpression[?In, ?Yield, ?Await]</ins>
-        ArrowFunction[?In, ?Yield, ?Await]
-        AsyncArrowFunction[?In, ?Yield, ?Await]
-        LeftHandSideExpression[?Yield, ?Await] `=` AssignmentExpression[?In, ?Yield, ?Await]
-        LeftHandSideExpression[?Yield, ?Await] AssignmentOperator AssignmentExpression[?In, ?Yield, ?Await]
-
-      <del>AssignmentOperator : one of
-        `*=` `/=` `%=` `+=` `-=` `&lt;&lt;=` `&gt;&gt;=` `&gt;&gt;&gt;=` `&amp;=` `^=` `|=` `**=`</del>
-      <ins>AssignmentOperator :
-        `*=`
-        `/=`
-        `%=`
-        `+=`
-        `-=`
-        `&lt;&lt;=`
-        `&gt;&gt;=`
-        `&gt;&gt;&gt;=`
-        `&amp;=`
-        `%` [contiguous] `=`
-        `|=`
-        `**=`</ins>
-    </emu-grammar>
-
   </emu-clause>
 </emu-clause>
 
