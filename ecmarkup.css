@@ -35,6 +35,22 @@ a:hover {
   color: #239dee;
 }
 
+a.e-user-code {
+  position: relative;
+}
+
+a.e-user-code::before {
+  display: none;
+  color: brown;
+  position: absolute;
+  bottom: -0.9em;
+  left: 0;
+  content: 'UC';
+  font-style: italic;
+  font-weight: bold;
+  font-size: small;
+}
+
 code {
   font-weight: bold;
   font-family: Consolas, Monaco, monospace;
