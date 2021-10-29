@@ -8,7 +8,7 @@
   "license": "BSD-3-Clause",
   "homepage": "https://tc39.github.io/proposal-pipeline-operator/",
   "dependencies": {
-    "ecmarkup": "^9.2.0"
+    "ecmarkup": "^9.4.1"
   },
   "scripts": {
     "prebuild": "mkdir -p dist",
