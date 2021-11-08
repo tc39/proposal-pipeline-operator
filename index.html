@@ -2,7 +2,7 @@
 <head><meta charset="utf-8"><title>ES pipe operator (2021)</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/styles/base16/solarized-light.min.css"></head><body><div id="menu-toggle"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; stroke:currentColor" viewBox="0 0 120 120">
       <title>Menu</title>
       <path stroke-width="10" stroke-linecap="round" d="M30,60 h60  M30,30 m0,5 h60  M30,90 m0,-5 h60"></path>
-    </svg></div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#introduction" title="Introduction">Introduction</a></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations" title="Syntax-Directed Operations"><span class="secnum">1</span> Syntax-Directed Operations</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-function-name-inference" title="Function Name Inference"><span class="secnum">1.1</span> Function Name Inference</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-isfunctiondefinition" title="Static Semantics: IsFunctionDefinition"><span class="secnum">1.1.1</span> SS: IsFunctionDefinition</a></li><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-isidentifierref" title="Static Semantics: IsIdentifierRef"><span class="secnum">1.1.2</span> SS: IsIdentifierRef</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-contains" title="Contains"><span class="secnum">1.2</span> Contains</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-contains" title="Static Semantics: Contains"><span class="secnum">1.2.1</span> SS: Contains</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-miscellaneous" title="Miscellaneous"><span class="secnum">1.3</span> Miscellaneous</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-assignmenttargettype" title="Static Semantics: AssignmentTargetType"><span class="secnum">1.3.1</span> SS: AssignmentTargetType</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#executable-code-and-execution-contexts" title="Executable Code and Execution Contexts"><span class="secnum">2</span> Executable Code and Execution Contexts</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-environment-records" title="Environment Records"><span class="secnum">2.1</span> Environment Records</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-the-environment-record-type-hierarchy" title="The Environment Record Type Hierarchy"><span class="secnum">2.1.1</span> The Environment Record Type Hierarchy</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-declarative-environment-records" title="Declarative Environment Records"><span class="secnum">2.1.1.1</span> Declarative Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-declarative-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.1.1</span> <ins>HasTopicBinding ( )</ins></a></li><li><span class="item-toggle-none"></span><a href="#sec-declarative-environment-records-bindtopicvalues" title="BindTopicValues ( V )"><span class="secnum">2.1.1.1.2</span> <ins>BindTopicValues ( <var>V</var> )</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-object-environment-records" title="Object Environment Records"><span class="secnum">2.1.1.2</span> Object Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-object-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.2.1</span> <ins>HasTopicBinding ( )</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-global-environment-records" title="Global Environment Records"><span class="secnum">2.1.1.3</span> Global Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-global-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.3.1</span> <ins>HasTopicBinding ( )</ins></a></li></ol></li></ol></li><li><span class="item-toggle-none"></span><a href="#sec-topic-bindings" title="Topic Bindings"><span class="secnum">2.1.2</span> <ins>Topic Bindings</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-execution-contexts" title="Execution Contexts"><span class="secnum">2.2</span> Execution Contexts</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-evaluatewithtopics" title="EvaluateWithTopics ( topicValues, expression )"><span class="secnum">2.2.1</span> EvaluateWithTopics ( <var>topicValues</var>, <var>expression</var> )</a></li><li><span class="item-toggle-none"></span><a href="#sec-gettopicenvironment" title="GetTopicEnvironment ( )"><span class="secnum">2.2.2</span> GetTopicEnvironment ( )</a></li><li><span class="item-toggle-none"></span><a href="#sec-getprimarytopicvalue" title="GetPrimaryTopicValue ( )"><span class="secnum">2.2.3</span> GetPrimaryTopicValue ( )</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-lexical-grammar" title="ECMAScript Language: Lexical Grammar"><span class="secnum">3</span> ECMAScript Language: Lexical Grammar</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-punctuators" title="Punctuators"><span class="secnum">3.1</span> Punctuators</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-expressions" title="ECMAScript Language: Expressions"><span class="secnum">4</span> ECMAScript Language: Expressions</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-primary-expression" title="Primary Expression"><span class="secnum">4.1</span> Primary Expression</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-topic-references" title="Topic Reference"><span class="secnum">4.1.1</span> <ins>Topic Reference</ins></a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-topic-references-runtime-semantics-evaluation" title="Runtime Semantics: Evaluation"><span class="secnum">4.1.1.1</span> RS: Evaluation</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-pipe-operator" title="Pipe Operator"><span class="secnum">4.2</span> <ins>Pipe Operator</ins></a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-pipe-operator-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">4.2.1</span> SS: Early Errors</a></li><li><span class="item-toggle-none"></span><a href="#sec-pipe-operator-runtime-semantics-evaluation" title="Runtime Semantics: Evaluation"><span class="secnum">4.2.2</span> RS: Evaluation</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-scripts-and-modules" title="ECMAScript Language: Scripts and Modules"><span class="secnum">5</span> ECMAScript Language: Scripts and Modules</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-scripts" title="Scripts"><span class="secnum">5.1</span> Scripts</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-scripts-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">5.1.1</span> SS: Early Errors</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-modules" title="Modules"><span class="secnum">5.2</span> Modules</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-module-semantics" title="Module Semantics"><span class="secnum">5.2.1</span> Module Semantics</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-module-semantics-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">5.2.1.1</span> SS: Early Errors</a></li></ol></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-fundamental-objects" title="Fundamental Objects"><span class="secnum">6</span> Fundamental Objects</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-objects" title="Function Objects"><span class="secnum">6.1</span> Function Objects</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-constructor" title="The Function Constructor"><span class="secnum">6.1.1</span> The Function Constructor</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-p1-p2-pn-body" title="Function ( p1, p2, … , pn, body )"><span class="secnum">6.1.1.1</span> Function ( <var>p1</var>, <var>p2</var>, … , <var>pn</var>, <var>body</var> )</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-createdynamicfunction" title="CreateDynamicFunction ( constructor, newTarget, kind, args )"><span class="secnum">6.1.1.1.1</span> CreateDynamicFunction ( <var>constructor</var>, <var>newTarget</var>, <var>kind</var>, <var>args</var> )</a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div id="spec-container"><h1 class="version">Stage 2 Draft / October 29, 2021</h1><h1 class="title">ES pipe operator (2021)</h1>
+    </svg></div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#introduction" title="Introduction">Introduction</a></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations" title="Syntax-Directed Operations"><span class="secnum">1</span> Syntax-Directed Operations</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-function-name-inference" title="Function Name Inference"><span class="secnum">1.1</span> Function Name Inference</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-isfunctiondefinition" title="Static Semantics: IsFunctionDefinition"><span class="secnum">1.1.1</span> SS: IsFunctionDefinition</a></li><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-isidentifierref" title="Static Semantics: IsIdentifierRef"><span class="secnum">1.1.2</span> SS: IsIdentifierRef</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-contains" title="Contains"><span class="secnum">1.2</span> Contains</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-ContainsOuterTopic" title="Static Semantics: ContainsOuterTopic"><span class="secnum">1.2.1</span> SS: ContainsOuterTopic</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-syntax-directed-operations-miscellaneous" title="Miscellaneous"><span class="secnum">1.3</span> Miscellaneous</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-static-semantics-assignmenttargettype" title="Static Semantics: AssignmentTargetType"><span class="secnum">1.3.1</span> SS: AssignmentTargetType</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#executable-code-and-execution-contexts" title="Executable Code and Execution Contexts"><span class="secnum">2</span> Executable Code and Execution Contexts</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-environment-records" title="Environment Records"><span class="secnum">2.1</span> Environment Records</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-the-environment-record-type-hierarchy" title="The Environment Record Type Hierarchy"><span class="secnum">2.1.1</span> The Environment Record Type Hierarchy</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-declarative-environment-records" title="Declarative Environment Records"><span class="secnum">2.1.1.1</span> Declarative Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-declarative-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.1.1</span> <ins>HasTopicBinding ( )</ins></a></li><li><span class="item-toggle-none"></span><a href="#sec-declarative-environment-records-bindtopicvalues" title="BindTopicValues ( V )"><span class="secnum">2.1.1.1.2</span> <ins>BindTopicValues ( <var>V</var> )</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-object-environment-records" title="Object Environment Records"><span class="secnum">2.1.1.2</span> Object Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-object-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.2.1</span> <ins>HasTopicBinding ( )</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-global-environment-records" title="Global Environment Records"><span class="secnum">2.1.1.3</span> Global Environment Records</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-global-environment-records-hastopicbinding" title="HasTopicBinding ( )"><span class="secnum">2.1.1.3.1</span> <ins>HasTopicBinding ( )</ins></a></li></ol></li></ol></li><li><span class="item-toggle-none"></span><a href="#sec-topic-bindings" title="Topic Bindings"><span class="secnum">2.1.2</span> <ins>Topic Bindings</ins></a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-execution-contexts" title="Execution Contexts"><span class="secnum">2.2</span> Execution Contexts</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-evaluatewithtopics" title="EvaluateWithTopics ( topicValues, expression )"><span class="secnum">2.2.1</span> EvaluateWithTopics ( <var>topicValues</var>, <var>expression</var> )</a></li><li><span class="item-toggle-none"></span><a href="#sec-gettopicenvironment" title="GetTopicEnvironment ( )"><span class="secnum">2.2.2</span> GetTopicEnvironment ( )</a></li><li><span class="item-toggle-none"></span><a href="#sec-getprimarytopicvalue" title="GetPrimaryTopicValue ( )"><span class="secnum">2.2.3</span> GetPrimaryTopicValue ( )</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-lexical-grammar" title="ECMAScript Language: Lexical Grammar"><span class="secnum">3</span> ECMAScript Language: Lexical Grammar</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-punctuators" title="Punctuators"><span class="secnum">3.1</span> Punctuators</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-expressions" title="ECMAScript Language: Expressions"><span class="secnum">4</span> ECMAScript Language: Expressions</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-primary-expression" title="Primary Expression"><span class="secnum">4.1</span> Primary Expression</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-topic-references" title="Topic Reference"><span class="secnum">4.1.1</span> <ins>Topic Reference</ins></a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-topic-references-runtime-semantics-evaluation" title="Runtime Semantics: Evaluation"><span class="secnum">4.1.1.1</span> RS: Evaluation</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-pipe-operator" title="Pipe Operator"><span class="secnum">4.2</span> <ins>Pipe Operator</ins></a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-pipe-operator-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">4.2.1</span> SS: Early Errors</a></li><li><span class="item-toggle-none"></span><a href="#sec-pipe-operator-runtime-semantics-evaluation" title="Runtime Semantics: Evaluation"><span class="secnum">4.2.2</span> RS: Evaluation</a></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-ecmascript-language-scripts-and-modules" title="ECMAScript Language: Scripts and Modules"><span class="secnum">5</span> ECMAScript Language: Scripts and Modules</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-scripts" title="Scripts"><span class="secnum">5.1</span> Scripts</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-scripts-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">5.1.1</span> SS: Early Errors</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-modules" title="Modules"><span class="secnum">5.2</span> Modules</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-module-semantics" title="Module Semantics"><span class="secnum">5.2.1</span> Module Semantics</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-module-semantics-static-semantics-early-errors" title="Static Semantics: Early Errors"><span class="secnum">5.2.1.1</span> SS: Early Errors</a></li></ol></li></ol></li></ol></li><li><span class="item-toggle">◢</span><a href="#sec-fundamental-objects" title="Fundamental Objects"><span class="secnum">6</span> Fundamental Objects</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-objects" title="Function Objects"><span class="secnum">6.1</span> Function Objects</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-constructor" title="The Function Constructor"><span class="secnum">6.1.1</span> The Function Constructor</a><ol class="toc"><li><span class="item-toggle">◢</span><a href="#sec-function-p1-p2-pn-body" title="Function ( p1, p2, … , pn, body )"><span class="secnum">6.1.1.1</span> Function ( <var>p1</var>, <var>p2</var>, … , <var>pn</var>, <var>body</var> )</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-createdynamicfunction" title="CreateDynamicFunction ( constructor, newTarget, kind, args )"><span class="secnum">6.1.1.1.1</span> CreateDynamicFunction ( <var>constructor</var>, <var>newTarget</var>, <var>kind</var>, <var>args</var> )</a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div id="spec-container"><h1 class="version">Stage 2 Draft / November 8, 2021</h1><h1 class="title">ES pipe operator (2021)</h1>
 <script src="ecmarkup.js" defer=""></script>
 <link rel="stylesheet" href="ecmarkup.css">
 
@@ -14,7 +14,7 @@
   explainer</a> for the proposal's background, motivation, and usage examples.</p>
 
   <p>This document presumptively uses <code>%</code> as the token
-  for the <emu-xref href="#sec-topic-references" id="_ref_10"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision;
+  for the <emu-xref href="#sec-topic-references" id="_ref_6"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision;
   <code>%</code> could instead be <code>^</code> or some other token.</p>
 </emu-intro>
 
@@ -32,7 +32,7 @@
         IsFunctionDefinition clause</a>.</p>
 
         <p>It presumptively uses <code>%</code> as the placeholder token for the
-        <emu-xref href="#sec-topic-references" id="_ref_11"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+        <emu-xref href="#sec-topic-references" id="_ref_7"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
         could instead be <code>^</code> or some other token.</p>
       </div></emu-note>
 
@@ -50,7 +50,7 @@
     <emu-nt><a href="#prod-PipeExpression">PipeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="pbun1nvx" id="prod-fMjVr-jJ">
         <emu-nt><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a></emu-nt>
         <emu-t>|&gt;</emu-t>
-        <emu-nt id="_ref_126"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+        <emu-nt id="_ref_125"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
     </emu-rhs>
 </emu-production></ins>
 </emu-grammar>
@@ -65,7 +65,7 @@
         clause</a>.</p>
 
         <p>It presumptively uses <code>%</code> as the placeholder token for the
-        <emu-xref href="#sec-topic-references" id="_ref_12"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+        <emu-xref href="#sec-topic-references" id="_ref_8"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
         could instead be <code>^</code> or some other token.</p>
       </div></emu-note>
 
@@ -97,40 +97,46 @@
   <emu-clause id="sec-syntax-directed-operations-contains">
     <h1><span class="secnum">1.2</span> Contains</h1>
 
-    <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
-      <p>This section augments the <a href="https://tc39.es/ecma262/#sec-syntax-directed-operations-contains">original
-      Contains clause</a>.</p>
+    <emu-clause id="sec-static-semantics-ContainsOuterTopic" type="sdo" aoid="ContainsOuterTopic">
+      <h1><span class="secnum">1.2.1</span> Static Semantics: ContainsOuterTopic</h1>
+      <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
+        <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-syntax-directed-operations-contains">original Contains clause</a>.</p>
+      </div></emu-note>
 
-      <p>It presumptively uses <code>%</code> as the placeholder token for the
-      <emu-xref href="#sec-topic-references" id="_ref_13"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
-      could instead be <code>^</code> or some other token.</p>
-    </div></emu-note>
+      <emu-note><span class="note">Note</span><div class="note-contents">
+        <p>Several <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>, as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_9"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>,
+        use the ContainsOuterTopic operation to check for any <emu-xref href="#sec-topic-references" id="_ref_10"><a href="#sec-topic-references">unbound topic reference</a></emu-xref> <code>%</code>.
+        Any inner <emu-xref href="#sec-topic-references" id="_ref_11"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_126"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from these rules,
+        preventing them from triggering the rules during program
+        compilation.</p>
 
-    <emu-clause id="sec-static-semantics-contains" type="sdo" aoid="Contains">
-      <h1><span class="secnum">1.2.1</span> Static Semantics: Contains</h1>
-      <p>With parameter <var>symbol</var>.</p>
+        <p>This guarantees that any <emu-xref href="#sec-topic-references" id="_ref_12"><a href="#sec-topic-references">topic reference</a></emu-xref> in a program must be
+        present within a <emu-xref href="#sec-topic-bindings" id="_ref_13"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>
+        created by a <emu-nt id="_ref_127"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that program.</p>
+      </div></emu-note>
 
-      <ins class="block">
-        <emu-grammar><emu-production name="PipeBody" collapsed="">
-    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="ijerp7um"><emu-nt id="_ref_127"><a href="#prod-PipeExpression">PipeExpression</a></emu-nt></emu-rhs>
+      <p>Every grammar production alternative in this specification which is not listed below implicitly has the following default definition of ContainsOuterTopic:</p>
+
+      <emu-alg><ol><li>For each child node <var>child</var> of this <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">Parse Node</a></emu-xref>, do<ol><li>If <var>child</var> is an instance of <code>%</code>, return <emu-val>true</emu-val>.</li><li>If <var>child</var> is an instance of a nonterminal, and if <emu-xref aoid="ContainsOuterTopic" id="_ref_14"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of <var>child</var> is <emu-val>true</emu-val>, return <emu-val>true</emu-val>.</li></ol></li><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+
+      <emu-grammar><emu-production name="MultiplicativeExpression" collapsed="">
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-MultiplicativeExpression">MultiplicativeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="-5_iophl">
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-MultiplicativeExpression">MultiplicativeExpression</a></emu-nt>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-MultiplicativeOperator">MultiplicativeOperator</a></emu-nt>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ExponentiationExpression">ExponentiationExpression</a></emu-nt>
+    </emu-rhs>
 </emu-production>
 </emu-grammar>
 
-        <emu-alg><ol><li>If <var>symbol</var> is <code>%</code>, return <emu-val>false</emu-val>.</li><li>For each child node <var>child</var> of this <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">Parse Node</a></emu-xref>, do<ol><li>If <var>child</var> is an instance of <var>symbol</var>, return <emu-val>true</emu-val>.</li><li>If <var>child</var> is an instance of a nonterminal, then<ol><li>Let <var>contained</var> be the result of <var>child</var> <emu-xref aoid="Contains" id="_ref_14"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <var>symbol</var>.</li><li>If <var>contained</var> is <emu-val>true</emu-val>, return <emu-val>true</emu-val>.</li></ol></li></ol></li><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+      <emu-alg><ol><li>If <emu-xref aoid="ContainsOuterTopic" id="_ref_15"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of <emu-nt><a href="https://tc39.es/ecma262/#prod-MultiplicativeExpression">MultiplicativeExpression</a></emu-nt> is <emu-val>true</emu-val>, or if <emu-xref aoid="ContainsOuterTopic" id="_ref_16"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of <emu-nt><a href="https://tc39.es/ecma262/#prod-ExponentiationExpression">ExponentiationExpression</a></emu-nt> is <emu-val>true</emu-val>, return <emu-val>true</emu-val>.</li><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
 
-        <emu-note><span class="note">Note</span><div class="note-contents">
-          <p>Several <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for
-          <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>, as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_15"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>,
-          use the Contains operation to check for any <emu-xref href="#sec-topic-references" id="_ref_16"><a href="#sec-topic-references">unbound topic reference</a></emu-xref> <code>%</code>.
-          Any inner <emu-xref href="#sec-topic-references" id="_ref_17"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_128"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from these rules,
-          preventing them from triggering the rules during program
-          compilation.</p>
+      <emu-grammar><emu-production name="PipeBody" collapsed="">
+    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="1px9pijq" id="prod-wuNzQgt7"><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
 
-          <p>This guarantees that any <emu-xref href="#sec-topic-references" id="_ref_18"><a href="#sec-topic-references">topic reference</a></emu-xref> in a program must be
-          present within a <emu-xref href="#sec-topic-bindings" id="_ref_19"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>
-          created by a <emu-nt id="_ref_129"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that program.</p>
-        </div></emu-note>
-      </ins>
+      <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
     </emu-clause>
   </emu-clause>
 
@@ -145,7 +151,7 @@
         AssignmentTargetType clause</a>.</p>
 
         <p>It presumptively uses <code>%</code> as the placeholder token for the
-        <emu-xref href="#sec-topic-references" id="_ref_20"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+        <emu-xref href="#sec-topic-references" id="_ref_17"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
         could instead be <code>^</code> or some other token.</p>
       </div></emu-note>
 
@@ -167,7 +173,7 @@
     <emu-nt><a href="#prod-PipeExpression">PipeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="pbun1nvx" id="prod-jGf1u1sj">
         <emu-nt><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a></emu-nt>
         <emu-t>|&gt;</emu-t>
-        <emu-nt id="_ref_130"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+        <emu-nt id="_ref_128"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
     </emu-rhs>
 </emu-production></ins>
 </emu-grammar>
@@ -201,9 +207,9 @@
           <tbody>
             <tr>
               <td><ins><emu-xref href="#sec-declarative-environment-records-hastopicbinding" id="_ref_0"><a href="#sec-declarative-environment-records-hastopicbinding">HasTopicBinding()</a></emu-xref></ins></td>
-              <td><ins>Determine whether an <emu-xref href="#sec-environment-records" id="_ref_21"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a
-                <emu-xref href="#sec-topic-bindings" id="_ref_22"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>. Return <emu-val>true</emu-val> if it establishes a
-                <emu-xref href="#sec-topic-bindings" id="_ref_23"><a href="#sec-topic-bindings">topic binding</a></emu-xref> and <emu-val>false</emu-val> if it does not.</ins></td>
+              <td><ins>Determine whether an <emu-xref href="#sec-environment-records" id="_ref_18"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a
+                <emu-xref href="#sec-topic-bindings" id="_ref_19"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>. Return <emu-val>true</emu-val> if it establishes a
+                <emu-xref href="#sec-topic-bindings" id="_ref_20"><a href="#sec-topic-bindings">topic binding</a></emu-xref> and <emu-val>false</emu-val> if it does not.</ins></td>
             </tr>
           </tbody>
         </table>
@@ -216,7 +222,7 @@
           <p>This section augments the <a href="https://tc39.github.io/ecma262/#sec-declarative-environment-records">original Declarative Environment Records clause</a>.</p>
 
           <p>It presumptively uses <code>%</code> as the placeholder token for the
-          <emu-xref href="#sec-topic-references" id="_ref_24"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+          <emu-xref href="#sec-topic-references" id="_ref_21"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
           could instead be <code>^</code> or some other token.</p>
         </div></emu-note>
 
@@ -237,10 +243,10 @@
                 <tr>
                   <td>[[TopicValues]]</td>
                   <td><emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of any</td>
-                  <td>If the declarative <emu-xref href="#sec-environment-records" id="_ref_25"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a <emu-xref href="#sec-topic-bindings" id="_ref_26"><a href="#sec-topic-bindings">topic-binding
+                  <td>If the declarative <emu-xref href="#sec-environment-records" id="_ref_22"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a <emu-xref href="#sec-topic-bindings" id="_ref_23"><a href="#sec-topic-bindings">topic-binding
                   environment</a></emu-xref>, then [[TopicValues]] is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> containing the one element
-                  which is the environment's <emu-xref href="#sec-topic-bindings" id="_ref_27"><a href="#sec-topic-bindings">topic value</a></emu-xref> (that is, the value of
-                  the <emu-xref href="#sec-topic-references" id="_ref_28"><a href="#sec-topic-references">topic reference</a></emu-xref> within its program scope).
+                  which is the environment's <emu-xref href="#sec-topic-bindings" id="_ref_24"><a href="#sec-topic-bindings">topic value</a></emu-xref> (that is, the value of
+                  the <emu-xref href="#sec-topic-references" id="_ref_25"><a href="#sec-topic-references">topic reference</a></emu-xref> within its program scope).
                   Otherwise, the value of [[TopicValues]] is an empty <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</td>
                 </tr>
               </tbody>
@@ -249,7 +255,7 @@
 
           <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
             <p>[[TopicValues]] is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> in order to be forward compatible with
-            future extensions that would use more than one <emu-xref href="#sec-topic-bindings" id="_ref_29"><a href="#sec-topic-bindings">topic value</a></emu-xref>, e.g., <a href="https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md#hack-pipe-functions">"pipe functions".</a></p>
+            future extensions that would use more than one <emu-xref href="#sec-topic-bindings" id="_ref_26"><a href="#sec-topic-bindings">topic value</a></emu-xref>, e.g., <a href="https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md#hack-pipe-functions">"pipe functions".</a></p>
           </div></emu-note>
 
           <p>Declarative Environment Records support all of the abstract methods
@@ -270,15 +276,15 @@
               <tbody>
                 <tr>
                   <td>BindTopicValues(V)</td>
-                  <td>Establish the immutable <emu-xref href="#sec-topic-bindings" id="_ref_30"><a href="#sec-topic-bindings">topic binding</a></emu-xref> of this
-                  <emu-xref href="#sec-environment-records" id="_ref_31"><a href="#sec-environment-records">Environment Record</a></emu-xref> and set the <emu-xref href="#sec-topic-bindings" id="_ref_32"><a href="#sec-topic-bindings">topic binding</a></emu-xref>'s value.
+                  <td>Establish the immutable <emu-xref href="#sec-topic-bindings" id="_ref_27"><a href="#sec-topic-bindings">topic binding</a></emu-xref> of this
+                  <emu-xref href="#sec-environment-records" id="_ref_28"><a href="#sec-environment-records">Environment Record</a></emu-xref> and set the <emu-xref href="#sec-topic-bindings" id="_ref_29"><a href="#sec-topic-bindings">topic binding</a></emu-xref>'s value.
                   <var>V</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> containing the one element which is the
-                  <emu-xref href="#sec-topic-bindings" id="_ref_33"><a href="#sec-topic-bindings">topic value</a></emu-xref> and is a value of any <emu-xref href="#sec-ecmascript-language-types"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types">ECMAScript language
-                  type</a></emu-xref>. Afterward, the <emu-xref href="#sec-environment-records" id="_ref_34"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a
-                  <emu-xref href="#sec-topic-bindings" id="_ref_35"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>, and the value returned by the
-                  <emu-xref href="#sec-environment-records" id="_ref_36"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s HasTopicBinding method is <emu-val>true</emu-val>.
+                  <emu-xref href="#sec-topic-bindings" id="_ref_30"><a href="#sec-topic-bindings">topic value</a></emu-xref> and is a value of any <emu-xref href="#sec-ecmascript-language-types"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types">ECMAScript language
+                  type</a></emu-xref>. Afterward, the <emu-xref href="#sec-environment-records" id="_ref_31"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a
+                  <emu-xref href="#sec-topic-bindings" id="_ref_32"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>, and the value returned by the
+                  <emu-xref href="#sec-environment-records" id="_ref_33"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s HasTopicBinding method is <emu-val>true</emu-val>.
                   This method cannot be called more than once on any
-                  single <emu-xref href="#sec-environment-records" id="_ref_37"><a href="#sec-environment-records">Environment Record</a></emu-xref>.</td>
+                  single <emu-xref href="#sec-environment-records" id="_ref_34"><a href="#sec-environment-records">Environment Record</a></emu-xref>.</td>
                 </tr>
               </tbody>
             </table>
@@ -287,7 +293,7 @@
           <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">
           <p>BindTopicValues accepts a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> argument rather than a single-value
           argument in order to be forward compatible with future extensions that
-          would use more than one <emu-xref href="#sec-topic-bindings" id="_ref_38"><a href="#sec-topic-bindings">topic value</a></emu-xref>, e.g., <a href="https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md#hack-pipe-functions">"pipe functions"</a>.</p>
+          would use more than one <emu-xref href="#sec-topic-bindings" id="_ref_35"><a href="#sec-topic-bindings">topic value</a></emu-xref>, e.g., <a href="https://github.com/js-choi/proposal-hack-pipes/blob/master/README.md#hack-pipe-functions">"pipe functions"</a>.</p>
           </div></emu-note>
         </ins>
 
@@ -301,11 +307,11 @@
           <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-declarative-environment-records">original Declarative Environment Records clause</a>.</p>
           </div></emu-note>
 
-          <p>The concrete <emu-xref href="#sec-environment-records" id="_ref_39"><a href="#sec-environment-records">Environment Record</a></emu-xref> method HasTopicBinding for
-          declarative Environment Records returns whether the <emu-xref href="#sec-environment-records" id="_ref_40"><a href="#sec-environment-records">Environment Record</a></emu-xref>
-          is a <emu-xref href="#sec-topic-bindings" id="_ref_41"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>. The value is <emu-val>true</emu-val> only if its
+          <p>The concrete <emu-xref href="#sec-environment-records" id="_ref_36"><a href="#sec-environment-records">Environment Record</a></emu-xref> method HasTopicBinding for
+          declarative Environment Records returns whether the <emu-xref href="#sec-environment-records" id="_ref_37"><a href="#sec-environment-records">Environment Record</a></emu-xref>
+          is a <emu-xref href="#sec-topic-bindings" id="_ref_38"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>. The value is <emu-val>true</emu-val> only if its
           BindTopicValues method has been called.</p>
-          <emu-alg><ol><li>Let <var>envRec</var> be the declarative <emu-xref href="#sec-environment-records" id="_ref_42"><a href="#sec-environment-records">Environment Record</a></emu-xref> for which the
+          <emu-alg><ol><li>Let <var>envRec</var> be the declarative <emu-xref href="#sec-environment-records" id="_ref_39"><a href="#sec-environment-records">Environment Record</a></emu-xref> for which the
                method was invoked.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.[[TopicValues]] is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>If <var>envRec</var>.[[TopicValues]] is an empty <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>, then return <emu-val>false</emu-val>.</li><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
         </emu-clause>
 
@@ -315,11 +321,11 @@
             <p>This section is a wholly new sub-clause of the <a href="https://tc39.github.io/ecma262/#sec-declarative-environment-records">original Declarative Environment Records clause</a>.</p>
           </div></emu-note>
           <p>The method BindTopicValues for declarative Environment Records may
-          only be called on an <emu-xref href="#sec-environment-records" id="_ref_43"><a href="#sec-environment-records">Environment Record</a></emu-xref> when it is not yet a
-          <emu-xref href="#sec-topic-bindings" id="_ref_44"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>, after which it does become a <emu-xref href="#sec-topic-bindings" id="_ref_45"><a href="#sec-topic-bindings">topic-binding
+          only be called on an <emu-xref href="#sec-environment-records" id="_ref_40"><a href="#sec-environment-records">Environment Record</a></emu-xref> when it is not yet a
+          <emu-xref href="#sec-topic-bindings" id="_ref_41"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>, after which it does become a <emu-xref href="#sec-topic-bindings" id="_ref_42"><a href="#sec-topic-bindings">topic-binding
           environment</a></emu-xref>.</p>
-          <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>V</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>Let <var>envRec</var> be the declarative <emu-xref href="#sec-environment-records" id="_ref_46"><a href="#sec-environment-records">Environment Record</a></emu-xref> for which the
-               method was invoked.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.HasTopicBinding() is <emu-val>false</emu-val>.</li><li>Set <var>envRec</var>.[[TopicValues]] to <var>V</var>.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.HasTopicBinding() is <emu-val>true</emu-val>.</li><li>Return <emu-xref aoid="NormalCompletion" id="_ref_47"><a href="https://tc39.es/ecma262/#sec-normalcompletion">NormalCompletion</a></emu-xref>(<emu-const>empty</emu-const>).</li></ol></emu-alg>
+          <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>V</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>Let <var>envRec</var> be the declarative <emu-xref href="#sec-environment-records" id="_ref_43"><a href="#sec-environment-records">Environment Record</a></emu-xref> for which the
+               method was invoked.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.HasTopicBinding() is <emu-val>false</emu-val>.</li><li>Set <var>envRec</var>.[[TopicValues]] to <var>V</var>.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>envRec</var>.HasTopicBinding() is <emu-val>true</emu-val>.</li><li>Return <emu-xref aoid="NormalCompletion" id="_ref_44"><a href="https://tc39.es/ecma262/#sec-normalcompletion">NormalCompletion</a></emu-xref>(<emu-const>empty</emu-const>).</li></ol></emu-alg>
         </emu-clause>
       </emu-clause>
 
@@ -334,7 +340,7 @@
           original Object Environment Records clause</a>.</p>
           </div></emu-note>
 
-          <p>An Object <emu-xref href="#sec-environment-records" id="_ref_48"><a href="#sec-environment-records">Environment Record</a></emu-xref> may never have a <emu-xref href="#sec-topic-bindings" id="_ref_49"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
+          <p>An Object <emu-xref href="#sec-environment-records" id="_ref_45"><a href="#sec-environment-records">Environment Record</a></emu-xref> may never have a <emu-xref href="#sec-topic-bindings" id="_ref_46"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
           <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
           </emu-clause>
       </emu-clause>
@@ -350,7 +356,7 @@
               original Global Environment Records clause</a>.</p>
             </div></emu-note>
 
-            <p>A Global <emu-xref href="#sec-environment-records" id="_ref_50"><a href="#sec-environment-records">Environment Record</a></emu-xref> may never have a <emu-xref href="#sec-topic-bindings" id="_ref_51"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
+            <p>A Global <emu-xref href="#sec-environment-records" id="_ref_47"><a href="#sec-environment-records">Environment Record</a></emu-xref> may never have a <emu-xref href="#sec-topic-bindings" id="_ref_48"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
             <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
           </emu-clause>
         </emu-clause>
@@ -364,29 +370,29 @@
         Environment Records clause</a>.</p>
 
         <p>It presumptively uses <code>%</code> as the placeholder token for the
-        <emu-xref href="#sec-topic-references" id="_ref_52"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+        <emu-xref href="#sec-topic-references" id="_ref_49"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
         could instead be <code>^</code> or some other token.</p>
       </div></emu-note>
 
-      <p>The <dfn>topic binding</dfn> of a declarative <emu-xref href="#sec-environment-records" id="_ref_53"><a href="#sec-environment-records">Environment Record</a></emu-xref>
-      immutably binds the <emu-xref href="#sec-topic-references" id="_ref_54"><a href="#sec-topic-references">topic reference</a></emu-xref> <code>%</code> to one value of any
+      <p>The <dfn>topic binding</dfn> of a declarative <emu-xref href="#sec-environment-records" id="_ref_50"><a href="#sec-environment-records">Environment Record</a></emu-xref>
+      immutably binds the <emu-xref href="#sec-topic-references" id="_ref_51"><a href="#sec-topic-references">topic reference</a></emu-xref> <code>%</code> to one value of any
       <emu-xref href="#sec-ecmascript-language-types"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types">ECMAScript language type</a></emu-xref> (called the <dfn>topic value</dfn> or simply
-      the <dfn>topic</dfn>), within that declarative <emu-xref href="#sec-environment-records" id="_ref_55"><a href="#sec-environment-records">Environment Record</a></emu-xref>, at
-      the time of the <emu-xref href="#sec-environment-records" id="_ref_56"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s instantiation. The topic of a
-      declarative <emu-xref href="#sec-environment-records" id="_ref_57"><a href="#sec-environment-records">Environment Record</a></emu-xref> conceptually serves as the value that its
+      the <dfn>topic</dfn>), within that declarative <emu-xref href="#sec-environment-records" id="_ref_52"><a href="#sec-environment-records">Environment Record</a></emu-xref>, at
+      the time of the <emu-xref href="#sec-environment-records" id="_ref_53"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s instantiation. The topic of a
+      declarative <emu-xref href="#sec-environment-records" id="_ref_54"><a href="#sec-environment-records">Environment Record</a></emu-xref> conceptually serves as the value that its
       lexical context is "about".</p>
 
-      <p>A <dfn>topic-binding environment</dfn> is a declarative <emu-xref href="#sec-environment-records" id="_ref_58"><a href="#sec-environment-records">Environment
+      <p>A <dfn>topic-binding environment</dfn> is a declarative <emu-xref href="#sec-environment-records" id="_ref_55"><a href="#sec-environment-records">Environment
       Record</a></emu-xref> that establishes a topic binding.
       The <dfn>topic environment</dfn> of the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref> is its
-      LexicalEnvironment's innermost <emu-xref href="#sec-environment-records" id="_ref_59"><a href="#sec-environment-records">Environment Record</a></emu-xref> that is also a
-      topic-binding environment (or <emu-val>null</emu-val> if no such <emu-xref href="#sec-environment-records" id="_ref_60"><a href="#sec-environment-records">Environment Record</a></emu-xref>
-      exists), as defined by the abstract operator <emu-xref aoid="GetTopicEnvironment" id="_ref_61"><a href="#sec-gettopicenvironment">GetTopicEnvironment</a></emu-xref>.</p>
+      LexicalEnvironment's innermost <emu-xref href="#sec-environment-records" id="_ref_56"><a href="#sec-environment-records">Environment Record</a></emu-xref> that is also a
+      topic-binding environment (or <emu-val>null</emu-val> if no such <emu-xref href="#sec-environment-records" id="_ref_57"><a href="#sec-environment-records">Environment Record</a></emu-xref>
+      exists), as defined by the abstract operator <emu-xref aoid="GetTopicEnvironment" id="_ref_58"><a href="#sec-gettopicenvironment">GetTopicEnvironment</a></emu-xref>.</p>
 
       <emu-note><span class="note">Note</span><div class="note-contents">
-        <p>An <emu-xref href="#sec-environment-records" id="_ref_62"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a topic-binding environment
-        <strong>only</strong> when it is a declarative <emu-xref href="#sec-environment-records" id="_ref_63"><a href="#sec-environment-records">Environment Record</a></emu-xref> that
-        was created by a <emu-nt id="_ref_131"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.</p>
+        <p>An <emu-xref href="#sec-environment-records" id="_ref_59"><a href="#sec-environment-records">Environment Record</a></emu-xref> is a topic-binding environment
+        <strong>only</strong> when it is a declarative <emu-xref href="#sec-environment-records" id="_ref_60"><a href="#sec-environment-records">Environment Record</a></emu-xref> that
+        was created by a <emu-nt id="_ref_129"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.</p>
       </div></emu-note>
     </emu-clause>
   </emu-clause>
@@ -402,11 +408,11 @@
     <emu-clause id="sec-evaluatewithtopics" type="abstract operation" aoid="EvaluateWithTopics">
       <h1><span class="secnum">2.2.1</span> EvaluateWithTopics ( <var>topicValues</var>, <var>expression</var> )</h1>
       <p>The abstract operation EvaluateWithTopics takes arguments <var>topicValues</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>) and <var>expression</var> (a <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">Parse Node</a></emu-xref>). It performs the following steps when called:</p>
-      <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicValues</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>Let <var>outerEnv</var> be the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment.</li><li>Let <var>topicEnv</var> be <emu-xref aoid="NewDeclarativeEnvironment" id="_ref_64"><a href="https://tc39.es/ecma262/#sec-newdeclarativeenvironment">NewDeclarativeEnvironment</a></emu-xref>(<var>outerEnv</var>).</li><li>Perform ! <var>topicEnv</var>.BindTopicValues(<var>topicValues</var>).</li><li>Set the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment to
+      <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicValues</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>.</li><li>Let <var>outerEnv</var> be the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment.</li><li>Let <var>topicEnv</var> be <emu-xref aoid="NewDeclarativeEnvironment" id="_ref_61"><a href="https://tc39.es/ecma262/#sec-newdeclarativeenvironment">NewDeclarativeEnvironment</a></emu-xref>(<var>outerEnv</var>).</li><li>Perform ! <var>topicEnv</var>.BindTopicValues(<var>topicValues</var>).</li><li>Set the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment to
            <var>topicEnv</var>.</li><li>Let <var>result</var> be the result of evaluating <var>expression</var>.</li><li>Set the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment to <var>outerEnv</var>.</li><li>Return <var>result</var>.</li></ol></emu-alg>
       <emu-note><span class="note">Note</span><div class="note-contents">
-        <p>EvaluateWithTopics creates a new <emu-xref href="#sec-topic-bindings" id="_ref_65"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> and
-        evaluates the given <var>expression</var> with that as its <emu-xref href="#sec-topic-bindings" id="_ref_66"><a href="#sec-topic-bindings">topic environment</a></emu-xref>.
+        <p>EvaluateWithTopics creates a new <emu-xref href="#sec-topic-bindings" id="_ref_62"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> and
+        evaluates the given <var>expression</var> with that as its <emu-xref href="#sec-topic-bindings" id="_ref_63"><a href="#sec-topic-bindings">topic environment</a></emu-xref>.
         The previous <emu-xref href="#sec-lexical-environments"><a href="https://tc39.es/ecma262/#sec-lexical-environments">Lexical Environment</a></emu-xref> is restored afterward.</p>
       </div></emu-note>
     </emu-clause>
@@ -414,22 +420,22 @@
     <emu-clause id="sec-gettopicenvironment" type="abstract operation" aoid="GetTopicEnvironment">
       <h1><span class="secnum">2.2.2</span> GetTopicEnvironment ( )</h1>
       <p>The abstract operation GetTopicEnvironment takes no arguments. It performs the following steps when called:</p>
-      <emu-alg><ol><li>Let <var>envRec</var> be the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment.</li><li>Repeat,<ol><li>Let <var>status</var> be <var>envRec</var>.HasTopicBinding().</li><li>If <var>status</var> is <emu-val>true</emu-val>, return <var>envRec</var>.</li><li>If <var>envRec</var> is a global <emu-xref href="#sec-environment-records" id="_ref_67"><a href="#sec-environment-records">Environment Record</a></emu-xref>, return <emu-val>null</emu-val>.</li><li>Let <var>outer</var> be the value of <var>envRec</var>.[[OuterEnv]].</li><li>Set <var>envRec</var> to <var>outer</var>.</li></ol></li><li>Return <var>envRec</var>.</li></ol></emu-alg>
+      <emu-alg><ol><li>Let <var>envRec</var> be the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s LexicalEnvironment.</li><li>Repeat,<ol><li>Let <var>status</var> be <var>envRec</var>.HasTopicBinding().</li><li>If <var>status</var> is <emu-val>true</emu-val>, return <var>envRec</var>.</li><li>If <var>envRec</var> is a global <emu-xref href="#sec-environment-records" id="_ref_64"><a href="#sec-environment-records">Environment Record</a></emu-xref>, return <emu-val>null</emu-val>.</li><li>Let <var>outer</var> be the value of <var>envRec</var>.[[OuterEnv]].</li><li>Set <var>envRec</var> to <var>outer</var>.</li></ol></li><li>Return <var>envRec</var>.</li></ol></emu-alg>
       <emu-note><span class="note">Note</span><div class="note-contents">
-        <p>GetTopicEnvironment returns the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_68"><a href="#sec-topic-bindings">topic environment</a></emu-xref>
-        (i.e., its LexicalEnvironment's innermost <emu-xref href="#sec-topic-bindings" id="_ref_69"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>)
-        or <emu-val>null</emu-val> if the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref> has no <emu-xref href="#sec-topic-bindings" id="_ref_70"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
+        <p>GetTopicEnvironment returns the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_65"><a href="#sec-topic-bindings">topic environment</a></emu-xref>
+        (i.e., its LexicalEnvironment's innermost <emu-xref href="#sec-topic-bindings" id="_ref_66"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>)
+        or <emu-val>null</emu-val> if the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref> has no <emu-xref href="#sec-topic-bindings" id="_ref_67"><a href="#sec-topic-bindings">topic binding</a></emu-xref>.</p>
       </div></emu-note>
     </emu-clause>
 
     <emu-clause id="sec-getprimarytopicvalue" type="abstract operation" aoid="GetPrimaryTopicValue">
       <h1><span class="secnum">2.2.3</span> GetPrimaryTopicValue ( )</h1>
       <p>The abstract operation GetPrimaryTopicValue takes no arguments. It performs the following steps when called:</p>
-      <emu-alg><ol><li>Let <var>topicEnv</var> be <emu-xref aoid="GetTopicEnvironment" id="_ref_71"><a href="#sec-gettopicenvironment">GetTopicEnvironment</a></emu-xref>().</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicEnv</var> is a declarative <emu-xref href="#sec-environment-records" id="_ref_72"><a href="#sec-environment-records">Environment Record</a></emu-xref>.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicEnv</var>.HasTopicBinding() is <emu-val>true</emu-val>.</li><li>Let <var>topicValues</var> be <var>envRec</var>.[[TopicValues]].</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicValues</var> has at least one element.</li><li>Return <var>topicValues</var>[0].</li></ol></emu-alg>
+      <emu-alg><ol><li>Let <var>topicEnv</var> be <emu-xref aoid="GetTopicEnvironment" id="_ref_68"><a href="#sec-gettopicenvironment">GetTopicEnvironment</a></emu-xref>().</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicEnv</var> is a declarative <emu-xref href="#sec-environment-records" id="_ref_69"><a href="#sec-environment-records">Environment Record</a></emu-xref>.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicEnv</var>.HasTopicBinding() is <emu-val>true</emu-val>.</li><li>Let <var>topicValues</var> be <var>envRec</var>.[[TopicValues]].</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>topicValues</var> has at least one element.</li><li>Return <var>topicValues</var>[0].</li></ol></emu-alg>
       <emu-note><span class="note">Note</span><div class="note-contents">
-        <p>GetPrimaryTopicValue returns the <emu-xref href="#sec-topic-bindings" id="_ref_73"><a href="#sec-topic-bindings">topic value</a></emu-xref>
-        of the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_74"><a href="#sec-topic-bindings">topic environment</a></emu-xref>.
-        It may be called only when the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_75"><a href="#sec-topic-bindings">topic environment</a></emu-xref>
+        <p>GetPrimaryTopicValue returns the <emu-xref href="#sec-topic-bindings" id="_ref_70"><a href="#sec-topic-bindings">topic value</a></emu-xref>
+        of the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_71"><a href="#sec-topic-bindings">topic environment</a></emu-xref>.
+        It may be called only when the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_72"><a href="#sec-topic-bindings">topic environment</a></emu-xref>
         is not <emu-val>null</emu-val>.</p>
       </div></emu-note>
     </emu-clause>
@@ -447,7 +453,7 @@
       Punctuators clause</a>.</p>
 
       <p>It presumptively uses <code>%</code> as the placeholder token for the
-      <emu-xref href="#sec-topic-references" id="_ref_76"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+      <emu-xref href="#sec-topic-references" id="_ref_73"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
       could instead be <code>^</code> or some other token.</p>
     </div></emu-note>
 
@@ -474,7 +480,7 @@
       Primary Expression clause</a>.</p>
 
       <p>It presumptively uses <code>%</code> as the placeholder token for the
-      <emu-xref href="#sec-topic-references" id="_ref_77"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+      <emu-xref href="#sec-topic-references" id="_ref_74"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
       could instead be <code>^</code> or some other token.</p>
     </div></emu-note>
 
@@ -512,54 +518,50 @@
 
       <emu-note><span class="note">Note 1</span><div class="note-contents">
         <p>The <dfn>topic reference</dfn>, which is the token <code>%</code>, is a
-        nullary operator that evaluates to the current <emu-xref href="#sec-environment-records" id="_ref_78"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s
-        <emu-xref href="#sec-topic-bindings" id="_ref_79"><a href="#sec-topic-bindings">topic value</a></emu-xref>. The topic reference acts as if it were a special variable,
-        implicitly bound to the <emu-xref href="#sec-topic-bindings" id="_ref_80"><a href="#sec-topic-bindings">topic value</a></emu-xref>, yet still lexically scoped. But
+        nullary operator that evaluates to the current <emu-xref href="#sec-environment-records" id="_ref_75"><a href="#sec-environment-records">Environment Record</a></emu-xref>'s
+        <emu-xref href="#sec-topic-bindings" id="_ref_76"><a href="#sec-topic-bindings">topic value</a></emu-xref>. The topic reference acts as if it were a special variable,
+        implicitly bound to the <emu-xref href="#sec-topic-bindings" id="_ref_77"><a href="#sec-topic-bindings">topic value</a></emu-xref>, yet still lexically scoped. But
         <code>%</code> is not actually an <emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt> and the topic reference is
         not a variable, and it cannot be bound by typical assignment.
         Instead, the topic reference is immutably bound to a value
-        during the instantiation of any <emu-xref href="#sec-topic-bindings" id="_ref_81"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> by a <emu-nt id="_ref_132"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.</p>
+        during the instantiation of any <emu-xref href="#sec-topic-bindings" id="_ref_78"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> by a <emu-nt id="_ref_130"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.</p>
 
-        <p>The concept of the <emu-xref href="#sec-topic-bindings" id="_ref_82"><a href="#sec-topic-bindings">topic binding</a></emu-xref> is further discussed in <emu-xref href="#sec-topic-bindings" id="_ref_4"><a href="#sec-topic-bindings">Topic Bindings</a></emu-xref> and in <emu-xref href="#sec-declarative-environment-records" id="_ref_5"><a href="#sec-declarative-environment-records">Declarative Environment
+        <p>The concept of the <emu-xref href="#sec-topic-bindings" id="_ref_79"><a href="#sec-topic-bindings">topic binding</a></emu-xref> is further discussed in <emu-xref href="#sec-topic-bindings" id="_ref_4"><a href="#sec-topic-bindings">Topic Bindings</a></emu-xref> and in <emu-xref href="#sec-declarative-environment-records" id="_ref_5"><a href="#sec-declarative-environment-records">Declarative Environment
         Records</a></emu-xref>.</p>
       </div></emu-note>
 
       <emu-note><span class="note">Note 2</span><div class="note-contents">
         <p>An <dfn>unbound topic reference</dfn> is a topic reference that
-        is not present within any <emu-xref href="#sec-topic-bindings" id="_ref_83"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created by a <emu-nt id="_ref_133"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.
-        All unbound <emu-xref href="#sec-topic-bindings" id="_ref_84"><a href="#sec-topic-bindings">topic</a></emu-xref> references are invalid syntax.
+        is not present within any <emu-xref href="#sec-topic-bindings" id="_ref_80"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created by a <emu-nt id="_ref_131"><a href="#prod-PipeBody">PipeBody</a></emu-nt>.
+        All unbound <emu-xref href="#sec-topic-bindings" id="_ref_81"><a href="#sec-topic-bindings">topic</a></emu-xref> references are invalid syntax.
         Several <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for
-        <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>, as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_85"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>,
-        use the
-        <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_6"><a href="#sec-syntax-directed-operations-contains">Contains</a></emu-xref>
-        operation to check for any unbound topic reference <code>%</code>.
-        Any inner topic reference within a <emu-nt id="_ref_134"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from these rules,
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>, as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_82"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>,
+        use <emu-xref aoid="ContainsOuterTopic" id="_ref_83"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> to check for any unbound topic reference <code>%</code>.
+        Any inner topic reference within a <emu-nt id="_ref_132"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from these rules,
         preventing them from triggering the rules during program
         compilation.</p>
 
         <p>This guarantees that every topic reference in a program must be
-        present within a <emu-xref href="#sec-topic-bindings" id="_ref_86"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>
-        created by a <emu-nt id="_ref_135"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that program.</p>
+        present within a <emu-xref href="#sec-topic-bindings" id="_ref_84"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref>
+        created by a <emu-nt id="_ref_133"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that program.</p>
       </div></emu-note>
 
       <emu-clause id="sec-topic-references-runtime-semantics-evaluation">
         <h1><span class="secnum">4.1.1.1</span> Runtime Semantics: Evaluation</h1>
         <emu-note><span class="note">Note</span><div class="note-contents">
-          <p>A <emu-xref href="#sec-topic-references" id="_ref_87"><a href="#sec-topic-references">topic reference</a></emu-xref> may be evaluated only when
-          the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_88"><a href="#sec-topic-bindings">topic environment</a></emu-xref> is not <emu-val>null</emu-val>.
+          <p>A <emu-xref href="#sec-topic-references" id="_ref_85"><a href="#sec-topic-references">topic reference</a></emu-xref> may be evaluated only when
+          the <emu-xref href="#running-execution-context"><a href="https://tc39.es/ecma262/#running-execution-context">running execution context</a></emu-xref>'s <emu-xref href="#sec-topic-bindings" id="_ref_86"><a href="#sec-topic-bindings">topic environment</a></emu-xref> is not <emu-val>null</emu-val>.
           This is syntactically enforced by <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rules
           for <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> and for <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>,
-          as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_89"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>.
-          These rules use the
-          <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_7"><a href="#sec-syntax-directed-operations-contains">Contains</a></emu-xref>
-          operation to check for any <emu-xref href="#sec-topic-references" id="_ref_90"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.</p>
+          as well as a step in <emu-xref aoid="CreateDynamicFunction" id="_ref_87"><a href="#sec-createdynamicfunction">CreateDynamicFunction</a></emu-xref>.
+          These rules use <emu-xref aoid="ContainsOuterTopic" id="_ref_88"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> to check for any <emu-xref href="#sec-topic-references" id="_ref_89"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.</p>
         </div></emu-note>
 
         <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="eozf_qmt"><emu-t>%</emu-t></emu-rhs>
 </emu-production>
 </emu-grammar>
-        <emu-alg><ol><li>Return <emu-xref aoid="GetPrimaryTopicValue" id="_ref_91"><a href="#sec-getprimarytopicvalue">GetPrimaryTopicValue</a></emu-xref>().</li></ol></emu-alg>
+        <emu-alg><ol><li>Return <emu-xref aoid="GetPrimaryTopicValue" id="_ref_90"><a href="#sec-getprimarytopicvalue">GetPrimaryTopicValue</a></emu-xref>().</li></ol></emu-alg>
       </emu-clause>
     </emu-clause>
   </emu-clause>
@@ -578,11 +580,11 @@
     <emu-nt params="In, Yield, Await"><a href="#prod-PipeExpression">PipeExpression</a><emu-mods><emu-params>[In, Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="k6zttxw-" id="prod-CvtqIQqr">
         <emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
         <emu-t>|&gt;</emu-t>
-        <emu-nt params="?In, ?Yield, ?Await" id="_ref_136"><a href="#prod-PipeBody">PipeBody</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
+        <emu-nt params="?In, ?Yield, ?Await" id="_ref_134"><a href="#prod-PipeBody">PipeBody</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt>
     </emu-rhs>
 </emu-production>
 <emu-production name="PipeBody" params="In, Yield, Await" id="prod-PipeBody">
-    <emu-nt params="In, Yield, Await"><a href="#prod-PipeBody">PipeBody</a><emu-mods><emu-params>[In, Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="dtjihnfx"><emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-nt params="In, Yield, Await"><a href="#prod-PipeBody">PipeBody</a><emu-mods><emu-params>[In, Yield, Await]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="dtjihnfx" id="prod-WOK_GmHR"><emu-nt params="?In, ?Yield, ?Await"><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a><emu-mods><emu-params>[?In, ?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
 </emu-production>
 </emu-grammar>
 
@@ -592,34 +594,32 @@
         <p>This section is a wholly new sub-clause.</p>
 
         <p>It presumptively uses <code>%</code> as the placeholder token for the
-        <emu-xref href="#sec-topic-references" id="_ref_92"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+        <emu-xref href="#sec-topic-references" id="_ref_91"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
         could instead be <code>^</code> or some other token.</p>
       </div></emu-note>
 
       <emu-grammar><emu-production name="PipeBody" collapsed="">
-    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="ijerp7um"><emu-nt id="_ref_137"><a href="#prod-PipeExpression">PipeExpression</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="1px9pijq"><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
 </emu-production>
 </emu-grammar>
-      <emu-alg><ol><li>It is a Syntax Error if <emu-nt id="_ref_138"><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-xref aoid="Contains" id="_ref_93"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>%</code> is <emu-val>false</emu-val>.</li></ol></emu-alg>
+      <emu-alg><ol><li>It is a Syntax Error if <emu-nt id="_ref_135"><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-xref aoid="ContainsOuterTopic" id="_ref_92"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> is <emu-val>false</emu-val>.</li></ol></emu-alg>
 
       <emu-note><span class="note">Note 1</span><div class="note-contents">
-        <p>A <emu-nt id="_ref_139"><a href="#prod-PipeBody">PipeBody</a></emu-nt> must use its <emu-xref href="#sec-topic-bindings" id="_ref_94"><a href="#sec-topic-bindings">topic</a></emu-xref> at least once.
+        <p>A <emu-nt id="_ref_136"><a href="#prod-PipeBody">PipeBody</a></emu-nt> must use its <emu-xref href="#sec-topic-bindings" id="_ref_93"><a href="#sec-topic-bindings">topic</a></emu-xref> at least once.
         <code>value |&gt; foo + 1</code> is an <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref>,
-        because its <emu-nt id="_ref_140"><a href="#prod-PipeBody">PipeBody</a></emu-nt> does not
-        <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_8"><a href="#sec-syntax-directed-operations-contains">contain</a></emu-xref>
-        a <emu-xref href="#sec-topic-references" id="_ref_95"><a href="#sec-topic-references">topic reference</a></emu-xref> <code>%</code>.
-        This design is such because omission of any <emu-xref href="#sec-topic-references" id="_ref_96"><a href="#sec-topic-references">topic reference</a></emu-xref> from a <emu-nt id="_ref_141"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+        because <emu-xref aoid="ContainsOuterTopic" id="_ref_94"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of its <emu-nt id="_ref_137"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is <emu-val>false</emu-val>.
+        This design is such because omission of any <emu-xref href="#sec-topic-references" id="_ref_95"><a href="#sec-topic-references">topic reference</a></emu-xref> from a <emu-nt id="_ref_138"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
         is almost certainly an accidental programmer error.</p>
       </div></emu-note>
 
       <emu-grammar><emu-production name="PipeBody" collapsed="">
-    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="ijerp7um"><emu-nt id="_ref_142"><a href="#prod-PipeExpression">PipeExpression</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-PipeBody">PipeBody</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="1px9pijq"><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
 </emu-production>
 </emu-grammar>
-      <emu-alg><ol><li>It is a Syntax Error if one of the following productions is <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">covering</a></emu-xref> <emu-nt id="_ref_143"><a href="#prod-PipeBody">PipeBody</a></emu-nt>:<ul><li><emu-nt><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a></emu-nt> ? <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt> : <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncArrowFunction">AsyncArrowFunction</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentOperator">AssignmentOperator</a></emu-nt> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>&amp;&amp;=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>||=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>??=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li></ul></li></ol></emu-alg>
+      <emu-alg><ol><li>It is a Syntax Error if one of the following productions is <emu-xref href="#sec-syntactic-grammar"><a href="https://tc39.es/ecma262/#sec-syntactic-grammar">covering</a></emu-xref> <emu-nt id="_ref_139"><a href="#prod-PipeBody">PipeBody</a></emu-nt>:<ul><li><emu-nt><a href="https://tc39.es/ecma262/#prod-ShortCircuitExpression">ShortCircuitExpression</a></emu-nt> ? <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt> : <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncArrowFunction">AsyncArrowFunction</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentOperator">AssignmentOperator</a></emu-nt> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>&amp;&amp;=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>||=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li><li><emu-nt><a href="https://tc39.es/ecma262/#prod-LeftHandSideExpression">LeftHandSideExpression</a></emu-nt> <code>??=</code> <emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></li></ul></li></ol></emu-alg>
 
       <emu-note><span class="note">Note 2</span><div class="note-contents">
-        <p>A <emu-nt id="_ref_144"><a href="#prod-PipeBody">PipeBody</a></emu-nt> must not be an unparenthesized expression that is formed from any other operator with identical precedence (such as <emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a></emu-nt> or <emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a></emu-nt>) or from the <emu-xref="#sec-conditional-operator">conditional operator.</emu-xref="#sec-conditional-operator"></p>
+        <p>A <emu-nt id="_ref_140"><a href="#prod-PipeBody">PipeBody</a></emu-nt> must not be an unparenthesized expression that is formed from any other operator with identical precedence (such as <emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-YieldExpression">YieldExpression</a></emu-nt> or <emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ArrowFunction">ArrowFunction</a></emu-nt>) or from the <emu-xref="#sec-conditional-operator">conditional operator.</emu-xref="#sec-conditional-operator"></p>
         <p>This is to prevent confusing expressions from being valid, such as
         <code>x |&gt; yield % |&gt; % + 1</code>.<br>
         That expression would otherwise be unexpectedly equivalent to
@@ -643,11 +643,11 @@
     <emu-nt><a href="#prod-PipeExpression">PipeExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="a28alu8f">
         <emu-nt><a href="https://tc39.es/ecma262/#prod-ConditionalExpression">ConditionalExpression</a></emu-nt>
         <emu-t>|&gt;</emu-t>
-        <emu-nt id="_ref_145"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
+        <emu-nt id="_ref_141"><a href="#prod-PipeBody">PipeBody</a></emu-nt>
     </emu-rhs>
 </emu-production>
 </emu-grammar>
-    <emu-alg><ol><li>Let <var>inputRef</var> be the result of evaluating <var>ConditionalExpression</var>.</li><li>Let <var>inputValues</var> be « ?&nbsp;<emu-xref aoid="GetValue" id="_ref_97"><a href="https://tc39.es/ecma262/#sec-getvalue">GetValue</a></emu-xref>(<var>inputRef</var>) ».</li><li>Let <var>outputValue</var> be ?&nbsp;<emu-xref aoid="EvaluateWithTopics" id="_ref_98"><a href="#sec-evaluatewithtopics">EvaluateWithTopics</a></emu-xref>(<var>inputValues</var>, <emu-nt id="_ref_146"><a href="#prod-PipeBody">PipeBody</a></emu-nt>).</li><li>Return <var>outputValue</var>.</li></ol></emu-alg>
+    <emu-alg><ol><li>Let <var>inputRef</var> be the result of evaluating <var>ConditionalExpression</var>.</li><li>Let <var>inputValues</var> be « ?&nbsp;<emu-xref aoid="GetValue" id="_ref_96"><a href="https://tc39.es/ecma262/#sec-getvalue">GetValue</a></emu-xref>(<var>inputRef</var>) ».</li><li>Let <var>outputValue</var> be ?&nbsp;<emu-xref aoid="EvaluateWithTopics" id="_ref_97"><a href="#sec-evaluatewithtopics">EvaluateWithTopics</a></emu-xref>(<var>inputValues</var>, <emu-nt id="_ref_142"><a href="#prod-PipeBody">PipeBody</a></emu-nt>).</li><li>Return <var>outputValue</var>.</li></ol></emu-alg>
     </emu-clause>
   </emu-clause>
 </emu-clause>
@@ -663,7 +663,7 @@
       Scripts clause</a>.</p>
 
       <p>It presumptively uses <code>%</code> as the placeholder token for the
-      <emu-xref href="#sec-topic-references" id="_ref_99"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+      <emu-xref href="#sec-topic-references" id="_ref_98"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
       could instead be <code>^</code> or some other token.</p>
     </div></emu-note>
 
@@ -676,20 +676,20 @@
 </emu-grammar>
       <ul>
         <li>
-          <ins>It is a Syntax Error if <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> <emu-xref aoid="Contains" id="_ref_100"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>%</code> is <emu-val>true</emu-val>.</ins>
+          <ins>It is a Syntax Error if <emu-xref aoid="ContainsOuterTopic" id="_ref_99"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of <emu-nt><a href="https://tc39.es/ecma262/#prod-ScriptBody">ScriptBody</a></emu-nt> is <emu-val>true</emu-val>.</ins>
         </li>
       </ul>
       <ins class="block">
       <emu-note><span class="note">Note</span><div class="note-contents">
-        <p>An <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rule uses the <emu-xref aoid="Contains" id="_ref_101"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> operation
-        to check for any <emu-xref href="#sec-topic-references" id="_ref_102"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.
-        Any inner <emu-xref href="#sec-topic-references" id="_ref_103"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_147"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from this rule,
+        <p>An <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rule uses <emu-xref aoid="ContainsOuterTopic" id="_ref_100"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref>
+        to check for any <emu-xref href="#sec-topic-references" id="_ref_101"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.
+        Any inner <emu-xref href="#sec-topic-references" id="_ref_102"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_143"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from this rule,
         preventing them from triggering the rule during program
         compilation.</p>
 
-        <p>This guarantees that every <emu-xref href="#sec-topic-references" id="_ref_104"><a href="#sec-topic-references">topic reference</a></emu-xref> in a <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt> must be
-        present within a <emu-xref href="#sec-topic-bindings" id="_ref_105"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created
-        by a <emu-nt id="_ref_148"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt>.</p>
+        <p>This guarantees that every <emu-xref href="#sec-topic-references" id="_ref_103"><a href="#sec-topic-references">topic reference</a></emu-xref> in a <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt> must be
+        present within a <emu-xref href="#sec-topic-bindings" id="_ref_104"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created
+        by a <emu-nt id="_ref_144"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that <emu-nt><a href="https://tc39.es/ecma262/#prod-Script">Script</a></emu-nt>.</p>
       </div></emu-note>
       </ins>
     </emu-clause>
@@ -706,7 +706,7 @@
         Module Semantics clause</a>.</p>
 
         <p>It presumptively uses <code>%</code> as the placeholder token for the
-        <emu-xref href="#sec-topic-references" id="_ref_106"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+        <emu-xref href="#sec-topic-references" id="_ref_105"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
         could instead be <code>^</code> or some other token.</p>
       </div></emu-note>
 
@@ -718,22 +718,22 @@
 </emu-grammar>
         <ul>
           <li>
-            <ins>It is a Syntax Error if <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt> <emu-xref aoid="Contains" id="_ref_107"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>%</code>
+            <ins>It is a Syntax Error if <emu-xref aoid="ContainsOuterTopic" id="_ref_106"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleItemList">ModuleItemList</a></emu-nt>
             is <emu-val>true</emu-val>.</ins>
           </li>
         </ul>
 
         <ins class="block">
         <emu-note><span class="note">Note</span><div class="note-contents">
-          <p>An <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rule uses the <emu-xref aoid="Contains" id="_ref_108"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> operation
-          to check for any <emu-xref href="#sec-topic-references" id="_ref_109"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.
-          Any inner <emu-xref href="#sec-topic-references" id="_ref_110"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_149"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from this rule,
+          <p>An <emu-xref href="#early-error"><a href="https://tc39.es/ecma262/#early-error">early error</a></emu-xref> rule uses <emu-xref aoid="ContainsOuterTopic" id="_ref_107"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref>
+          to check for any <emu-xref href="#sec-topic-references" id="_ref_108"><a href="#sec-topic-references">unbound topic reference</a></emu-xref>.
+          Any inner <emu-xref href="#sec-topic-references" id="_ref_109"><a href="#sec-topic-references">topic reference</a></emu-xref> within a <emu-nt id="_ref_145"><a href="#prod-PipeBody">PipeBody</a></emu-nt> is hidden from this rule,
           preventing them from triggering the rule during program
           compilation.</p>
 
-          <p>This guarantees that every <emu-xref href="#sec-topic-references" id="_ref_111"><a href="#sec-topic-references">topic reference</a></emu-xref> in a <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt> must be
-          present within a <emu-xref href="#sec-topic-bindings" id="_ref_112"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created
-          by a <emu-nt id="_ref_150"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt>.</p>
+          <p>This guarantees that every <emu-xref href="#sec-topic-references" id="_ref_110"><a href="#sec-topic-references">topic reference</a></emu-xref> in a <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt> must be
+          present within a <emu-xref href="#sec-topic-bindings" id="_ref_111"><a href="#sec-topic-bindings">topic-binding environment</a></emu-xref> created
+          by a <emu-nt id="_ref_146"><a href="#prod-PipeBody">PipeBody</a></emu-nt> within that <emu-nt><a href="https://tc39.es/ecma262/#prod-ModuleBody">ModuleBody</a></emu-nt>.</p>
         </div></emu-note>
         </ins>
       </emu-clause>
@@ -760,11 +760,11 @@
             CreateDynamicFunction clause</a>.</p>
 
             <p>It presumptively uses <code>%</code> as the placeholder token for the
-            <emu-xref href="#sec-topic-references" id="_ref_113"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
+            <emu-xref href="#sec-topic-references" id="_ref_112"><a href="#sec-topic-references">topic reference</a></emu-xref>. This choice of token is not a final decision; <code>%</code>
             could instead be <code>^</code> or some other token.</p>
           </div></emu-note>
 
-          <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: The <emu-xref href="#execution-context-stack"><a href="https://tc39.es/ecma262/#execution-context-stack">execution context stack</a></emu-xref> has at least two elements.</li><li>Let <var>callerContext</var> be the second to top element of the <emu-xref href="#execution-context-stack"><a href="https://tc39.es/ecma262/#execution-context-stack">execution context stack</a></emu-xref>.</li><li>Let <var>callerRealm</var> be <var>callerContext</var>'s <emu-xref href="#realm"><a href="https://tc39.es/ecma262/#realm">Realm</a></emu-xref>.</li><li>Let <var>calleeRealm</var> be <emu-xref href="#current-realm"><a href="https://tc39.es/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Perform ?&nbsp;<emu-xref aoid="HostEnsureCanCompileStrings" id="_ref_114"><a href="https://tc39.es/ecma262/#sec-hostensurecancompilestrings">HostEnsureCanCompileStrings</a></emu-xref>(<var>callerRealm</var>, <var>calleeRealm</var>).</li><li>If <var>newTarget</var> is <emu-val>undefined</emu-val>, set <var>newTarget</var> to <var>constructor</var>.</li><li>If <var>kind</var> is <emu-const>normal</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt params="~Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FunctionBody">FunctionBody</a><emu-mods><emu-params>[~Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="~Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[~Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%Function.prototype%"</emu-val>.</li></ol></li><li>Else if <var>kind</var> is <emu-const>generator</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorBody">GeneratorBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="+Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[+Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%GeneratorFunction.prototype%"</emu-val>.</li></ol></li><li>Else if <var>kind</var> is <emu-const>async</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionBody">AsyncFunctionBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="~Yield, +Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[~Yield, +Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%AsyncFunction.prototype%"</emu-val>.</li></ol></li><li>Else,<ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>kind</var> is <emu-const>asyncGenerator</emu-const>.</li><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorExpression">AsyncGeneratorExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorBody">AsyncGeneratorBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="+Yield, +Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[+Yield, +Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%AsyncGeneratorFunction.prototype%"</emu-val>.</li></ol></li><li>Let <var>argCount</var> be the number of elements in <var>args</var>.</li><li>Let <var>P</var> be the empty String.</li><li>If <var>argCount</var> = 0, let <var>bodyArg</var> be the empty String.</li><li>Else if <var>argCount</var> = 1, let <var>bodyArg</var> be <var>args</var>[0].</li><li>Else,<ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>argCount</var> &gt; 1.</li><li>Let <var>firstArg</var> be <var>args</var>[0].</li><li>Set <var>P</var> to ?&nbsp;<emu-xref aoid="ToString" id="_ref_115"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>firstArg</var>).</li><li>Let <var>k</var> be 1.</li><li>Repeat, while <var>k</var> &lt; <var>argCount</var> - 1,<ol><li>Let <var>nextArg</var> be <var>args</var>[<var>k</var>].</li><li>Let <var>nextArgString</var> be ?&nbsp;<emu-xref aoid="ToString" id="_ref_116"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>nextArg</var>).</li><li>Set <var>P</var> to the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of <var>P</var>, <emu-val>","</emu-val> (a comma), and <var>nextArgString</var>.</li><li>Set <var>k</var> to <var>k</var> + 1.</li></ol></li><li>Let <var>bodyArg</var> be <var>args</var>[<var>k</var>].</li></ol></li><li>Let <var>bodyString</var> be the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of 0x000A (LINE FEED), ?&nbsp;<emu-xref aoid="ToString" id="_ref_117"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>bodyArg</var>), and 0x000A (LINE FEED).</li><li>Let <var>prefix</var> be the prefix associated with <var>kind</var> in <emu-xref href="#table-dynamic-function-sourcetext-prefixes"><a href="https://tc39.es/ecma262/#table-dynamic-function-sourcetext-prefixes">Table 50</a></emu-xref>.</li><li>Let <var>sourceString</var> be the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of <var>prefix</var>, <emu-val>" anonymous("</emu-val>, <var>P</var>, 0x000A (LINE FEED), <emu-val>") {"</emu-val>, <var>bodyString</var>, and <emu-val>"}"</emu-val>.</li><li>Let <var>sourceText</var> be !&nbsp;StringToCodePoints(<var>sourceString</var>).</li><li>Let <var>parameters</var> be ParseText(! StringToCodePoints(<var>P</var>), <var>parameterSym</var>).</li><li>If <var>parameters</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li>Let <var>body</var> be ParseText(! StringToCodePoints(<var>bodyString</var>), <var>bodySym</var>).</li><li>If <var>body</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li>NOTE: The parameters and body are parsed separately to ensure that each is valid alone. For example, <code>new Function("/*", "*/ ) {")</code> is not legal.</li><li>NOTE: If this step is reached, <var>sourceText</var> must match <var>exprSym</var> (although the reverse implication does not hold). The purpose of the next two steps is to enforce any Early Error rules which apply to <var>exprSym</var> directly.</li><li>Let <var>expr</var> be ParseText(<var>sourceText</var>, <var>exprSym</var>).</li><li>If <var>expr</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li><ins>NOTE: The dynamic function must not <emu-xref href="#sec-syntax-directed-operations-contains" id="_ref_9"><a href="#sec-syntax-directed-operations-contains">contain</a></emu-xref> an <emu-xref href="#sec-topic-references" id="_ref_118"><a href="#sec-topic-references">unbound topic reference</a></emu-xref> <code>%</code>.)</ins></li><li><ins>If <var>expr</var> <emu-xref aoid="Contains" id="_ref_119"><a href="#sec-static-semantics-contains">Contains</a></emu-xref> <code>%</code> is <emu-val>true</emu-val>, throw a <emu-val>SyntaxError</emu-val> exception.</ins></li><li>Let <var>proto</var> be ?&nbsp;<emu-xref aoid="GetPrototypeFromConstructor" id="_ref_120"><a href="https://tc39.es/ecma262/#sec-getprototypefromconstructor">GetPrototypeFromConstructor</a></emu-xref>(<var>newTarget</var>, <var>fallbackProto</var>).</li><li>Let <var>realmF</var> be <emu-xref href="#current-realm"><a href="https://tc39.es/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Let <var>scope</var> be <var>realmF</var>.[[GlobalEnv]].</li><li>Let <var>privateScope</var> be <emu-val>null</emu-val>.</li><li>Let <var>F</var> be !&nbsp;<emu-xref aoid="OrdinaryFunctionCreate" id="_ref_121"><a href="https://tc39.es/ecma262/#sec-ordinaryfunctioncreate">OrdinaryFunctionCreate</a></emu-xref>(<var>proto</var>, <var>sourceText</var>, <var>parameters</var>, <var>body</var>, <emu-const>non-lexical-this</emu-const>, <var>scope</var>, <var>privateScope</var>).</li><li>Perform <emu-xref aoid="SetFunctionName" id="_ref_122"><a href="https://tc39.es/ecma262/#sec-setfunctionname">SetFunctionName</a></emu-xref>(<var>F</var>, <emu-val>"anonymous"</emu-val>).</li><li>If <var>kind</var> is <emu-const>generator</emu-const>, then<ol><li>Let <var>prototype</var> be !&nbsp;OrdinaryObjectCreate(%GeneratorFunction.prototype.prototype%).</li><li>Perform <emu-xref aoid="DefinePropertyOrThrow" id="_ref_123"><a href="https://tc39.es/ecma262/#sec-definepropertyorthrow">DefinePropertyOrThrow</a></emu-xref>(<var>F</var>, <emu-val>"prototype"</emu-val>, PropertyDescriptor { [[Value]]: <var>prototype</var>, [[Writable]]: <emu-val>true</emu-val>, [[Enumerable]]: <emu-val>false</emu-val>, [[Configurable]]: <emu-val>false</emu-val> }).</li></ol></li><li>Else if <var>kind</var> is <emu-const>asyncGenerator</emu-const>, then<ol><li>Let <var>prototype</var> be !&nbsp;OrdinaryObjectCreate(%AsyncGeneratorFunction.prototype.prototype%).</li><li>Perform <emu-xref aoid="DefinePropertyOrThrow" id="_ref_124"><a href="https://tc39.es/ecma262/#sec-definepropertyorthrow">DefinePropertyOrThrow</a></emu-xref>(<var>F</var>, <emu-val>"prototype"</emu-val>, PropertyDescriptor { [[Value]]: <var>prototype</var>, [[Writable]]: <emu-val>true</emu-val>, [[Enumerable]]: <emu-val>false</emu-val>, [[Configurable]]: <emu-val>false</emu-val> }).</li></ol></li><li>Else if <var>kind</var> is <emu-const>normal</emu-const>, perform <emu-xref aoid="MakeConstructor" id="_ref_125"><a href="https://tc39.es/ecma262/#sec-makeconstructor">MakeConstructor</a></emu-xref>(<var>F</var>).</li><li>NOTE: Functions whose <var>kind</var> is <emu-const>async</emu-const> are not constructible and do not have a [[Construct]] internal method or a <emu-val>"prototype"</emu-val> property.</li><li>Return <var>F</var>.</li></ol></emu-alg>
+          <emu-alg><ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: The <emu-xref href="#execution-context-stack"><a href="https://tc39.es/ecma262/#execution-context-stack">execution context stack</a></emu-xref> has at least two elements.</li><li>Let <var>callerContext</var> be the second to top element of the <emu-xref href="#execution-context-stack"><a href="https://tc39.es/ecma262/#execution-context-stack">execution context stack</a></emu-xref>.</li><li>Let <var>callerRealm</var> be <var>callerContext</var>'s <emu-xref href="#realm"><a href="https://tc39.es/ecma262/#realm">Realm</a></emu-xref>.</li><li>Let <var>calleeRealm</var> be <emu-xref href="#current-realm"><a href="https://tc39.es/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Perform ?&nbsp;<emu-xref aoid="HostEnsureCanCompileStrings" id="_ref_113"><a href="https://tc39.es/ecma262/#sec-hostensurecancompilestrings">HostEnsureCanCompileStrings</a></emu-xref>(<var>callerRealm</var>, <var>calleeRealm</var>).</li><li>If <var>newTarget</var> is <emu-val>undefined</emu-val>, set <var>newTarget</var> to <var>constructor</var>.</li><li>If <var>kind</var> is <emu-const>normal</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt params="~Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FunctionBody">FunctionBody</a><emu-mods><emu-params>[~Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="~Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[~Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%Function.prototype%"</emu-val>.</li></ol></li><li>Else if <var>kind</var> is <emu-const>generator</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorBody">GeneratorBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="+Yield, ~Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[+Yield, ~Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%GeneratorFunction.prototype%"</emu-val>.</li></ol></li><li>Else if <var>kind</var> is <emu-const>async</emu-const>, then<ol><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionBody">AsyncFunctionBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="~Yield, +Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[~Yield, +Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%AsyncFunction.prototype%"</emu-val>.</li></ol></li><li>Else,<ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>kind</var> is <emu-const>asyncGenerator</emu-const>.</li><li>Let <var>exprSym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorExpression">AsyncGeneratorExpression</a></emu-nt>.</li><li>Let <var>bodySym</var> be the grammar symbol <emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncGeneratorBody">AsyncGeneratorBody</a></emu-nt>.</li><li>Let <var>parameterSym</var> be the grammar symbol <emu-nt params="+Yield, +Await"><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a><emu-mods><emu-params>[+Yield, +Await]</emu-params></emu-mods></emu-nt>.</li><li>Let <var>fallbackProto</var> be <emu-val>"%AsyncGeneratorFunction.prototype%"</emu-val>.</li></ol></li><li>Let <var>argCount</var> be the number of elements in <var>args</var>.</li><li>Let <var>P</var> be the empty String.</li><li>If <var>argCount</var> = 0, let <var>bodyArg</var> be the empty String.</li><li>Else if <var>argCount</var> = 1, let <var>bodyArg</var> be <var>args</var>[0].</li><li>Else,<ol><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>argCount</var> &gt; 1.</li><li>Let <var>firstArg</var> be <var>args</var>[0].</li><li>Set <var>P</var> to ?&nbsp;<emu-xref aoid="ToString" id="_ref_114"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>firstArg</var>).</li><li>Let <var>k</var> be 1.</li><li>Repeat, while <var>k</var> &lt; <var>argCount</var> - 1,<ol><li>Let <var>nextArg</var> be <var>args</var>[<var>k</var>].</li><li>Let <var>nextArgString</var> be ?&nbsp;<emu-xref aoid="ToString" id="_ref_115"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>nextArg</var>).</li><li>Set <var>P</var> to the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of <var>P</var>, <emu-val>","</emu-val> (a comma), and <var>nextArgString</var>.</li><li>Set <var>k</var> to <var>k</var> + 1.</li></ol></li><li>Let <var>bodyArg</var> be <var>args</var>[<var>k</var>].</li></ol></li><li>Let <var>bodyString</var> be the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of 0x000A (LINE FEED), ?&nbsp;<emu-xref aoid="ToString" id="_ref_116"><a href="https://tc39.es/ecma262/#sec-tostring">ToString</a></emu-xref>(<var>bodyArg</var>), and 0x000A (LINE FEED).</li><li>Let <var>prefix</var> be the prefix associated with <var>kind</var> in <emu-xref href="#table-dynamic-function-sourcetext-prefixes"><a href="https://tc39.es/ecma262/#table-dynamic-function-sourcetext-prefixes">Table 50</a></emu-xref>.</li><li>Let <var>sourceString</var> be the <emu-xref href="#sec-ecmascript-language-types-string-type"><a href="https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type">string-concatenation</a></emu-xref> of <var>prefix</var>, <emu-val>" anonymous("</emu-val>, <var>P</var>, 0x000A (LINE FEED), <emu-val>") {"</emu-val>, <var>bodyString</var>, and <emu-val>"}"</emu-val>.</li><li>Let <var>sourceText</var> be !&nbsp;StringToCodePoints(<var>sourceString</var>).</li><li>Let <var>parameters</var> be ParseText(! StringToCodePoints(<var>P</var>), <var>parameterSym</var>).</li><li>If <var>parameters</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li>Let <var>body</var> be ParseText(! StringToCodePoints(<var>bodyString</var>), <var>bodySym</var>).</li><li>If <var>body</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li>NOTE: The parameters and body are parsed separately to ensure that each is valid alone. For example, <code>new Function("/*", "*/ ) {")</code> is not legal.</li><li>NOTE: If this step is reached, <var>sourceText</var> must match <var>exprSym</var> (although the reverse implication does not hold). The purpose of the next two steps is to enforce any Early Error rules which apply to <var>exprSym</var> directly.</li><li>Let <var>expr</var> be ParseText(<var>sourceText</var>, <var>exprSym</var>).</li><li>If <var>expr</var> is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of errors, throw a <emu-val>SyntaxError</emu-val> exception.</li><li><ins>NOTE: The dynamic function must not contain an <emu-xref href="#sec-topic-references" id="_ref_117"><a href="#sec-topic-references">unbound topic reference</a></emu-xref> <code>%</code>.)</ins></li><li><ins>If <emu-xref aoid="ContainsOuterTopic" id="_ref_118"><a href="#sec-static-semantics-ContainsOuterTopic">ContainsOuterTopic</a></emu-xref> of <var>expr</var> is <emu-val>true</emu-val>, throw a <emu-val>SyntaxError</emu-val> exception.</ins></li><li>Let <var>proto</var> be ?&nbsp;<emu-xref aoid="GetPrototypeFromConstructor" id="_ref_119"><a href="https://tc39.es/ecma262/#sec-getprototypefromconstructor">GetPrototypeFromConstructor</a></emu-xref>(<var>newTarget</var>, <var>fallbackProto</var>).</li><li>Let <var>realmF</var> be <emu-xref href="#current-realm"><a href="https://tc39.es/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Let <var>scope</var> be <var>realmF</var>.[[GlobalEnv]].</li><li>Let <var>privateScope</var> be <emu-val>null</emu-val>.</li><li>Let <var>F</var> be !&nbsp;<emu-xref aoid="OrdinaryFunctionCreate" id="_ref_120"><a href="https://tc39.es/ecma262/#sec-ordinaryfunctioncreate">OrdinaryFunctionCreate</a></emu-xref>(<var>proto</var>, <var>sourceText</var>, <var>parameters</var>, <var>body</var>, <emu-const>non-lexical-this</emu-const>, <var>scope</var>, <var>privateScope</var>).</li><li>Perform <emu-xref aoid="SetFunctionName" id="_ref_121"><a href="https://tc39.es/ecma262/#sec-setfunctionname">SetFunctionName</a></emu-xref>(<var>F</var>, <emu-val>"anonymous"</emu-val>).</li><li>If <var>kind</var> is <emu-const>generator</emu-const>, then<ol><li>Let <var>prototype</var> be !&nbsp;OrdinaryObjectCreate(%GeneratorFunction.prototype.prototype%).</li><li>Perform <emu-xref aoid="DefinePropertyOrThrow" id="_ref_122"><a href="https://tc39.es/ecma262/#sec-definepropertyorthrow">DefinePropertyOrThrow</a></emu-xref>(<var>F</var>, <emu-val>"prototype"</emu-val>, PropertyDescriptor { [[Value]]: <var>prototype</var>, [[Writable]]: <emu-val>true</emu-val>, [[Enumerable]]: <emu-val>false</emu-val>, [[Configurable]]: <emu-val>false</emu-val> }).</li></ol></li><li>Else if <var>kind</var> is <emu-const>asyncGenerator</emu-const>, then<ol><li>Let <var>prototype</var> be !&nbsp;OrdinaryObjectCreate(%AsyncGeneratorFunction.prototype.prototype%).</li><li>Perform <emu-xref aoid="DefinePropertyOrThrow" id="_ref_123"><a href="https://tc39.es/ecma262/#sec-definepropertyorthrow">DefinePropertyOrThrow</a></emu-xref>(<var>F</var>, <emu-val>"prototype"</emu-val>, PropertyDescriptor { [[Value]]: <var>prototype</var>, [[Writable]]: <emu-val>true</emu-val>, [[Enumerable]]: <emu-val>false</emu-val>, [[Configurable]]: <emu-val>false</emu-val> }).</li></ol></li><li>Else if <var>kind</var> is <emu-const>normal</emu-const>, perform <emu-xref aoid="MakeConstructor" id="_ref_124"><a href="https://tc39.es/ecma262/#sec-makeconstructor">MakeConstructor</a></emu-xref>(<var>F</var>).</li><li>NOTE: Functions whose <var>kind</var> is <emu-const>async</emu-const> are not constructible and do not have a [[Construct]] internal method or a <emu-val>"prototype"</emu-val> property.</li><li>Return <var>F</var>.</li></ol></emu-alg>
         </emu-clause>
       </emu-clause>
     </emu-clause>
