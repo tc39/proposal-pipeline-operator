@@ -173,6 +173,7 @@ after three years of indecision.
 [@tabatkins][] (Google) plans to present *some* pipe-operator style for Stage 2.
 Based on the results of the the preceding meeting, they pick Hack pipes.
 This has support from [@ljharb][] and some other TC39 representatives.
+[@js-choi][] (Indiana University) joins as co-champion.
 
 Through this month, [@tabatkins][] (Google) continues to debate offline
 with [@mAAdhaTTah][] regarding Hack pipes vs. F# pipes.
@@ -190,7 +191,8 @@ Therefore feeling that F# pipes would continue to be indefinitely stuck at an im
 
 ***
 
-On [2021-08-31][S2 2021], [@tabatkins][] (Google) therefore
+On [2021-08-31][S2 2021], a formal Committee plenary occurs,
+and [@tabatkins][] (Google) therefore
 [presents Hack pipes as the tentative consensus among the champions,
 proposing that TC39 advance them to Stage 2][S2 2021].
 There are several responses from other representatives:
@@ -220,12 +222,42 @@ They also discuss concerns with the community on GitHub,
 both in the [2021-03 comparison Gist][Gist]’s comments (see [§ 2021-03](#2021-03))
 and in the [pipe proposal’s issues][issues].
 
+## 2021-09
+In order to explain this proposal’s history and process to other community members,
+[@js-choi][] (Indiana University) creates this document.
+
+Inspired by a [defense of unary functions][I233], [@js-choi][] (Indiana University)
+also creates a new proposal, [proposal-function-helpers][], that would add several Function
+helper methods. These include Function.pipe, pipeAsync, flow, and flowAsync.
+
+## 2021-10
+Starting on 2021-10-25, another formal Commitee plenary occurs.
+The pipe operator is not presented at this meeting, although
+an [incubator meeting on 2021-11 is chartered][incubator charter 2021-11]
+for bikeshedding the pipe operator’s topic token.
+
+[On 2021-10-25, PFA syntax is presented again to the Committee
+plenary][2021-10 PFA] by [@rbuckton][] (Microsoft) for Stage 2.
+The Committee rejects this proposal; several representatives,
+including those from Mozilla SpiderMonkey and Google V8, state
+that there were insufficiently specific and compelling use cases presented,
+with high syntax cost and novelty in comparison to arrow functions.
+
+[On 2021-10-28, proposal-function-helpers is also presented to the
+Committee plenary][2021-10 Function] for Stage 1 by [@js-choi][].
+The Committee also rejects this proposal due to its being overly broad,
+and it requests that it be split up into multiple proposals.
+These split proposals would include a proposal specifically
+about [Function.pipe and flow][].
+
 [issues]: https://github.com/tc39/proposal-pipeline-operator/issues?q=is%3Aissue+
 [CONTRIBUTING.md]: https://github.com/tc39/proposal-pipeline-operator/blob/main/CONTRIBUTING.md
 [general information on incubator calls]: https://github.com/tc39/how-we-work/blob/master/incubator-calls.md
 
 [bind]: https://github.com/tc39/proposal-bind-operator
 [partial function application]: https://github.com/tc39/proposal-partial-application
+[proposal-function-helpers]: https://github.com/js-choi/proposal-function-helpers
+[Function.pipe and flow]: https://github.com/js-choi/proposal-function-pipe-flow
 
 [F# spec]: https://github.com/valtech-nyc/proposal-fsharp-pipelines/
 [smart-mix-pipes spec]: https://github.com/js-choi/proposal-smart-pipelines
@@ -237,6 +269,7 @@ and in the [pipe proposal’s issues][issues].
 [I75]: https://github.com/tc39/proposal-pipeline-operator/issues/75
 [I66]: https://github.com/tc39/proposal-pipeline-operator/pull/66
 [I89]: https://github.com/tc39/proposal-pipeline-operator/issues/89
+[I233]: https://github.com/tc39/proposal-pipeline-operator/issues/233
 
 [S1]: https://github.com/tc39/notes/blob/master/meetings/2017-09/sept-26.md#11iia-pipeline-operator
 [S2 2017]: https://github.com/tc39/notes/blob/master/meetings/2017-11/nov-29.md#9iii-pipeline-operator-for-stage-2
@@ -246,6 +279,9 @@ and in the [pipe proposal’s issues][issues].
 [2021-07 incubator]: https://github.com/tc39/incubator-agendas/blob/master/notes/2021/06-17.md#pipeline
 [Mozilla study]: https://github.com/tc39/notes/blob/master/meetings/2019-06/june-6.md#javascript-and-syntax-research-methods
 [S2 2021]: https://github.com/tc39/notes/blob/master/meetings/2021-08/aug-31.md#pipeline-operator-for-stage-2
+[incubator charter 2021-11]: https://github.com/tc39/incubator-agendas/issues/21
+[2021-10 PFA]: https://github.com/babel/proposals/issues/77#issuecomment-950918628
+[2021-10 Function]: https://github.com/tc39-transfer/proposal-function-helpers/issues/17#issuecomment-953814353
 
 [TC39 process]: https://tc39.es/process-document/
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
