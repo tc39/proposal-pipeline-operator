@@ -973,7 +973,7 @@ and `for (of) |>` would consecutively bind each of its iterator’s values to `%
 
 | Status quo                  | Hack-pipe statement syntax |
 | --------------------------- | -------------------------- |
-|`const c = f(); if (c) g(c);`|`if (f()) \|> b(%);`        |
+|`const c = f(); if (c) g(c);`|`if (f()) \|> g(%);`        |
 |`catch (e) f(e);`            |`catch \|> f(%);`           |
 |`for (const v of f()) g(v);` |`for (f()) \|> g(%);`       |
 
