@@ -280,8 +280,8 @@ about [Function.pipe and flow][].
 [Mozilla study]: https://github.com/tc39/notes/blob/master/meetings/2019-06/june-6.md#javascript-and-syntax-research-methods
 [S2 2021]: https://github.com/tc39/notes/blob/master/meetings/2021-08/aug-31.md#pipeline-operator-for-stage-2
 [incubator charter 2021-11]: https://github.com/tc39/incubator-agendas/issues/21
-[2021-10 PFA]: https://github.com/babel/proposals/issues/77#issuecomment-950918628
-[2021-10 Function]: https://github.com/tc39-transfer/proposal-function-helpers/issues/17#issuecomment-953814353
+[2021-10 PFA]: https://github.com/tc39/notes/blob/master/meetings/2021-10/oct-25.md#partial-function-application-for-stage-2
+[2021-10 Function]: https://github.com/tc39/notes/blob/master/meetings/2021-10/oct-28.md#function-helpers
 
 [TC39 process]: https://tc39.es/process-document/
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
