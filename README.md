@@ -675,12 +675,13 @@ then evaluates its righthand side (the **pipe body**) with that binding.
 The resulting value of the righthand side
 becomes the whole pipe expression’s final value (the **pipe output**).
 
-The pipe operator’s precedence is the **same** as:
+The pipe operator’s precedence is **similar** to:
+* the ternary conditional operator `?` `:`;
 * the function arrow `=>`;
-* the assignment operators `=`, `+=`, etc.;
-* the generator operators `yield` and `yield *`;
+* the assignment operators `=`, `+=`, etc.; and
+* the generator operators `yield` and `yield *`.
 
-It is **tighter** than only the comma operator `,`.\
+It is **tighter** than the comma operator `,`.\
 It is **looser** than **all other** operators.
 
 For example, `v => v |> % == null |> foo(%, 0)`\
@@ -699,15 +700,31 @@ Using a topic reference outside of a pipe body
 is also **invalid syntax**.
 
 To prevent confusing grouping,
-it is **invalid** syntax to use **other** operators that have **similar precedence**
+it is **invalid** syntax to directly use **other** operators
+that have **similar precedence**
 (i.e., the arrow `=>`, the ternary conditional operator `?` `:`,
 the assignment operators, and the `yield` operator)
 as a **pipe head or body**.
 When using `|>` with these operators, we must use **parentheses**
 to explicitly indicate what grouping is correct.
-For example, `a |> b ? % : c |> %.d` is invalid syntax;
-it should be corrected to either `a |> (b ? % : c) |> %.d`
-or `a |> (b ? % : c |> %.d)`.
+
+For example, `a ? b : c |> d(%) |> e(%)` is invalid syntax.
+Parentheses need to be added to explicitly choose
+between `(a ? b : c) |> d(%) |> e(%)` and `a ? b : (c |> d(%) |> e(%))`.
+
+Likewise, `a |> b ? % : c |> d(%)` is invalid syntax.
+Parentheses need to be added: `a |> (b ? % : c) |> d(%)`.
+
+The same goes for `a |> b => c(%) |> d(%)`.
+Parentheses need to be added to explicitly choose
+between `a |> (b => c(%)) |> d(%)`
+and `a |> (b => c(%) |> d(%))`.
+
+(Note: `x = a |> b(%)`, `x => a |> b(%)`, and `yield a |> b(%)` are allowed;
+they group as `x = (a |> b(%))`, `x => (a |> b(%))`, and `yield (a |> b(%))`.
+However, `a |> x = b(%)`, `a |> x = b(%)`, and `a |> yield b(%)` are invalid
+without parentheses. We must use `a |> (x = b(%))`, `a |> (x = b(%))`,
+and `a |> (yield b(%))`.)
 
 Lastly, topic bindings **inside dynamically compiled** code
 (e.g., with `eval` or `new Function`)

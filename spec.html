@@ -142,6 +142,11 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         1. Return *false*.
       </emu-alg>
 
+      <emu-note>
+        <p>This algorithm ensures that the remainder expression `x % 2` is not
+        considered to contain a topic reference.</p>
+      </emu-note>
+
       <emu-grammar>PipeBody : AssignmentExpression</emu-grammar>
 
       <emu-alg>
@@ -660,6 +665,43 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
     </emu-clause>
   </emu-clause>
 
+  <emu-clause id="sec-conditional-operator">
+    <h1>Conditional Operator ( `? :` )</h1>
+    <h2>Syntax</h2>
+    <emu-grammar type="definition">
+      ConditionalExpression[In, Yield, Await] :
+        ShortCircuitExpression[?In, ?Yield, ?Await]
+        ShortCircuitExpression[?In, ?Yield, ?Await] `?` AssignmentExpression[+In, ?Yield, ?Await] `:` AssignmentExpression[?In, ?Yield, ?Await]
+    </emu-grammar>
+
+    <emu-clause id="sec-conditional-operator-static-early-errors">
+      <h1><ins>Static Semantics: Early Errors</ins></h1>
+
+      <emu-note type=editor>
+        <p>This section is a wholly new sub-clause to be inserted at the end of
+        the <a
+        href=https://tc39.github.io/ecma262/#sec-conditional-operator>original
+        Conditional Operator (`?` `:`) clause</a>.</p>
+      </emu-note>
+
+      <emu-grammar>ConditionalExpression : ShortCircuitExpression `?` AssignmentExpression `:` AssignmentExpression</emu-grammar>
+      <emu-alg>
+        1. It is a Syntax Error if |PipeExpression| is covering the first |AssignmentExpression| or the second |AssignmentExpression|.
+      </emu-alg>
+      <emu-note>
+        <p>None of the three expressions that form a ternary
+        |ConditionalExpression| may be an unparenthesized |PipeExpression|.
+        This is to prevent ambiguous expressions such as
+        `a ? b : c |> d(%) |> e(%)`,<br>
+        which may otherwise be parsed equivalently to both
+        `(a ? b : c) |> d(%) |> e(%)` and
+        `a ? b : (c |> d(%) |> e(%))`.<br>
+        Parentheses must be used to explicitly distinguish
+        between the two possible parsings.</p>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
+
   <emu-clause id=sec-pipe-operator>
     <h1><ins>Pipe Operator</ins></h1>
 
@@ -718,7 +760,10 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       </emu-alg>
 
       <emu-note>
-        <p>A |PipeBody| must not be an unparenthesized expression that is formed from any other operator with identical precedence (such as |YieldExpression| or |ArrowFunction|) or from the <emu-xref="#sec-conditional-operator">conditional operator</emu-xref>.</p>
+        <p>A |PipeBody| must not be an unparenthesized expression that is formed
+        from `yield`, `=>`, an assignment operator, or the
+        <emu-xref="#sec-conditional-operator">conditional
+        operator</emu-xref>.</p>
         <p>This is to prevent confusing expressions from being valid, such as
         `x |> yield % |> % + 1`.<br>
         That expression would otherwise be unexpectedly equivalent to
@@ -727,7 +772,8 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         `x |> y ? % : z |> % + 1`.<br>
         would otherwise be unexpectedly equivalent to
         `x |> (y ? % : z |> % + 1)`.</p>
-        <p>Such invalid expressions would become valid with explicit parentheses:
+        <p>Such invalid expressions would become valid with explicit
+        parentheses:
         `x |> (yield %) |> % + 1` or<br>
         `x |> (yield % |> % + 1)`;<br>
         `x |> (y ? % : z) |> % + 1` or<br>
