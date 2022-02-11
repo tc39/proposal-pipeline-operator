@@ -699,8 +699,8 @@ Using a topic reference outside of a pipe body
 is also **invalid syntax**.
 
 To prevent confusing grouping,
-it is **invalid** syntax to use **other** operators that have the **same precedence**
-(the arrow `=>`, the ternary conditional operator `?` `:`,
+it is **invalid** syntax to use **other** operators that have **similar precedence**
+(i.e., the arrow `=>`, the ternary conditional operator `?` `:`,
 the assignment operators, and the `yield` operator)
 as a **pipe head or body**.
 When using `|>` with these operators, we must use **parentheses**
