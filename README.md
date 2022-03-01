@@ -56,7 +56,7 @@ among **many nested parentheses**.
 <details>
 <summary><strong>Real-world example</strong></summary>
 
-Consider this [real-world code from React][react/scripts/jest/jest-cli.js].
+Consider this [real-world code from React](https://github.com/facebook/react/blob/17.0.2/scripts/jest/jest-cli.js#L295).
 
 ```js
 console.log(
