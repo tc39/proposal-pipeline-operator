@@ -250,6 +250,50 @@ and it requests that it be split up into multiple proposals.
 These split proposals would include a proposal specifically
 about [Function.pipe and flow][].
 
+## 2021-12: Holistic-dataflow articles
+Since December, TC39 has continued to discuss the pipe operator in the greater
+context of “dataflow”.
+
+The “dataflow” proposals include the following:
+
+* The [pipe operator][Hack pipes] `… |> …` (aka “Hack pipes”)
+* [Function.pipe][] (a function version of the F# pipe operator)
+* The [bind-this][] operator `…::…` (and its variant [call-this][] `…@(…)`)
+* The [Extensions][] syntaxes `…::…`, `…::…:…`, and `const ::{ … } = …;`
+* [Partial function application][PFA syntax] `…~(…)` (aka “PFA syntax”)
+
+These dataflow proposals overlap in various complicated ways. Multiple TC39
+representatives expressed concerns about redundancies between these
+proposals—that the space as a whole needs to be holistically considered, that
+goals need to be more specifically articulated, and that there is not enough
+“syntax budget” in the language to approve all of these proposals. This applies
+to the pipe operator, as well as all the others in that list.
+
+![][diagram]
+
+* In late December, [@js-choi][] wrote [an article detailing how these
+  proposals overlap][2022-12 jschoi dataflow article].
+* [@tabatkins then wrote a response article](https://www.xanthir.com/b5Gd0) on
+  their own blog.
+* Later, [@hax would also write another response
+  article](https://hackmd.io/yDDJCsS-Sv2AJwo8arAn3w?view). (@hax is a TC39
+  champion of the [Extensions][] syntaxes.)
+
+## 2022-01: Plenary meeting
+On [January 26, 2022, a plenary meeting was held][2022-01 plenary] to discuss these overlapping proposals holistically. This discussion overflowed into an [ad-hoc meeting on the next day][2022-01 overflow].
+
+In these two meetings, TC39 representatives debated over such topics as:
+* Creating a unified language versus accommodating multiple programming paradigms (e.g., object oriented versus functional).
+* [TMTOWTDI][] versus [TOOWTDI][].
+* Whether generalized  language features (like the Hack-style pipe operator) or specialized features (like Function.pipe, the F#-style pipe operator, and the bind-this operator) were more desirable.
+* Whether it is better for language features to be universal or prescriptive in their usage.
+* The merits of specific dataflow proposals, including the pipe operator.
+
+Support among TC39 representatives for the pipe operator as it is now (with a Hack-style topic reference) appears to range from strongly in favor to weakly against. Several representatives reaffirmed that they are moderately or strongly against F#-style syntax. Support for Function.pipe appears to be tepid: neither strongly positive or negative. For more details, see the [conclusions of the ad-hoc overflow meeting][2022-01 overflow conclusions].
+
+## 2022-03: Upcoming
+There is an [upcoming plenary meeting](https://github.com/tc39/agendas/blob/main/2022/03.md). We are planning to continue the holistic dataflow discussion. We are also planning to further [bikeshed the topic reference](https://github.com/tc39/proposal-pipeline-operator/wiki/Bikeshedding-the-Hack-topic-token)’s token, hoping that we will resolving on a final decision. We are not planning to advance the pipe operator to Stage 3 at this meeting, but, if we are able to settle on a final topic token, then we may attempt to advance it at the subsequent meeting in May.
+
 [issues]: https://github.com/tc39/proposal-pipeline-operator/issues?q=is%3Aissue+
 [CONTRIBUTING.md]: https://github.com/tc39/proposal-pipeline-operator/blob/main/CONTRIBUTING.md
 [general information on incubator calls]: https://github.com/tc39/how-we-work/blob/master/incubator-calls.md
@@ -262,6 +306,15 @@ about [Function.pipe and flow][].
 [F# spec]: https://github.com/valtech-nyc/proposal-fsharp-pipelines/
 [smart-mix-pipes spec]: https://github.com/js-choi/proposal-smart-pipelines
 [Hack-pipes spec]: https://github.com/tc39/proposal-hack-pipes
+[Function.pipe]: https://github.com/js-choi/proposal-function-pipe-flow
+[bind-this]: https://github.com/tc39/proposal-bind-this
+[call-this]: https://github.com/tabatkins/proposal-call-this-operator
+[Extensions]: https://github.com/tc39/proposal-extensions
+[PFA syntax]: https://github.com/tc39/proposal-partial-application
+[diagram]: https://jschoi.org/21/es-dataflow/map/
+[Hack pipes]: https://github.com/tc39/proposal-pipeline-operator
+[TMTOWTDI]: https://en.wikipedia.org/wiki/There%27s_more_than_one_way_to_do_it
+[TOOWTDI]: https://wiki.python.org/moin/TOOWTDI
 
 [first pipe preso]: https://docs.google.com/presentation/d/1qiWFzi5dkjuUVGcFXwypuQbEbZk-BV7unX0bYurcQsA/edit#slide=id.g1fa08b5c5c_0_93
 
@@ -282,6 +335,10 @@ about [Function.pipe and flow][].
 [incubator charter 2021-11]: https://github.com/tc39/incubator-agendas/issues/21
 [2021-10 PFA]: https://github.com/tc39/notes/blob/master/meetings/2021-10/oct-25.md#partial-function-application-for-stage-2
 [2021-10 Function]: https://github.com/tc39/notes/blob/master/meetings/2021-10/oct-28.md#function-helpers
+[2022-01 plenary]: https://github.com/tc39/notes/blob/main/meetings/2022-01/jan-26.md#holistic-discussion-of-tc39-dataflow-proposals
+[2022-01 overflow]: https://github.com/tc39/incubator-agendas/blob/main/notes/2022/01-27.md
+[2022-01 overflow conclusions]: https://github.com/tc39/incubator-agendas/blob/main/notes/2022/01-27.md#conclusions
+[2022-12 jschoi dataflow article]: https://jschoi.org/21/es-dataflow/
 
 [TC39 process]: https://tc39.es/process-document/
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
