@@ -986,8 +986,8 @@ const fileP = E(
 ).openFile(fileName);
 
 const fileP = target
-|> E().openDirectory(dirName)
-|> E().openFile(fileName);
+|> E(@).openDirectory(dirName)
+|> E(@).openFile(fileName);
 ```
 
 [eventual-send proposal]: https://github.com/tc39/proposal-eventual-send/
