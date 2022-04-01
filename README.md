@@ -865,9 +865,9 @@ return _reduce(xf(typeof fn === 'function' ? _xwrap(fn) : fn), acc, list);
 
 // With pipes
 return fn
-  |> (typeof @ === 'function' ? _xwrap(@) : )
-  |> xf()
-  |> _reduce(, acc, list);
+  |> (typeof @ === 'function' ? _xwrap(@) : @)
+  |> xf(@)
+  |> _reduce(@, acc, list);
 ```
 
 From [jquery/src/core/init.js][].
