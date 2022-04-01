@@ -718,20 +718,30 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       </emu-alg>
 
       <emu-note>
-        <p>A |PipeBody| must not be an unparenthesized expression that is formed from any other operator with identical precedence (such as |YieldExpression| or |ArrowFunction|) or from the <emu-xref="#sec-conditional-operator">conditional operator</emu-xref>.</p>
-        <p>This is to prevent confusing expressions from being valid, such as
-        `x |> yield % |> % + 1`.<br>
-        That expression would otherwise be unexpectedly equivalent to
-        `x |> (yield % |> % + 1)`.<br>
-        Likewise, the confusing expression
-        `x |> y ? % : z |> % + 1`.<br>
-        would otherwise be unexpectedly equivalent to
-        `x |> (y ? % : z |> % + 1)`.</p>
-        <p>Such invalid expressions would become valid with explicit parentheses:
-        `x |> (yield %) |> % + 1` or<br>
-        `x |> (yield % |> % + 1)`;<br>
-        `x |> (y ? % : z) |> % + 1` or<br>
-        `x |> (y ? % : z |> % + 1)`.</p>
+        <p>A |PipeBody| must not be an unparenthesized |AssignmentExpression|, such as |YieldExpression|, |ArrowFunction|, or |ConditionalExpression|—unless it is a |ShortCircuitExpression|.</p>
+        <p>This is to prevent confusing expressions from being valid, such as:</p>
+        <pre><code class="javascript">
+          x |> yield % |> % + 1 // Syntax Error
+        </code></pre>
+        <p>This expression would otherwise be equivalent to:</p>
+        <pre><code class="javascript">
+          x |> (yield % |> % + 1)
+        </code></pre>
+        <p>Likewise, this expression:</p>
+        <pre><code class="javascript">
+          x |> y ? % : z |> % + 1 // Syntax Error
+        </code></pre>
+        <p>…would otherwise be equivalent to:</p>
+        <pre><code class="javascript">
+          x |> (y ? % : z |> % + 1)
+        </code></pre>
+        <p>These expressions are visually unclear and are therefore made invalid. The developer may make them valid with explicit parentheses:</p>
+        <pre><code class="javascript">
+          x |> (yield %) |> % + 1
+          x |> (yield % |> % + 1)
+          x |> (y ? % : z) |> % + 1
+          x |> (y ? % : z |> % + 1)
+        </code></pre>
       </emu-note>
     </emu-clause>
 
