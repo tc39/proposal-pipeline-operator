@@ -947,7 +947,7 @@ which would use the same general rules as `|>`.
 `+>` would be a **prefix operator** that **creates a new function**,
 which in turn **binds its argument(s)** to topic references.
 **Non-unary functions** would be created
-by including topic references with **numbers** (`0`, `1`, `2`, etc.) or `...`.
+by including topic references with **numbers** (`@0`, `@1`, `@2`, etc.) or `...`.
 `@0` (equivalent to plain `@`) would be bound to the **zeroth argument**,
 `@1` would be bound to the next argument, and so on.
 `@...` would be bound to an array of **rest arguments**.
