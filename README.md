@@ -881,9 +881,9 @@ jQuery.merge( this, jQuery.parseHTML(
 
 // With pipes
 context
-  |> ( && .nodeType ? .ownerDocument ||  : document)
-  |> jQuery.parseHTML(match[1], , true)
-  |> jQuery.merge();
+  |> (@ && @.nodeType ? @.ownerDocument || @ : document)
+  |> jQuery.parseHTML(match[1], @, true)
+  |> jQuery.merge(@);
 ```
 
 [ramda.js]: https://github.com/ramda/ramda/blob/v0.27.1/dist/ramda.js
