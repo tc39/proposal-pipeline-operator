@@ -17,10 +17,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
   several new or revised clauses. See <a
   href=https://github.com/js-choi/proposal-hack-pipes/blob/main/README.md>the proposal's
   explainer</a> for the proposal's background, motivation, and usage examples.</p>
-
-  <p>This document presumptively uses `%` as the token
-  for the topic reference. This choice of token is not a final decision;
-  `%` could instead be `^` or some other token.</p>
 </emu-intro>
 
 <emu-clause id="sec-syntax-directed-operations">
@@ -37,16 +33,12 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <p>This section augments the <a
         href=https://tc39.es/ecma262/#sec-static-semantics-isfunctiondefinition>original
         IsFunctionDefinition clause</a>.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <emu-grammar>
         PrimaryExpression :
           `this`
-          <ins>`%`</ins>
+          <ins>`@`</ins>
           IdentifierReference
           Literal
           ArrayLiteral
@@ -70,10 +62,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <p>This section augments the <a
         href=https://tc39.es/ecma262/#sec-static-semantics-isidentifierref>original IsIdentifierRef
         clause</a>.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <emu-grammar>PrimaryExpression : IdentifierReference</emu-grammar>
@@ -83,7 +71,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <emu-grammar>
         PrimaryExpression :
           `this`
-          <ins>`%`</ins>
+          <ins>`@`</ins>
           Literal
           ArrayLiteral
           ObjectLiteral
@@ -116,7 +104,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <emu-note>
         <p>Several early error rules for |ScriptBody| and for
         |ModuleItemList|, as well as a step in CreateDynamicFunction,
-        use the ContainsOuterTopic operation to check for any unbound topic reference `%`.
+        use the ContainsOuterTopic operation to check for any unbound topic reference `@`.
         Any inner topic reference within a |PipeBody| is hidden from these rules,
         preventing them from triggering the rules during program
         compilation.</p>
@@ -130,15 +118,27 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
 
       <emu-alg>
         1. For each child node _child_ of this Parse Node, do
-          1. If _child_ is an instance of `%`, return *true*.
+          1. If _child_ is an instance of `@`, return *true*.
           1. If _child_ is an instance of a nonterminal, and if ContainsOuterTopic of _child_ is *true*, return *true*.
         1. Return *false*.
       </emu-alg>
 
-      <emu-grammar>MultiplicativeExpression : MultiplicativeExpression MultiplicativeOperator ExponentiationExpression</emu-grammar>
+      <emu-grammar>
+        Decorator : `@` DecoratorParenthesizedExpression
+      </emu-grammar>
 
       <emu-alg>
-        1. If ContainsOuterTopic of |MultiplicativeExpression| is *true*, or if ContainsOuterTopic of |ExponentiationExpression| is *true*, return *true*.
+        1. If ContainsOuterTopic of |DecoratorParenthesizedExpression| is *true*, return *true*.
+        1. Return *false*.
+      </emu-alg>
+
+      <emu-grammar>
+        Decorator :
+          `@` DecoratorMemberExpression
+          `@` DecoratorCallExpression
+      </emu-grammar>
+
+      <emu-alg>
         1. Return *false*.
       </emu-alg>
 
@@ -161,16 +161,12 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <p>This section augments the <a
         href=https://tc39.es/ecma262/#sec-static-semantics-assignmenttargettype>original
         AssignmentTargetType clause</a>.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <emu-grammar>
         PrimaryExpression :
           `this`
-          <ins>`%`</ins>
+          <ins>`@`</ins>
           Literal
           ArrayLiteral
           ObjectLiteral
@@ -235,10 +231,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
           <p>This section augments the <a
           href=https://tc39.github.io/ecma262/#sec-declarative-environment-records
           >original Declarative Environment Records clause</a>.</p>
-
-          <p>It presumptively uses `%` as the placeholder token for the
-          topic reference. This choice of token is not a final decision; `%`
-          could instead be `^` or some other token.</p>
         </emu-note>
 
         <ins class=block>
@@ -410,14 +402,10 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <p>This section is a wholly new sub-clause of the <a
         href=https://tc39.github.io/ecma262/#sec-environment-records>original
         Environment Records clause</a>.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <p>The <dfn>topic binding</dfn> of a declarative Environment Record
-      immutably binds the topic reference `%` to one value of any
+      immutably binds the topic reference `@` to one value of any
       ECMAScript language type (called the <dfn>topic value</dfn> or simply
       the <dfn>topic</dfn>), within that declarative Environment Record, at
       the time of the Environment Record's instantiation. The topic of a
@@ -525,10 +513,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <p>This section augments the <a
       href=https://tc39.github.io/ecma262/#sec-punctuators>original
       Punctuators clause</a>.</p>
-
-      <p>It presumptively uses `%` as the placeholder token for the
-      topic reference. This choice of token is not a final decision; `%`
-      could instead be `^` or some other token.</p>
     </emu-note>
 
     <emu-grammar>
@@ -540,20 +524,15 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         `+` `-` `*` `%` `**`
         `++` `--`
         `&lt;&lt;` `&gt;&gt;` `&gt;&gt;&gt;`
-        `&amp;` `|` `%`
+        `&amp;` `|` `^`
         `!` `~`
         `&amp;&amp;` `||` `??`
         `?` `:`
         <ins>`|&gt;`</ins>
-        `=` `+=` `-=` `*=` <del>`%=`</del> `**=`
+        `=` `+=` `-=` `*=` `%=` `**=`
         `&lt;&lt;=` `&gt;&gt;=` `&gt;&gt;&gt;=` `&amp;=` `|=` `^=`
         `&amp;&amp;=` `||=` `??=`
         `=&gt;`
-
-      DivPunctuator ::
-        `/`
-        `/=`
-        <ins>`%=`</ins>
     </emu-grammar>
   </emu-clause>
 </emu-clause>
@@ -568,17 +547,13 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <p>This section augments the <a
       href=https://tc39.github.io/ecma262/#sec-primary-expression>original
       Primary Expression clause</a>.</p>
-
-      <p>It presumptively uses `%` as the placeholder token for the
-      topic reference. This choice of token is not a final decision; `%`
-      could instead be `^` or some other token.</p>
     </emu-note>
 
     <h2>Syntax</h2>
     <emu-grammar type="definition">
       PrimaryExpression[Yield, Await] :
         `this`
-        <ins>`%`</ins>
+        <ins>`@`</ins>
         IdentifierReference[?Yield, ?Await]
         Literal
         ArrayLiteral[?Yield, ?Await]
@@ -602,18 +577,14 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         Keyword clause</a> and the <a
         href=https://tc39.github.io/ecma262/#sec-identifier-reference>original
         Identifier Reference clause</a>.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <emu-note>
-        <p>The <dfn>topic reference</dfn>, which is the token `%`, is a
+        <p>The <dfn>topic reference</dfn>, which is the token `@`, is a
         nullary operator that evaluates to the current Environment Record's
         topic value. The topic reference acts as if it were a special variable,
         implicitly bound to the topic value, yet still lexically scoped. But
-        `%` is not actually an |IdentifierName| and the topic reference is
+        `@` is not actually an |IdentifierName| and the topic reference is
         not a variable, and it cannot be bound by typical assignment.
         Instead, the topic reference is immutably bound to a value
         during the instantiation of any topic-binding environment by a |PipeBody|.</p>
@@ -630,7 +601,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         All unbound topic references are invalid syntax.
         Several early error rules for |ScriptBody| and for
         |ModuleItemList|, as well as a step in CreateDynamicFunction,
-        use ContainsOuterTopic to check for any unbound topic reference `%`.
+        use ContainsOuterTopic to check for any unbound topic reference `@`.
         Any inner topic reference within a |PipeBody| is hidden from these rules,
         preventing them from triggering the rules during program
         compilation.</p>
@@ -651,7 +622,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
           These rules use ContainsOuterTopic to check for any unbound topic reference.</p>
         </emu-note>
 
-        <emu-grammar>PrimaryExpression : `%`</emu-grammar>
+        <emu-grammar>PrimaryExpression : `@`</emu-grammar>
         <emu-alg>
         1. Return GetPrimaryTopicValue().
         </emu-alg>
@@ -674,6 +645,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
     <emu-grammar type=definition>
       PipeExpression[In, Yield, Await] :
         ShortCircuitExpression[?In, ?Yield, ?Await] `|&gt;` PipeBody[?In, ?Yield, ?Await]
+        ShortCircuitExpression[?In, ?Yield, ?Await] `|&gt;` DecoratorList[?Yield, ?Await] [lookahead &ne; `class`] Expression[?In, ?Yield, ?Await]
 
       PipeBody[In, Yield, Await] :
         AssignmentExpression[?In, ?Yield, ?Await]
@@ -683,10 +655,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <h1>Static Semantics: Early Errors</h1>
       <emu-note type=editor>
         <p>This section is a wholly new sub-clause.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <emu-grammar>PipeBody : AssignmentExpression</emu-grammar>
@@ -720,27 +688,68 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <p>A |PipeBody| must not be an unparenthesized |AssignmentExpression|, such as |YieldExpression|, |ArrowFunction|, or |ConditionalExpression|—unless it is a |ShortCircuitExpression|.</p>
         <p>This is to prevent confusing expressions from being valid, such as:</p>
         <pre><code class="javascript">
-          x |> yield % |> % + 1 // Syntax Error
+          x |> yield @ |> @ + 1 // Syntax Error
         </code></pre>
         <p>This expression would otherwise be equivalent to:</p>
         <pre><code class="javascript">
-          x |> (yield % |> % + 1)
+          x |> (yield @ |> @ + 1)
         </code></pre>
         <p>Likewise, this expression:</p>
         <pre><code class="javascript">
-          x |> y ? % : z |> % + 1 // Syntax Error
+          x |> y ? @ : z |> @ + 1 // Syntax Error
         </code></pre>
-        <p>…would otherwise be equivalent to:</p>
+        <p>would otherwise be equivalent to:</p>
         <pre><code class="javascript">
-          x |> (y ? % : z |> % + 1)
+          x |> (y ? @ : z |> @ + 1)
         </code></pre>
         <p>These expressions are visually unclear and are therefore made invalid. The developer may make them valid with explicit parentheses:</p>
         <pre><code class="javascript">
-          x |> (yield %) |> % + 1
-          x |> (yield % |> % + 1)
-          x |> (y ? % : z) |> % + 1
-          x |> (y ? % : z |> % + 1)
+          x |> (yield @) |> @ + 1
+          x |> (yield @ |> @ + 1)
+          x |> (y ? @ : z) |> @ + 1
+          x |> (y ? @ : z |> @ + 1)
         </code></pre>
+      </emu-note>
+
+      <emu-grammar>PipeBody : AssignmentExpression</emu-grammar>
+      <emu-alg>
+        1. It is a Syntax Error if one of the following productions is covering |PipeBody|:
+            * |DecoratorList| `class` |BindingIdentifier| |ClassTail|
+            * |DecoratorList| `class` |ClassTail|
+      </emu-alg>
+
+      <emu-note>
+        <p>A |PipeBody| must not be an unparenthesized |ClassExpression| with a |Decorator|.</p>
+        <p>This is to prevent confusing expressions from being valid, such as:</p>
+        <pre><code class="javascript">
+          x |> @(expr)
+          class C {} // Syntax Error
+        </code></pre>
+        <p>This code would otherwise be equivalent to:</p>
+        <pre><code class="javascript">
+          x |> (@(expr) class C {});
+        </code></pre>
+        <p>i.e., a single |ExpressionStatement|, containing a |PipeBody| that is a |ClassExpression| with a |Decorator|.</p>
+        <p>This behavior may be unexpected to some developers. They may expect automatic semicolon insertion (<emu-xref href="#sec-automatic-semicolon-insertion"></emu-xref>) to cause the expression to be instead equivalent to two statements:</p>
+        <pre><code class="javascript">
+          x |> @(expr);
+          class C {}
+        </code></pre>
+        <p>i.e., an |ExpressionStatement|, containing a |PipeBody| that is a function call on the topic reference—followed by a |ClassDeclaration|.</p>
+        <p>This expression is visually unclear and is therefore made invalid. The developer must use parentheses or semicolons to explicitly specify which of these two interpretations is desired.</p>
+      </emu-note>
+
+      <emu-grammar>PipeExpression : ShortCircuitExpression `|&gt;` DecoratorList Expression</emu-grammar>
+      <ul>
+        <li>It is a Syntax Error if any source text is matched by this production.</li>
+      </ul>
+      <emu-note>
+        <p>This production exists to prevent automatic semicolon insertion rules (<emu-xref href="#sec-automatic-semicolon-insertion"></emu-xref>) to be applied to the following code:</p>
+        <pre><code class="javascript">
+          x |> @(expr)
+          function f () {} // Syntax Error
+        </code></pre>
+        <p>Automatic semicolon insertion in that code would complicate future extensions of decorators (<emu-xref href="#sec-decorators"></emu-xref>) to decorate expressions such as function expressions (<emu-xref href="#sec-function-definitions"></emu-xref>) and object literals (<emu-xref href="#sec-decorators"></emu-xref>).</p>
       </emu-note>
     </emu-clause>
 
@@ -768,10 +777,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
       <p>This section augments the <a
       href=https://tc39.github.io/ecma262/#sec-scripts>original
       Scripts clause</a>.</p>
-
-      <p>It presumptively uses `%` as the placeholder token for the
-      topic reference. This choice of token is not a final decision; `%`
-      could instead be `^` or some other token.</p>
     </emu-note>
 
     <emu-clause id="sec-scripts-static-semantics-early-errors">
@@ -809,10 +814,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
         <p>This section augments the <a
         href=https://tc39.github.io/ecma262/#sec-module-semantics>original
         Module Semantics clause</a>.</p>
-
-        <p>It presumptively uses `%` as the placeholder token for the
-        topic reference. This choice of token is not a final decision; `%`
-        could instead be `^` or some other token.</p>
       </emu-note>
 
       <emu-clause id="sec-module-semantics-static-semantics-early-errors">
@@ -861,10 +862,6 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
             <p>This section augments the <a
             href=https://tc39.github.io/ecma262/#sec-createdynamicfunction>original
             CreateDynamicFunction clause</a>.</p>
-
-            <p>It presumptively uses `%` as the placeholder token for the
-            topic reference. This choice of token is not a final decision; `%`
-            could instead be `^` or some other token.</p>
           </emu-note>
 
           <emu-alg>
@@ -922,7 +919,7 @@ contributors: J. S. Choi, James DiGioia, Ron Buckton, Tab Atkins-Bittner
             1. NOTE: If this step is reached, _sourceText_ must match _exprSym_ (although the reverse implication does not hold). The purpose of the next two steps is to enforce any Early Error rules which apply to _exprSym_ directly.
             1. Let _expr_ be ParseText(_sourceText_, _exprSym_).
             1. If _expr_ is a List of errors, throw a *SyntaxError* exception.
-            1. <ins>NOTE: The dynamic function must not contain an unbound topic reference `%`.)</ins>
+            1. <ins>NOTE: The dynamic function must not contain an unbound topic reference `@`.)</ins>
             1. <ins>If ContainsOuterTopic of _expr_ is *true*, throw a *SyntaxError* exception.</ins>
             1. Let _proto_ be ? GetPrototypeFromConstructor(_newTarget_, _fallbackProto_).
             1. Let _realmF_ be the current Realm Record.

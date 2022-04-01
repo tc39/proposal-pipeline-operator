@@ -12,7 +12,7 @@
   },
   "scripts": {
     "prebuild": "mkdir -p dist",
-    "build": "ecmarkup --verbose spec.html dist/index.html",
+    "build": "ecmarkup --verbose spec.html --load-biblio ./biblio-decorators.json dist/index.html",
     "watch": "npm run build -- --watch"
   }
 }
