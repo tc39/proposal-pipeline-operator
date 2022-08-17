@@ -291,8 +291,15 @@ In these two meetings, TC39 representatives debated over such topics as:
 
 Support among TC39 representatives for the pipe operator as it is now (with a Hack-style topic reference) appears to range from strongly in favor to weakly against. Several representatives reaffirmed that they are moderately or strongly against F#-style syntax. Support for Function.pipe appears to be tepid: neither strongly positive or negative. For more details, see the [conclusions of the ad-hoc overflow meeting][2022-01 overflow conclusions].
 
-## 2022-03: Upcoming
-There is an [upcoming plenary meeting](https://github.com/tc39/agendas/blob/main/2022/03.md). We are planning to continue the holistic dataflow discussion. We are also planning to further [bikeshed the topic reference](https://github.com/tc39/proposal-pipeline-operator/wiki/Bikeshedding-the-Hack-topic-token)’s token, hoping that we will resolving on a final decision. We are not planning to advance the pipe operator to Stage 3 at this meeting, but, if we are able to settle on a final topic token, then we may attempt to advance it at the subsequent meeting in May.
+## 2022-03 and 2022-04
+At the [2022-03 plenary, several candidate tokens for the topic reference were presented][2022-03 plenary pipe]. The Committee mildly preferred `@` as the topic reference. (However, a [delegate subsequently raised serious concerns about `@`][2022-04 serious @ concerns], and thus `@` was excluded again as a topic reference.)
+
+Additionally, an [update about call-this was also presented at the plenary][2022-03 plenary call-this]. The call-this proposal continues to polarize the Committee due to ecosystem-schism concerns.
+
+## 2022-07
+[In the plenary on July 21, proposal-function-pipe-flow was formally presented to the Committee, and it was rejected for Stage 1][2022-07 plenary]. The Committee generally found its use cases not compelling enough compared to the pipe operator. Its champion subsequently withdrew it from consideration. (Eventually, after the pipe operator gains users, pain points with the pipe operator may be enough motivation to revive proposal-function-pipe-flow, but that would not occur for a long time.)
+
+There is another [incubator call chartered for more pipe-operator bikeshedding](https://github.com/tc39/incubator-agendas/issues/26), which might or might not occur before the [September plenary](https://github.com/tc39/agendas/blob/main/2022/09.md).
 
 [issues]: https://github.com/tc39/proposal-pipeline-operator/issues?q=is%3Aissue+
 [CONTRIBUTING.md]: https://github.com/tc39/proposal-pipeline-operator/blob/main/CONTRIBUTING.md
@@ -339,6 +346,10 @@ There is an [upcoming plenary meeting](https://github.com/tc39/agendas/blob/main
 [2022-01 overflow]: https://github.com/tc39/incubator-agendas/blob/main/notes/2022/01-27.md
 [2022-01 overflow conclusions]: https://github.com/tc39/incubator-agendas/blob/main/notes/2022/01-27.md#conclusions
 [2022-12 jschoi dataflow article]: https://jschoi.org/21/es-dataflow/
+[2022-03 plenary pipe]: https://github.com/tc39/notes/blob/main/meetings/2022-03/mar-29.md#bikeshedding-the-pipe-operator-topic-token
+[2022-03 plenary call-this]: https://github.com/tc39/notes/blob/main/meetings/2022-03/mar-29.md#bikeshedding-call-this-syntax
+[2022-04 serious @ concerns]: https://github.com/tc39/proposal-pipeline-operator/issues/91#issuecomment-1084946624
+[2022-07 plenary]: https://github.com/tc39/notes/blob/main/meetings/2022-07/jul-21.md#functionpipe--flow-for-stage-1
 
 [TC39 process]: https://tc39.es/process-document/
 [Gist]: https://gist.github.com/tabatkins/1261b108b9e6cdab5ad5df4b8021bcb5
