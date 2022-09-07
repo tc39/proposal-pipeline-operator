@@ -464,7 +464,7 @@ through the three functions.
 `left |> right` becomes `right(left)`.
 This is called [tacit programming or point-free style][tacit].
 
-[F# pipes]: https://github.com/tc39/proposal-pipeline-operator/
+[F# pipes]: https://github.com/valtech-nyc/proposal-fsharp-pipelines
 [tacit]: https://en.wikipedia.org/wiki/Tacit_programming
 
 <details>
