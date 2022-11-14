@@ -8,10 +8,10 @@
 * **[Proposal history][]**
 * **Babel plugin**: [Implemented in v7.15][Babel 7.15]. See [Babel documentation][].
 
-(This document presumptively uses `%`
+(This document uses `%`
 as the placeholder token for the topic reference.
-This [choice of token is not a final decision][token bikeshedding];
-`%` could instead be `^`, or many other tokens.)
+This will ***almost certainly not be the final choice***;
+see [the token bikeshedding discussion][token bikeshedding] for details.)
 
 [specification]: http://tc39.github.io/proposal-pipeline-operator/
 [Babel 7.15]: https://babeljs.io/blog/2021/07/26/7.15.0#hack-style-pipeline-operator-support-13191httpsgithubcombabelbabelpull13191-13416httpsgithubcombabelbabelpull13416
