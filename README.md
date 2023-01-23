@@ -338,7 +338,7 @@ const envVarFormat = vars =>
 
 ```js
 const envVarFormat = (vars) => {
-  let _ = Object.keys(vars);
+  let _ = Object.keys(vars)
     .map(var => `${var}=${vars[var]}`);
     .join(' ');
   return chalk.dim(_, 'node', args.join(' '));
