@@ -122,7 +122,7 @@ There is even a name for this style of programming:
 [fluent interfaces]: https://en.wikipedia.org/wiki/Fluent_interface
 
 Unfortunately, for all of its fluency,
-**method chaining** alone cannot accomodate JavaScript’s **other syntaxes**:
+**method chaining** alone cannot accommodate JavaScript’s **other syntaxes**:
 function calls, arithmetic, array/object literals, `await` and `yield`, etc.
 In this way, method chaining remains **limited** in its **applicability**.
 
