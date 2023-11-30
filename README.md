@@ -907,7 +907,7 @@ For example, `f~(?1, ?0)` would have two parameters but would switch them when c
 The **second approach** is with a **lazily** evaluated syntax.
 This could be handled with an **extension to Hack pipes**,
 with a syntax further inspired by
-[Clojure’s `#(^1 ^2)` function literals][Clojure function literals].
+[Clojure’s `#(%1 %2)` function literals][Clojure function literals].
 It would do so by **combining** the Hack pipe `|>`
 with the **arrow function** `=>`
 into a **pipe-function** operator `+>`,
